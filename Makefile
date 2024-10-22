@@ -1,6 +1,6 @@
 OBJS=des.o
 TARGET=des
-CXXFLAGS=-Wall
+CXXFLAGS=-O2 -Wall
 
 ifdef DEBUG
 CXXFLAGS+=-g -DDEBUG
