@@ -7,7 +7,7 @@ namespace des
 template <std::size_t N> class bitset : public std::bitset<N>
 {
   public:
-    using std::bitset<N>::bitset; // 继承 std::bitset 的构造函数
+    using std::bitset<N>::bitset;    // 继承 std::bitset 的构造函数
     using std::bitset<N>::operator=; // 继承 std::bitset 的赋值运算符
 
     // 重载[]运算符，支持从左向右索引，返回可修改的引用
