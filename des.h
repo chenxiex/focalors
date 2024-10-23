@@ -2,7 +2,7 @@
 #define DES_H
 #include <bitset>
 
-namespace des
+namespace crypt
 {
 template <std::size_t N> class bitset : public std::bitset<N>
 {
@@ -22,8 +22,8 @@ template <std::size_t N> class bitset : public std::bitset<N>
         return std::bitset<N>::operator[](N - 1 - pos); // 左向右索引
     }
 };
-void des_encrypt(des::bitset<64> &ciphertext, const des::bitset<64> &plaintext, const des::bitset<64> &key);
-void des_decrypt(des::bitset<64> &plaintext, const des::bitset<64> &ciphertext, const des::bitset<64> &key);
-} // namespace des
+void des_encrypt(crypt::bitset<64> &ciphertext, const crypt::bitset<64> &plaintext, const crypt::bitset<64> &key);
+void des_decrypt(crypt::bitset<64> &plaintext, const crypt::bitset<64> &ciphertext, const crypt::bitset<64> &key);
+} // namespace crypt
 
 #endif // DES_H

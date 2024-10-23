@@ -1,7 +1,7 @@
 #include "des.h"
 #include "des_const.h"
 #include <array>
-using des::bitset;
+using crypt::bitset;
 using std::array;
 
 #ifdef DEBUG
@@ -120,6 +120,11 @@ void ip_1(bitset<64> &result, const bitset<64> &bits)
         result[i] = bits[IP_1[i] - 1];
     }
 }
+
+} // namespace des
+namespace crypt
+{
+using namespace des;
 void des_encrypt(bitset<64> &ciphertext, const bitset<64> &plaintext, const bitset<64> &key)
 {
     array<bitset<48>, 16> subkeys;
@@ -156,7 +161,7 @@ void des_decrypt(bitset<64> &plaintext, const bitset<64> &ciphertext, const bits
     }
     ip_1(plaintext, encrypted);
 }
-} // namespace des
+} // namespace crypt
 
 #ifdef DEBUG
 int main()
@@ -164,11 +169,11 @@ int main()
     bitset<64> key("0011000100110010001100110011010000110101001101100011011100111000");
     bitset<64> plaintext("0011000000110001001100100011001100110100001101010011011000110111");
     bitset<64> ciphertext;
-    des::des_encrypt(ciphertext, plaintext, key);
+    crypt::des_encrypt(ciphertext, plaintext, key);
     cout << "ciphertext: " << ciphertext << endl;
     bitset<64> decrypted;
-    des::des_decrypt(decrypted, ciphertext, key);
-    cout<< "decrypted: " << decrypted << endl;
-    cout<<(decrypted==plaintext)<<endl;
+    crypt::des_decrypt(decrypted, ciphertext, key);
+    cout << "decrypted: " << decrypted << endl;
+    cout << (decrypted == plaintext) << endl;
 }
 #endif
