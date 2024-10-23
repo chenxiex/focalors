@@ -4,12 +4,6 @@
 using crypt::bitset;
 using std::array;
 
-#ifdef DEBUG
-#include <iostream>
-using std::cout;
-using std::endl;
-#endif
-
 namespace des
 {
 bitset<28> left_shift(const bitset<28> &bits, const int &n)
@@ -164,18 +158,3 @@ void des_decrypt(bitset<64> &plaintext, const bitset<64> &ciphertext, const bits
     ip_1(plaintext, encrypted);
 }
 } // namespace crypt
-
-#ifdef DEBUG
-int main()
-{
-    bitset<64> key("0011000100110010001100110011010000110101001101100011011100111000");
-    bitset<64> plaintext("0011000000110001001100100011001100110100001101010011011000110111");
-    bitset<64> ciphertext;
-    crypt::des_encrypt(ciphertext, plaintext, key);
-    cout << "ciphertext: " << ciphertext << endl;
-    bitset<64> decrypted;
-    crypt::des_decrypt(decrypted, ciphertext, key);
-    cout << "decrypted: " << decrypted << endl;
-    cout << (decrypted == plaintext) << endl;
-}
-#endif
