@@ -1,13 +1,18 @@
-OBJS=des.o
-TARGET=des
+OBJS=des.o main.o group-mode.o
+TARGET=crypt
 CXXFLAGS=-O2 -Wall
 
 ifdef DEBUG
-CXXFLAGS+=-g -DDEBUG
-$(TARGET) : $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $<
+CXXFLAGS=-g -Wall -DDEBUG
 endif
-$(OBJS) : des.cpp des.h crypt.h
-	$(CXX) $(CXXFLAGS) -c des.cpp
+
+$(TARGET) : $(OBJS) 
+	$(CXX) $(CXXFLAGS) -o $@ $^
+des.o : des.cpp des.h crypt.h group-mode.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+main.o : main.cpp crypt.h group-mode.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+group-mode.o : group-mode.cpp group-mode.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 clean:
-	rm $(OBJS) $(TARGET)
+	-rm $(OBJS) $(TARGET)
