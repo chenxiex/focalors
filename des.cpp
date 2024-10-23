@@ -127,6 +127,7 @@ namespace crypt
 using namespace des;
 void des_encrypt(bitset<64> &ciphertext, const bitset<64> &plaintext, const bitset<64> &key)
 {
+    ciphertext &= 0;
     array<bitset<48>, 16> subkeys;
     generate_subkeys(subkeys, key);
     bitset<32> l, r;
@@ -145,6 +146,7 @@ void des_encrypt(bitset<64> &ciphertext, const bitset<64> &plaintext, const bits
 }
 void des_decrypt(bitset<64> &plaintext, const bitset<64> &ciphertext, const bitset<64> &key)
 {
+    plaintext &= 0;
     array<bitset<48>, 16> subkeys;
     generate_subkeys(subkeys, key);
     bitset<32> l, r;
