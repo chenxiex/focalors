@@ -10,4 +10,4 @@ endif
 $(OBJS) : des.cpp des.h des_const.h
 	$(CXX) $(CXXFLAGS) -c des.cpp
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm $(OBJS) $(TARGET)
