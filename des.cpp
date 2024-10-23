@@ -1,5 +1,5 @@
 #include "des.h"
-#include "des_const.h"
+#include "crypt.h"
 #include <array>
 using crypt::bitset;
 using std::array;
