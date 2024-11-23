@@ -1,6 +1,6 @@
 OBJS=des.o main.o group-mode.o
 TARGET=crypt
-CXXFLAGS=-O2 -Wall
+CXXFLAGS=-O3 -Wall
 
 ifdef DEBUG
 CXXFLAGS=-g -Wall -DDEBUG
