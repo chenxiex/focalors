@@ -1,11 +1,11 @@
-#include "group-mode.h"
+#include "bcm.h"
 #include <cmath>
 #include <string>
 #include <vector>
 using std::string;
 using std::vector;
 
-namespace group_mode
+namespace bcm
 {
 void split_input_stream(vector<string> &text, const string &input, const int s)
 {
@@ -27,4 +27,4 @@ void merge_output_stream(string &output, const vector<string> &text)
         output += *i;
     }
 }
-} // namespace group_mode
+} // namespace bcm

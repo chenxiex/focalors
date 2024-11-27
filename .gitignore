@@ -1,3 +1,5 @@
 .vscode
+.clangd
+*.d
 test.*
 key.txt

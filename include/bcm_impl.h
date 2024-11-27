@@ -1,10 +1,9 @@
-#ifndef GROUP_MODE_H
-#define GROUP_MODE_H
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include <functional>
-namespace group_mode
+#pragma once
+#ifndef bcm_IMPL_H
+#define bcm_IMPL_H
+#include "crypt.h"
+#include "bcm.h"
+namespace bcm
 {
 template <typename T> void split_input(std::vector<T> &text, const std::string &input)
 {
@@ -19,9 +18,6 @@ template <typename T> void split_input(std::vector<T> &text, const std::string &
         text.push_back(T(input.substr(i, length)));
     }
 }
-
-void split_input_stream(std::vector<std::string> &text, const std::string &input, const int s);
-
 template <typename T> void merge_output(std::string &output, const std::vector<T> &text)
 {
     output.clear();
@@ -30,25 +26,23 @@ template <typename T> void merge_output(std::string &output, const std::vector<T
         output += i->to_string();
     }
 }
-
-void merge_output_stream(std::string &output, const std::vector<std::string> &text);
-} // namespace group_mode
+} // namespace bcm
 
 namespace crypt
 {
-template <typename T>
-void ecb(std::string &output_string, const std::string &input_string, const T &key,
-         std::function<void(T &output, const T &input, const T &key)> crypt_func)
+template <typename BT,typename KT>
+void ecb(std::string &output_string, const std::string &input_string, const KT &key,
+         std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
     output_string.clear();
-    std::vector<T> input, output;
-    group_mode::split_input(input, input_string);
+    std::vector<BT> input, output;
+    bcm::split_input(input, input_string);
     output.resize(input.size());
     for (auto i = input.begin(), j = output.begin(); i != input.end() && j != output.end(); i++, j++)
     {
         crypt_func(*j, *i, key);
     }
-    group_mode::merge_output(output_string, output);
+    bcm::merge_output(output_string, output);
 }
 
 template <typename T>
@@ -57,7 +51,7 @@ void cbc(std::string &output_string, const std::string &input_string, const T &k
 {
     output_string.clear();
     std::vector<T> input, output;
-    group_mode::split_input(input, input_string);
+    bcm::split_input(input, input_string);
     output.resize(input.size());
     for (auto i = input.begin(), j = output.begin(); i != input.end() && j != output.end(); i++, j++)
     {
@@ -88,7 +82,7 @@ void cbc(std::string &output_string, const std::string &input_string, const T &k
             }
         }
     }
-    group_mode::merge_output(output_string, output);
+    bcm::merge_output(output_string, output);
 }
 
 template <typename T>
@@ -103,7 +97,7 @@ void ofb(std::string &output_string, const std::string &input_string, const T &k
     T r, e;
     r = seed;
     std::vector<std::string> splited_input_string;
-    group_mode::split_input_stream(splited_input_string, input_string, s);
+    bcm::split_input_stream(splited_input_string, input_string, s);
     for (auto i = splited_input_string.begin(); i != splited_input_string.end(); i++)
     {
         crypt_func(e, r, key);
@@ -114,7 +108,7 @@ void ofb(std::string &output_string, const std::string &input_string, const T &k
         r <<= s;
         r |= e & T(std::string(s, '1'));
     }
-    group_mode::merge_output_stream(output_string, splited_input_string);
+    bcm::merge_output_stream(output_string, splited_input_string);
 }
 
 template <typename T>
@@ -129,7 +123,7 @@ void cfb(std::string &output_string, const std::string &input_string, const T &k
     T r, e;
     r = seed;
     std::vector<std::string> splited_input_string;
-    group_mode::split_input_stream(splited_input_string, input_string, s);
+    bcm::split_input_stream(splited_input_string, input_string, s);
     for (auto i = splited_input_string.begin(); i != splited_input_string.end(); i++)
     {
         crypt_func(e, r, key);
@@ -152,7 +146,7 @@ void cfb(std::string &output_string, const std::string &input_string, const T &k
         }
         *i = stream_out.to_string().substr(stream_out.size() - i->size(), i->size());
     }
-    group_mode::merge_output_stream(output_string, splited_input_string);
+    bcm::merge_output_stream(output_string, splited_input_string);
 }
 } // namespace crypt
 #endif

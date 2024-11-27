@@ -1,18 +1,25 @@
-OBJS=des.o main.o group-mode.o
+SRCS=des.cpp main.cpp bcm.cpp type.cpp aes.cpp
+OBJS = $(SRCS:.cpp=.o)
+DEPS = $(SRCS:.cpp=.d)
 TARGET=crypt
-CXXFLAGS=-O3 -Wall
+CXXFLAGS=-O3 -Wall -Iinclude/
 
 ifdef DEBUG
-CXXFLAGS=-g -Wall -DDEBUG
+CXXFLAGS+=-g
 endif
+
+.PHONY: clean
 
 $(TARGET) : $(OBJS) 
 	$(CXX) $(CXXFLAGS) -o $@ $^
-des.o : des.cpp des.h crypt.h group-mode.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-main.o : main.cpp crypt.h group-mode.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-group-mode.o : group-mode.cpp group-mode.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%.d: %.cpp
+	$(CXX) $(CXXFLAGS) -MM -MF $@ $<
+
+include $(DEPS)
+
 clean:
-	-rm $(OBJS) $(TARGET)
+	-rm $(OBJS) $(TARGET) $(DEPS)
