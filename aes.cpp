@@ -9,8 +9,12 @@ using std::vector;
 #ifdef DEBUG
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
+#include <string>
+using std::cin;
 using std::cout;
 using std::endl;
+using std::string;
 std::string hex_to_binary_string(const std::string &hex)
 {
     std::stringstream ss;
@@ -321,12 +325,6 @@ void aes_encrypt(crypt::bitset<BN> &ciphertext, const crypt::bitset<BN> &plainte
     vector<crypt::word> cipher_key(nk);
     bitset2vectorword(cipher_key, key);
     key_expansion(cipher_key, w, nk);
-#ifdef DEBUG
-    for (auto i : w)
-    {
-        cout << binary_to_hex_string(i.to_string()) << endl;
-    }
-#endif
     vector<crypt::word> state(nb);
     bitset2vectorword(state, plaintext);
     add_round_key(state, w, 0);
@@ -375,15 +373,55 @@ template void aes_decrypt<128, 256>(crypt::bitset<128> &plaintext, const crypt::
 #ifdef DEBUG
 int main()
 {
-    crypt::bitset<128> plaintext(hex_to_binary_string("0001000101a198afda78173486153566"));
-    crypt::bitset<256> key(hex_to_binary_string("00012001710198aeda7917146015359400012001710198aeda79171460153594"));
-    crypt::bitset<128> ciphertext;
-    crypt::aes_encrypt(ciphertext, plaintext, key);
-    crypt::bitset<128> decrypted;
-    crypt::aes_decrypt(decrypted, ciphertext, key);
-    // std::cout << binary_to_hex_string(ciphertext.to_string());
-    // std::cout << std::endl;
-    // std::cout << binary_to_hex_string(decrypted.to_string());
-    // std::cout<<crypt::word("00000001000000100000001100000100").get_byte(0);
+    cout << "AES-128加密解密" << endl;
+    cout << "[1]加密 [2]解密" << endl;
+    cout << "请输入操作序号" << endl;
+    int choice;
+    cin >> choice;
+    switch (choice)
+    {
+    case 1: {
+        string plaintext_str, key_str;
+        cout << "请输入明文(16进制)：";
+        cin >> plaintext_str;
+        cout << "请输入密钥(16进制)：";
+        cin >> key_str;
+        if (plaintext_str.size() != 32 || key_str.size() != 32)
+        {
+            throw std::invalid_argument("输入长度错误");
+        }
+        crypt::bitset<128> plaintext(hex_to_binary_string(plaintext_str));
+        crypt::bitset<128> key(hex_to_binary_string(key_str));
+        crypt::bitset<128> ciphertext;
+        crypt::aes_encrypt(ciphertext, plaintext, key);
+        cout << "明文：" << plaintext_str << endl;
+        cout << "密钥：" << key_str << endl;
+        cout << "密文：" << binary_to_hex_string(ciphertext.to_string()) << endl;
+        break;
+    }
+    case 2: {
+        string ciphertext_str, key_str;
+        cout << "请输入密文(16进制)：";
+        cin >> ciphertext_str;
+        cout << "请输入密钥(16进制)：";
+        cin >> key_str;
+        if (ciphertext_str.size() != 32 || key_str.size() != 32)
+        {
+            throw std::invalid_argument("输入长度错误");
+        }
+        crypt::bitset<128> ciphertext(hex_to_binary_string(ciphertext_str));
+        crypt::bitset<128> key(hex_to_binary_string(key_str));
+        crypt::bitset<128> plaintext;
+        crypt::aes_decrypt(plaintext, ciphertext, key);
+        cout << "密文：" << ciphertext_str << endl;
+        cout << "密钥：" << key_str << endl;
+        cout << "明文：" << binary_to_hex_string(plaintext.to_string()) << endl;
+        break;
+    }
+    default:
+        throw std::invalid_argument("无效操作序号");
+        break;
+    }
+    return 0;
 }
 #endif
