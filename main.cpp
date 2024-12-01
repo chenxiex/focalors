@@ -128,6 +128,7 @@ int main(int argc, char *argv[])
             {
             case 'h':
                 print_help();
+                return 0;
                 break;
             case 'k':
                 args["key"] = optarg;
@@ -175,6 +176,7 @@ int main(int argc, char *argv[])
         }
         else if (args.count("file") == 0)
         {
+            print_help();
             throw std::invalid_argument("No input");
         }
         else
