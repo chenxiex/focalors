@@ -114,15 +114,15 @@ int main(int argc, char *argv[])
 {
     // 解析参数
     struct option long_options[] = {
-        {"help", no_argument, NULL, 'h'},       {"key", required_argument, NULL, 'k'},
-        {"decrypt", no_argument, NULL, 'd'},    {"algorithm", required_argument, NULL, 'a'},
-        {"bcm", required_argument, NULL, 'm'},  {"encoding", no_argument, NULL, 'e'},
-        {"file", required_argument, NULL, 'f'}, {"seed", required_argument, NULL, 's'},
-        {"size", required_argument, NULL, 'z'}, {"key-file", required_argument, NULL, 'K'},
-    };
+        {"help", no_argument, NULL, 'h'},           {"key", required_argument, NULL, 'k'},
+        {"decrypt", no_argument, NULL, 'd'},        {"algorithm", required_argument, NULL, 'a'},
+        {"bcm", required_argument, NULL, 'm'},      {"encoding", no_argument, NULL, 'e'},
+        {"file", required_argument, NULL, 'f'},     {"seed", required_argument, NULL, 's'},
+        {"size", required_argument, NULL, 'z'},     {"key-file", required_argument, NULL, 'K'},
+        {"seed-file", required_argument, NULL, 'S'}};
     {
         int opt;
-        while ((opt = getopt_long(argc, argv, "hk:da:m:e:f:s:z:K:", long_options, NULL)) != -1)
+        while ((opt = getopt_long(argc, argv, "hk:da:m:e:f:s:z:K:S:", long_options, NULL)) != -1)
         {
             switch (opt)
             {
@@ -155,6 +155,9 @@ int main(int argc, char *argv[])
                 break;
             case 'K':
                 args["key-file"] = optarg;
+                break;
+            case 'S':
+                args["seed-file"] = optarg;
                 break;
             default:
                 print_help();
@@ -191,6 +194,20 @@ int main(int argc, char *argv[])
             {
                 std::ifstream file(args["key-file"]);
                 file >> args["key"];
+                file.close();
+            }
+        }
+
+        if (args.count("seed") == 0)
+        {
+            if (args.count("seed-file") == 0)
+            {
+                throw std::invalid_argument("No seed");
+            }
+            else
+            {
+                std::ifstream file(args["seed-file"]);
+                file >> args["seed"];
                 file.close();
             }
         }
