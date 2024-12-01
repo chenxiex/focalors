@@ -14,9 +14,25 @@ using std::endl;
 using std::string;
 using std::variant;
 std::unordered_map<string, string> args = {
-    {"decrypt", "false"}, {"algorithm", "des"}, {"bcm", "ecb"}, {"encoding", "binary"}, {"seed", string(64, '0')}};
+    {"decrypt", "false"}, {"algorithm", "des"}, {"bcm", "ecb"}, {"encoding", "binary"}};
 void print_help()
 {
+    // 用中文打印Unix风格的帮助信息
+    cout << "用法: crypt [选项]... [输入]\n"
+            "加密或解密输入\n"
+            "\n"
+            "  -h, --help          显示此帮助信息并退出\n"
+            "  -k, --key=KEY       使用KEY作为密钥\n"
+            "  -d, --decrypt       解密模式\n"
+            "  -a, --algorithm=ALG 使用ALG算法\n"
+            "  -m, --bcm=M         使用M分组模式\n"
+            "  -e, --encoding=ENC  使用ENC编码\n"
+            "  -f, --file=FILE     从FILE读取输入\n"
+            "  -s, --seed=SEED     使用SEED作为初始向量\n"
+            "  -z, --size=SIZE     "
+            "当使用CFB或OFB分组模式时，SIZE是每次参与异或的明文长度；当使用X_CBC分组模式时，SIZE是填充数据长度。\n"
+            "  -K, --key-file=FILE 从FILE读取密钥\n"
+            "\n";
     return;
 }
 string ascii_to_binary_string(const string &input)
@@ -86,6 +102,14 @@ void aes_cfb(string &output, const string &input, const variant<bitset<128>, bit
 {
     crypt::cfb(output, input, std::get<bitset<KN>>(key), seed, s, decrypt, std::function(crypt::aes_encrypt<128, KN>));
 }
+template <size_t KN>
+void aes_x_cbc(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &k1,
+               const bitset<128> &k2, const bitset<128> &k3, const bitset<128> &z, const bool &decrypt,
+               const size_t padding)
+{
+    crypt::x_cbc(output, input, std::get<bitset<KN>>(k1), k2, k3, z, decrypt, padding,
+                 std::function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
+}
 int main(int argc, char *argv[])
 {
     // 解析参数
@@ -131,6 +155,7 @@ int main(int argc, char *argv[])
                 break;
             case 'K':
                 args["key-file"] = optarg;
+                break;
             default:
                 print_help();
                 break;
@@ -191,18 +216,21 @@ int main(int argc, char *argv[])
     string output;
     if (args["algorithm"] == "des")
     {
-        if (args["key"].size() != 64)
-        {
-            throw std::invalid_argument("Invalid key size");
-        }
-
         if (args["bcm"] == "ecb")
         {
+            if (args["key"].size() != 64)
+            {
+                throw std::invalid_argument("Invalid key size");
+            }
             crypt::ecb(output, args["input"], bitset<64>(args["key"]),
                        std::function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
         }
         else if (args["bcm"] == "cbc")
         {
+            if (args["key"].size() != 64)
+            {
+                throw std::invalid_argument("Invalid key size");
+            }
             if (args["seed"].size() != 64)
             {
                 throw std::invalid_argument("Invalid seed size");
@@ -213,6 +241,10 @@ int main(int argc, char *argv[])
         }
         else if (args["bcm"] == "ofb")
         {
+            if (args["key"].size() != 64)
+            {
+                throw std::invalid_argument("Invalid key size");
+            }
             if (args["seed"].size() != 64)
             {
                 throw std::invalid_argument("Invalid seed size");
@@ -226,6 +258,10 @@ int main(int argc, char *argv[])
         }
         else if (args["bcm"] == "cfb")
         {
+            if (args["key"].size() != 64)
+            {
+                throw std::invalid_argument("Invalid key size");
+            }
             if (args["seed"].size() != 64)
             {
                 throw std::invalid_argument("Invalid seed size");
@@ -237,6 +273,25 @@ int main(int argc, char *argv[])
             crypt::cfb(output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]),
                        std::stoi(args["size"]), args["decrypt"] == "true", std::function(crypt::des_encrypt));
         }
+        else if (args["bcm"] == "x_cbc")
+        {
+            if (args["key"].size() != 192)
+            {
+                throw std::invalid_argument("Invalid key size");
+            }
+            if (args["seed"].size() != 64)
+            {
+                throw std::invalid_argument("Invalid seed size");
+            }
+            if (args.count("size") == 0)
+            {
+                throw std::invalid_argument("No size");
+            }
+            bitset<64> k1(args["key"].substr(0, 64)), k2(args["key"].substr(64, 64)), k3(args["key"].substr(128, 64));
+            crypt::x_cbc(output, args["input"], k1, k2, k3, bitset<64>(args["seed"]), args["decrypt"] == "true",
+                         stoi(args["size"]),
+                         std::function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
+        }
         else
         {
             throw std::invalid_argument("Invalid group mode");
@@ -245,19 +300,46 @@ int main(int argc, char *argv[])
     else if (args["algorithm"] == "aes")
     {
         variant<bitset<128>, bitset<192>, bitset<256>> key;
-        switch (args["key"].size())
+        bitset<128> k2, k3;
+        if (args["bcm"] == "x_cbc")
         {
-        case 128:
-            key = bitset<128>(args["key"]);
-            break;
-        case 192:
-            key = bitset<192>(args["key"]);
-            break;
-        case 256:
-            key = bitset<256>(args["key"]);
-            break;
-        default:
-            throw std::invalid_argument("Invalid key size");
+            switch (args["key"].size())
+            {
+            case 384:
+                key = bitset<128>(args["key"].substr(0, 128));
+                k2 = bitset<128>(args["key"].substr(128, 128));
+                k3 = bitset<128>(args["key"].substr(256, 128));
+                break;
+            case 448:
+                key = bitset<192>(args["key"].substr(0, 192));
+                k2 = bitset<128>(args["key"].substr(192, 128));
+                k3 = bitset<128>(args["key"].substr(320, 128));
+                break;
+            case 512:
+                key = bitset<256>(args["key"].substr(0, 256));
+                k2 = bitset<128>(args["key"].substr(256, 128));
+                k3 = bitset<128>(args["key"].substr(384, 128));
+                break;
+            default:
+                throw std::invalid_argument("Invalid key size");
+            }
+        }
+        else
+        {
+            switch (args["key"].size())
+            {
+            case 128:
+                key = bitset<128>(args["key"]);
+                break;
+            case 192:
+                key = bitset<192>(args["key"]);
+                break;
+            case 256:
+                key = bitset<256>(args["key"]);
+                break;
+            default:
+                throw std::invalid_argument("Invalid key size");
+            }
         }
 
         if (args["bcm"] == "ecb")
@@ -343,11 +425,35 @@ int main(int argc, char *argv[])
                 break;
             }
         }
+        else if (args["bcm"] == "x_cbc")
+        {
+            if (args["seed"].size() != 128)
+            {
+                throw std::invalid_argument("Invalid seed size");
+            }
+            switch (args["key"].size())
+            {
+            case 384:
+                aes_x_cbc<128>(output, args["input"], key, k2, k3, bitset<128>(args["seed"]), args["decrypt"] == "true",
+                               std::stoi(args["size"]));
+                break;
+            case 448:
+                aes_x_cbc<192>(output, args["input"], key, k2, k3, bitset<128>(args["seed"]), args["decrypt"] == "true",
+                               std::stoi(args["size"]));
+                break;
+            case 512:
+                aes_x_cbc<256>(output, args["input"], key, k2, k3, bitset<128>(args["seed"]), args["decrypt"] == "true",
+                               std::stoi(args["size"]));
+                break;
+            }
+        }
         else
         {
             throw std::invalid_argument("Invalid block cipher mode");
         }
     }
+
+    // 输出结果
     if (args["encoding"] == "hex")
     {
         output = binary_to_hex_string(output);

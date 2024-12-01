@@ -15,7 +15,7 @@ template <typename T> void split_input(std::vector<T> &text, const std::string &
     text.clear();
     for (size_t i = 0; i < input.size(); i += length)
     {
-        text.push_back(T(input.substr(i, length)));
+        text.emplace_back(input.substr(i, length));
     }
 }
 template <typename T> void merge_output(std::string &output, const std::vector<T> &text)
@@ -147,6 +147,76 @@ void cfb(std::string &output_string, const std::string &input_string, const KT &
         *i = stream_out.to_string().substr(stream_out.size() - i->size(), i->size());
     }
     bcm::merge_output_stream(output_string, splited_input_string);
+}
+template <typename BT, typename KT>
+void x_cbc(std::string &output_string, const std::string &input_string, const KT &k1, const BT &k2, const BT &k3,
+           const BT &z, const bool &decrypt, const size_t padding,
+           std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
+{
+    output_string.clear();
+    std::vector<BT> input, output;
+    if (padding && !decrypt)
+    {
+        std::string input_string_padded = input_string;
+        input_string_padded += "1" + std::string(padding - 1, '0');
+        bcm::split_input(input, input_string_padded);
+    }
+    else
+    {
+        bcm::split_input(input, input_string);
+    }
+    output.resize(input.size());
+    for (auto i = input.begin(), j = output.begin(); i != input.end() && j != output.end(); i++, j++)
+    {
+        if (i + 1 != input.end() && j + 1 != output.end())
+        {
+            if (decrypt)
+            {
+                crypt_func(*j, *i, k1);
+                if (i == input.begin())
+                {
+                    *j ^= z;
+                }
+                else
+                {
+                    *j ^= *(i - 1);
+                }
+            }
+            else
+            {
+                if (i == input.begin())
+                {
+                    BT temp = *i;
+                    temp ^= z;
+                    crypt_func(*j, temp, k1);
+                }
+                else
+                {
+                    BT temp = BT((*i) ^ (*(j - 1)));
+                    crypt_func(*j, temp, k1);
+                }
+            }
+        }
+        else
+        {
+            auto &key = padding ? k3 : k2;
+            if (decrypt)
+            {
+                crypt_func(*j, *i, k1);
+                *j ^= *(i - 1) ^ key;
+            }
+            else
+            {
+                BT temp = BT((*i) ^ (*(j - 1)) ^ key);
+                crypt_func(*j, temp, k1);
+            }
+        }
+    }
+    bcm::merge_output(output_string, output);
+    if (padding && decrypt)
+    {
+        output_string = output_string.substr(0, output_string.size() - padding);
+    }
 }
 } // namespace crypt
 #endif
