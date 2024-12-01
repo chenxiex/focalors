@@ -1,8 +1,8 @@
 #pragma once
 #ifndef bcm_IMPL_H
 #define bcm_IMPL_H
-#include "crypt.h"
 #include "bcm.h"
+#include "crypt.h"
 namespace bcm
 {
 template <typename T> void split_input(std::vector<T> &text, const std::string &input)
@@ -30,7 +30,7 @@ template <typename T> void merge_output(std::string &output, const std::vector<T
 
 namespace crypt
 {
-template <typename BT,typename KT>
+template <typename BT, typename KT>
 void ecb(std::string &output_string, const std::string &input_string, const KT &key,
          std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
@@ -45,12 +45,12 @@ void ecb(std::string &output_string, const std::string &input_string, const KT &
     bcm::merge_output(output_string, output);
 }
 
-template <typename T>
-void cbc(std::string &output_string, const std::string &input_string, const T &key, const T &z, const bool &decrypt,
-         std::function<void(T &output, const T &input, const T &key)> crypt_func)
+template <typename BT, typename KT>
+void cbc(std::string &output_string, const std::string &input_string, const KT &key, const BT &z, const bool &decrypt,
+         std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
     output_string.clear();
-    std::vector<T> input, output;
+    std::vector<BT> input, output;
     bcm::split_input(input, input_string);
     output.resize(input.size());
     for (auto i = input.begin(), j = output.begin(); i != input.end() && j != output.end(); i++, j++)
@@ -71,13 +71,13 @@ void cbc(std::string &output_string, const std::string &input_string, const T &k
         {
             if (i == input.begin())
             {
-                T temp = *i;
+                BT temp = *i;
                 temp ^= z;
                 crypt_func(*j, temp, key);
             }
             else
             {
-                T temp = T((*i) ^ (*(j - 1)));
+                BT temp = BT((*i) ^ (*(j - 1)));
                 crypt_func(*j, temp, key);
             }
         }
@@ -85,51 +85,51 @@ void cbc(std::string &output_string, const std::string &input_string, const T &k
     bcm::merge_output(output_string, output);
 }
 
-template <typename T>
-void ofb(std::string &output_string, const std::string &input_string, const T &key, const T &seed, const size_t &s,
-         std::function<void(T &output, const T &input, const T &key)> crypt_func)
+template <typename BT, typename KT>
+void ofb(std::string &output_string, const std::string &input_string, const KT &key, const BT &seed, const size_t &s,
+         std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
     output_string.clear();
-    if (s > T().size() || s < 1)
+    if (s > BT().size() || s < 1)
     {
-        throw std::invalid_argument("Invalid s");
+        throw std::invalid_argument("Invalid size");
     }
-    T r, e;
+    BT r, e;
     r = seed;
     std::vector<std::string> splited_input_string;
     bcm::split_input_stream(splited_input_string, input_string, s);
     for (auto i = splited_input_string.begin(); i != splited_input_string.end(); i++)
     {
         crypt_func(e, r, key);
-        T stream_out = e;
-        stream_out ^= T(*i);
-        stream_out &= T(std::string(i->size(), '1'));
+        BT stream_out = e;
+        stream_out ^= BT(*i);
+        stream_out &= BT(std::string(i->size(), '1'));
         *i = stream_out.to_string().substr(stream_out.size() - i->size(), i->size());
         r <<= s;
-        r |= e & T(std::string(s, '1'));
+        r |= e & BT(std::string(s, '1'));
     }
     bcm::merge_output_stream(output_string, splited_input_string);
 }
 
-template <typename T>
-void cfb(std::string &output_string, const std::string &input_string, const T &key, const T &seed, const size_t &s,
-         const bool &decrypt, std::function<void(T &output, const T &input, const T &key)> crypt_func)
+template <typename BT, typename KT>
+void cfb(std::string &output_string, const std::string &input_string, const KT &key, const BT &seed, const size_t &s,
+         const bool &decrypt, std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
     output_string.clear();
-    if (s > T().size() || s < 1)
+    if (s > BT().size() || s < 1)
     {
-        throw std::invalid_argument("Invalid s");
+        throw std::invalid_argument("Invalid size");
     }
-    T r, e;
+    BT r, e;
     r = seed;
     std::vector<std::string> splited_input_string;
     bcm::split_input_stream(splited_input_string, input_string, s);
     for (auto i = splited_input_string.begin(); i != splited_input_string.end(); i++)
     {
         crypt_func(e, r, key);
-        T stream_out = e;
-        stream_out ^= T(*i);
-        stream_out &= T(std::string(i->size(), '1'));
+        BT stream_out = e;
+        stream_out ^= BT(*i);
+        stream_out &= BT(std::string(i->size(), '1'));
         if (i + 1 == splited_input_string.end())
         {
             *i = stream_out.to_string().substr(stream_out.size() - i->size(), i->size());
@@ -138,7 +138,7 @@ void cfb(std::string &output_string, const std::string &input_string, const T &k
         r <<= s;
         if (decrypt)
         {
-            r |= T(*i);
+            r |= BT(*i);
         }
         else
         {

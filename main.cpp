@@ -7,17 +7,19 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <variant>
 using crypt::bitset;
 using std::cout;
 using std::endl;
 using std::string;
+using std::variant;
 std::unordered_map<string, string> args = {
-    {"decrypt", "false"}, {"algorithm", "des"}, {"group-mode", "ecb"}, {"binary", "false"}, {"seed", string(64, '0')}};
+    {"decrypt", "false"}, {"algorithm", "des"}, {"bcm", "ecb"}, {"encoding", "binary"}, {"seed", string(64, '0')}};
 void print_help()
 {
     return;
 }
-string string_to_binary(const string &input)
+string ascii_to_binary_string(const string &input)
 {
     std::stringstream ss;
     for (char c : input)
@@ -26,23 +28,77 @@ string string_to_binary(const string &input)
     }
     return ss.str();
 }
+string binary_to_ascii_string(const string &input)
+{
+    std::stringstream ss;
+    for (size_t i = 0; i < input.size(); i += 8)
+    {
+        std::bitset<8> b(input.substr(i, 8));
+        ss << static_cast<char>(b.to_ulong());
+    }
+    return ss.str();
+}
+std::string hex_to_binary_string(const std::string &hex)
+{
+    std::stringstream ss;
+    for (size_t i = 0; i < hex.size(); ++i)
+    {
+        unsigned int n;
+        std::stringstream(hex.substr(i, 1)) >> std::hex >> n;
+        ss << std::bitset<4>(n);
+    }
+    return ss.str();
+}
+std::string binary_to_hex_string(const std::string &binary)
+{
+    std::stringstream ss;
+    for (size_t i = 0; i < binary.size(); i += 4)
+    {
+        std::bitset<4> b(binary.substr(i, 4));
+        ss << std::hex << b.to_ulong();
+    }
+    return ss.str();
+}
+template <size_t KN>
+void aes_ecb(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
+             const bool &decrypt)
+{
+    crypt::ecb(output, input, std::get<bitset<KN>>(key),
+               std::function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
+}
+template <size_t KN>
+void aes_cbc(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
+             const bitset<128> &seed, const bool &decrypt)
+{
+    crypt::cbc<bitset<128>, bitset<KN>>(
+        output, input, std::get<bitset<KN>>(key), seed, decrypt,
+        std::function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
+}
+template <size_t KN>
+void aes_ofb(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
+             const bitset<128> &seed, const size_t &s)
+{
+    crypt::ofb(output, input, std::get<bitset<KN>>(key), seed, s, std::function(crypt::aes_encrypt<128, KN>));
+}
+template <size_t KN>
+void aes_cfb(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
+             const bitset<128> &seed, const size_t &s, const bool &decrypt)
+{
+    crypt::cfb(output, input, std::get<bitset<KN>>(key), seed, s, decrypt, std::function(crypt::aes_encrypt<128, KN>));
+}
 int main(int argc, char *argv[])
 {
+    // 解析参数
     struct option long_options[] = {
-        {"help", no_argument, NULL, 'h'},
-        {"key", required_argument, NULL, 'k'},
-        {"decrypt", no_argument, NULL, 'd'},
-        {"algorithm", required_argument, NULL, 'a'},
-        {"group-mode", required_argument, NULL, 'g'},
-        {"binary", no_argument, NULL, 'b'},
-        {"file", required_argument, NULL, 'f'},
-        {"seed", required_argument, NULL, 's'},
-        {"size", required_argument, NULL, 'z'},
-        {"key-file", required_argument, NULL, 'K'},
+        {"help", no_argument, NULL, 'h'},       {"key", required_argument, NULL, 'k'},
+        {"decrypt", no_argument, NULL, 'd'},    {"algorithm", required_argument, NULL, 'a'},
+        {"bcm", required_argument, NULL, 'm'},  {"encoding", no_argument, NULL, 'e'},
+        {"file", required_argument, NULL, 'f'}, {"seed", required_argument, NULL, 's'},
+        {"size", required_argument, NULL, 'z'}, {"key-file", required_argument, NULL, 'K'},
     };
     {
         int opt;
-        while ((opt = getopt_long(argc, argv, "hk:da:g:bf:s:z:K:", long_options, NULL)) != -1)
+        while ((opt = getopt_long(argc, argv, "hk:da:m:e:f:s:z:K:", long_options, NULL)) != -1)
         {
             switch (opt)
             {
@@ -58,11 +114,11 @@ int main(int argc, char *argv[])
             case 'a':
                 args["algorithm"] = optarg;
                 break;
-            case 'g':
-                args["group-mode"] = optarg;
+            case 'm':
+                args["bcm"] = optarg;
                 break;
-            case 'b':
-                args["binary"] = "true";
+            case 'e':
+                args["encoding"] = optarg;
                 break;
             case 'f':
                 args["file"] = optarg;
@@ -114,12 +170,25 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (args["binary"] == "false")
+        if (args["encoding"] == "ascii")
         {
-            args["input"] = string_to_binary(args["input"]);
-            args["key"] = string_to_binary(args["key"]);
+            args["input"] = ascii_to_binary_string(args["input"]);
+        }
+        else if (args["encoding"] == "hex")
+        {
+            args["input"] = hex_to_binary_string(args["input"]);
+            args["key"] = hex_to_binary_string(args["key"]);
+            args["seed"] = hex_to_binary_string(args["seed"]);
+        }
+
+        if (args["decrypt"] != "true" && args["decrypt"] != "false")
+        {
+            throw std::invalid_argument("Argument decrypt must be true or false");
         }
     }
+
+    // 执行算法
+    string output;
     if (args["algorithm"] == "des")
     {
         if (args["key"].size() != 64)
@@ -127,24 +196,22 @@ int main(int argc, char *argv[])
             throw std::invalid_argument("Invalid key size");
         }
 
-        string output;
-
-        if (args["group-mode"] == "ecb")
+        if (args["bcm"] == "ecb")
         {
             crypt::ecb(output, args["input"], bitset<64>(args["key"]),
                        std::function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
         }
-        else if (args["group-mode"] == "cbc")
+        else if (args["bcm"] == "cbc")
         {
             if (args["seed"].size() != 64)
             {
                 throw std::invalid_argument("Invalid seed size");
             }
-            crypt::cbc(output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]),
-                       args["decrypt"] == "true",
-                       std::function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
+            crypt::cbc<bitset<64>, bitset<64>>(
+                output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]), args["decrypt"] == "true",
+                std::function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
         }
-        else if (args["group-mode"] == "ofb")
+        else if (args["bcm"] == "ofb")
         {
             if (args["seed"].size() != 64)
             {
@@ -157,7 +224,7 @@ int main(int argc, char *argv[])
             crypt::ofb(output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]),
                        std::stoi(args["size"]), std::function(crypt::des_encrypt));
         }
-        else if (args["group-mode"] == "cfb")
+        else if (args["bcm"] == "cfb")
         {
             if (args["seed"].size() != 64)
             {
@@ -174,6 +241,120 @@ int main(int argc, char *argv[])
         {
             throw std::invalid_argument("Invalid group mode");
         }
-        cout << output<<endl;
     }
+    else if (args["algorithm"] == "aes")
+    {
+        variant<bitset<128>, bitset<192>, bitset<256>> key;
+        switch (args["key"].size())
+        {
+        case 128:
+            key = bitset<128>(args["key"]);
+            break;
+        case 192:
+            key = bitset<192>(args["key"]);
+            break;
+        case 256:
+            key = bitset<256>(args["key"]);
+            break;
+        default:
+            throw std::invalid_argument("Invalid key size");
+        }
+
+        if (args["bcm"] == "ecb")
+        {
+            switch (args["key"].size())
+            {
+            case 128:
+                aes_ecb<128>(output, args["input"], key, args["decrypt"] == "true");
+                break;
+            case 192:
+                aes_ecb<192>(output, args["input"], key, args["decrypt"] == "true");
+                break;
+            case 256:
+                aes_ecb<256>(output, args["input"], key, args["decrypt"] == "true");
+                break;
+            }
+        }
+        else if (args["bcm"] == "cbc")
+        {
+            if (args["seed"].size() != 128)
+            {
+                throw std::invalid_argument("Invalid seed size");
+            }
+            switch (args["key"].size())
+            {
+            case 128:
+                aes_cbc<128>(output, args["input"], key, bitset<128>(args["seed"]), args["decrypt"] == "true");
+                break;
+            case 192:
+                aes_cbc<192>(output, args["input"], key, bitset<128>(args["seed"]), args["decrypt"] == "true");
+                break;
+            case 256:
+                aes_cbc<256>(output, args["input"], key, bitset<128>(args["seed"]), args["decrypt"] == "true");
+                break;
+            }
+        }
+        else if (args["bcm"] == "ofb")
+        {
+            if (args["seed"].size() != 128)
+            {
+                throw std::invalid_argument("Invalid seed size");
+            }
+            if (args.count("size") == 0)
+            {
+                throw std::invalid_argument("No size");
+            }
+            switch (args["key"].size())
+            {
+            case 128:
+                aes_ofb<128>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]));
+                break;
+            case 192:
+                aes_ofb<192>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]));
+                break;
+            case 256:
+                aes_ofb<256>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]));
+                break;
+            }
+        }
+        else if (args["bcm"] == "cfb")
+        {
+            if (args["seed"].size() != 128)
+            {
+                throw std::invalid_argument("Invalid seed size");
+            }
+            if (args.count("size") == 0)
+            {
+                throw std::invalid_argument("No size");
+            }
+            switch (args["key"].size())
+            {
+            case 128:
+                aes_cfb<128>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]),
+                             args["decrypt"] == "true");
+                break;
+            case 192:
+                aes_cfb<192>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]),
+                             args["decrypt"] == "true");
+                break;
+            case 256:
+                aes_cfb<256>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]),
+                             args["decrypt"] == "true");
+                break;
+            }
+        }
+        else
+        {
+            throw std::invalid_argument("Invalid block cipher mode");
+        }
+    }
+    if (args["encoding"] == "hex")
+    {
+        output = binary_to_hex_string(output);
+    }
+    else if (args["encoding"] == "ascii")
+    {
+        output = binary_to_ascii_string(output);
+    }
+    cout << output << endl;
 }
