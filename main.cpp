@@ -28,10 +28,12 @@ void print_help()
             "  -m, --bcm=M         使用M分组模式\n"
             "  -e, --encoding=ENC  使用ENC编码\n"
             "  -f, --file=FILE     从FILE读取输入\n"
-            "  -s, --seed=SEED     使用SEED作为初始向量\n"
+            "  -s, --seed=SEED     "
+            "当使用CBC，CFG，OFB或X_CBC分组模式时，使用SEED作为初始向量；当使用CTR分组模式时，SEED为计数序列\n"
             "  -z, --size=SIZE     "
             "当使用CFB或OFB分组模式时，SIZE是每次参与异或的明文长度；当使用X_CBC分组模式时，SIZE是填充数据长度。\n"
             "  -K, --key-file=FILE 从FILE读取密钥\n"
+            "  -S, --seed-file=FILE 从FILE读取SEED\n"
             "\n";
     return;
 }
@@ -109,6 +111,12 @@ void aes_x_cbc(string &output, const string &input, const variant<bitset<128>, b
 {
     crypt::x_cbc(output, input, std::get<bitset<KN>>(k1), k2, k3, z, decrypt, padding,
                  std::function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
+}
+template <size_t KN>
+void aes_ctr(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
+             const string &seed_string)
+{
+    crypt::ctr(output, input, std::get<bitset<KN>>(key), seed_string, std::function(crypt::aes_encrypt<128, KN>));
 }
 int main(int argc, char *argv[])
 {
@@ -311,6 +319,14 @@ int main(int argc, char *argv[])
                          stoi(args["size"]),
                          std::function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
         }
+        else if (args["bcm"] == "ctr")
+        {
+            if (args["key"].size() != 64)
+            {
+                throw std::invalid_argument("Invalid key size");
+            }
+            crypt::ctr(output, args["input"], bitset<64>(args["key"]), args["seed"], std::function(crypt::des_encrypt));
+        }
         else
         {
             throw std::invalid_argument("Invalid group mode");
@@ -463,6 +479,21 @@ int main(int argc, char *argv[])
             case 512:
                 aes_x_cbc<256>(output, args["input"], key, k2, k3, bitset<128>(args["seed"]), args["decrypt"] == "true",
                                std::stoi(args["size"]));
+                break;
+            }
+        }
+        else if (args["bcm"] == "ctr")
+        {
+            switch (args["key"].size())
+            {
+            case 128:
+                aes_ctr<128>(output, args["input"], key, args["seed"]);
+                break;
+            case 192:
+                aes_ctr<192>(output, args["input"], key, args["seed"]);
+                break;
+            case 256:
+                aes_ctr<256>(output, args["input"], key, args["seed"]);
                 break;
             }
         }

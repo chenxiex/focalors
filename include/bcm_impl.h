@@ -218,5 +218,45 @@ void x_cbc(std::string &output_string, const std::string &input_string, const KT
         output_string = output_string.substr(0, output_string.size() - padding);
     }
 }
+template <typename BT, typename KT>
+void ctr(std::string &output_string, const std::string &input_string, const KT &key, const std::string &seed_string,
+         std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
+{
+    output_string.clear();
+    if (seed_string.size() % BT().size() != 0 || seed_string.size() < input_string.size())
+    {
+        throw std::invalid_argument("Invalid seed length");
+    }
+    std::vector<BT> seed;
+    bcm::split_input(seed, seed_string);
+    std::vector<BT> input, output;
+    size_t padding = 0;
+    if (input_string.size() % BT().size() != 0)
+    {
+        std::string padded_input_string = input_string;
+        while (padded_input_string.size() % BT().size() != 0)
+        {
+            padded_input_string += "0";
+            padding++;
+        }
+        bcm::split_input(input, padded_input_string);
+    }
+    else
+    {
+        bcm::split_input(input, input_string);
+    }
+    output.resize(input.size());
+    for (auto i = input.begin(), j = output.begin(), k = seed.begin(); i != input.end(); i++, j++, k++)
+    {
+        BT o;
+        crypt_func(o, *k, key);
+        *j = *i ^ o;
+    }
+    bcm::merge_output(output_string, output);
+    if (padding)
+    {
+        output_string = output_string.substr(0, output_string.size() - padding);
+    }
+}
 } // namespace crypt
 #endif

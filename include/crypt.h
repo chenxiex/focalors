@@ -73,6 +73,9 @@ template <typename BT, typename KT>
 void x_cbc(std::string &output_string, const std::string &input_string, const KT &k1, const BT &k2, const BT &k3,
            const BT &z, const bool &decrypt, const size_t padding,
            std::function<void(BT &output, const BT &input, const KT &key)> crypt_func);
+template <typename BT, typename KT>
+void ctr(std::string &output_string, const std::string &input_string, const KT &key, const std::string &seed_string,
+         std::function<void(BT &output, const BT &input, const KT &key)> crypt_func);
 } // namespace crypt
 #include "bcm_impl.h"
 #include "type_impl.h"
