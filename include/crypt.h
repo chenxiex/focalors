@@ -61,6 +61,10 @@ template <typename BT, typename KT>
 void ecb(std::string &output_string, const std::string &input_string, const KT &key,
          std::function<void(BT &output, const BT &input, const KT &key)> crypt_func);
 template <typename BT, typename KT>
+void ecb_stream_cipher_padding(std::string &output_string, const std::string &input_string, const KT &key,
+                               const BT &seed, const bool &decrypt,
+                               std::function<void(BT &output, const BT &input, const KT &key)> crypt_func, std::function<void(BT &output, const BT &input, const KT &key)> encrypt_func);
+template <typename BT, typename KT>
 void cbc(std::string &output_string, const std::string &input_string, const KT &key, const BT &z, const bool &decrypt,
          std::function<void(BT &output, const BT &input, const KT &key)> crypt_func);
 template <typename BT, typename KT>

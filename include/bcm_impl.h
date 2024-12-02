@@ -46,6 +46,63 @@ void ecb(std::string &output_string, const std::string &input_string, const KT &
 }
 
 template <typename BT, typename KT>
+void ecb_stream_cipher_padding(std::string &output_string, const std::string &input_string, const KT &key,
+                               const BT &seed, const bool &decrypt,
+                               std::function<void(BT &output, const BT &input, const KT &key)> crypt_func,
+                               std::function<void(BT &output, const BT &input, const KT &key)> encrypt_func)
+{
+    output_string.clear();
+    std::vector<BT> input, output;
+    size_t padding = 0;
+    if (input_string.size() % BT().size() != 0)
+    {
+        std::string padded_input_string = input_string;
+        while (padded_input_string.size() % BT().size() != 0)
+        {
+            padded_input_string += "0";
+            padding++;
+        }
+        bcm::split_input(input, padded_input_string);
+    }
+    else
+    {
+        bcm::split_input(input, input_string);
+    }
+    output.resize(input.size());
+    for (auto i = input.begin(), j = output.begin();
+         (i + 1 < input.end() && padding) || (i < input.end() && !padding); i++, j++)
+    {
+        crypt_func(*j, *i, key);
+    }
+    if (input.size() > 0 && padding)
+    {
+        if (input.size() == 1)
+        {
+            encrypt_func(*output.begin(), seed, key);
+            *output.begin() ^= *input.begin();
+        }
+        else
+        {
+            if (!decrypt)
+            {
+                encrypt_func(*output.rbegin(), *(output.rbegin() + 1), key);
+                *output.rbegin() ^= *input.rbegin();
+            }
+            else
+            {
+                encrypt_func(*output.rbegin(), *(input.rbegin() + 1), key);
+                *output.rbegin() ^= *input.rbegin();
+            }
+        }
+    }
+    bcm::merge_output(output_string, output);
+    if (padding)
+    {
+        output_string = output_string.substr(0, output_string.size() - padding);
+    }
+}
+
+template <typename BT, typename KT>
 void cbc(std::string &output_string, const std::string &input_string, const KT &key, const BT &z, const bool &decrypt,
          std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
