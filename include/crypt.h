@@ -56,7 +56,7 @@ void aes_encrypt(crypt::bitset<BN> &ciphertext, const crypt::bitset<BN> &plainte
 template <std::size_t BN = 128, std::size_t KN>
 void aes_decrypt(crypt::bitset<BN> &plaintext, const crypt::bitset<BN> &ciphertext, const crypt::bitset<KN> &key);
 
-// Group mode
+// Block cipher mode
 template <typename BT, typename KT>
 void ecb(std::string &output_string, const std::string &input_string, const KT &key,
          std::function<void(BT &output, const BT &input, const KT &key)> crypt_func);
