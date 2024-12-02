@@ -2,10 +2,12 @@ SRCS=des.cpp main.cpp bcm.cpp type.cpp aes.cpp
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 TARGET=crypt
-CXXFLAGS=-O3 -Wall -Iinclude/
+CXXFLAGS=-Wall -Iinclude/
 
 ifdef DEBUG
 CXXFLAGS+=-g
+else
+CXXFLAGS+=-O2
 endif
 
 .PHONY: clean
