@@ -121,7 +121,6 @@ namespace crypt
 using namespace des;
 void des_encrypt(bitset<64> &ciphertext, const bitset<64> &plaintext, const bitset<64> &key)
 {
-    ciphertext &= 0;
     array<bitset<48>, 16> subkeys;
     generate_subkeys(subkeys, key);
     bitset<32> l, r;
@@ -140,14 +139,13 @@ void des_encrypt(bitset<64> &ciphertext, const bitset<64> &plaintext, const bits
 }
 void des_decrypt(bitset<64> &plaintext, const bitset<64> &ciphertext, const bitset<64> &key)
 {
-    plaintext &= 0;
     array<bitset<48>, 16> subkeys;
     generate_subkeys(subkeys, key);
     bitset<32> l, r;
     initial_permutation(l, r, ciphertext);
-    for (int i = 15; i >= 0; i--)
+    for (auto i = subkeys.rbegin(); i != subkeys.rend(); i++)
     {
-        des_encrypt_f(l, r, subkeys[i]);
+        des_encrypt_f(l, r, *i);
     }
     bitset<64> encrypted;
     for (int i = 0; i < 32; i++)
@@ -158,3 +156,16 @@ void des_decrypt(bitset<64> &plaintext, const bitset<64> &ciphertext, const bits
     ip_1(plaintext, encrypted);
 }
 } // namespace crypt
+
+#ifdef DEBUG
+#include <iostream>
+
+int main()
+{
+    crypt::bitset<64> input("1101001100000011000100110010001100110011010000110101001101100011");
+    crypt::bitset<64> key("0011000100110010001100110011010000110101001101100011011100111000");
+    crypt::bitset<64> output;
+    crypt::des_encrypt(output, input, key);
+    std::cout << output << std::endl;
+}
+#endif

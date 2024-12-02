@@ -52,6 +52,8 @@ void ecb_stream_cipher_padding(std::string &output_string, const std::string &in
                                std::function<void(BT &output, const BT &input, const KT &key)> encrypt_func)
 {
     output_string.clear();
+    if (input_string.empty())
+        return;
     std::vector<BT> input, output;
     size_t padding = 0;
     if (input_string.size() % BT().size() != 0)
@@ -69,12 +71,12 @@ void ecb_stream_cipher_padding(std::string &output_string, const std::string &in
         bcm::split_input(input, input_string);
     }
     output.resize(input.size());
-    for (auto i = input.begin(), j = output.begin();
-         (i + 1 < input.end() && padding) || (i < input.end() && !padding); i++, j++)
+    for (auto i = input.begin(), j = output.begin(); (i + 1 < input.end() && padding) || (i < input.end() && !padding);
+         i++, j++)
     {
         crypt_func(*j, *i, key);
     }
-    if (input.size() > 0 && padding)
+    if (padding)
     {
         if (input.size() == 1)
         {
@@ -99,6 +101,82 @@ void ecb_stream_cipher_padding(std::string &output_string, const std::string &in
     if (padding)
     {
         output_string = output_string.substr(0, output_string.size() - padding);
+    }
+}
+
+template <typename BT, typename KT>
+void ecb_ciphertext_stealing_padding(std::string &output_string, const std::string &input_string, const KT &key,
+                                     const BT &seed, const size_t &s, const bool &decrypt,
+                                     std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
+{
+    output_string.clear();
+    if (input_string.empty())
+        return;
+    if (input_string.size() <= BT().size())
+    {
+        if (!decrypt)
+        {
+            std::string input_string_patched = input_string;
+            BT temp;
+            crypt_func(temp, seed, key);
+            input_string_patched = temp.to_string().substr(temp.to_string().size() - s) + input_string_patched;
+            crypt_func(temp, BT(input_string_patched), key);
+            output_string = temp.to_string();
+        }
+        else
+        {
+            BT temp;
+            crypt_func(temp, BT(input_string), key);
+            output_string = temp.to_string().substr(s);
+        }
+    }
+    else
+    {
+        std::vector<BT> input, output;
+        std::string last_block;
+        if (s)
+        {
+            if (!decrypt)
+            {
+                std::string input_string_patched = input_string;
+                input_string_patched = input_string_patched.substr(0, input_string_patched.size() - (BT().size() - s));
+                bcm::split_input(input, input_string_patched);
+            }
+            else
+            {
+                BT temp(input_string.substr(input_string.size() - BT().size()));
+                crypt_func(temp, temp, key);
+                std::string input_string_patched =
+                    input_string.substr(0, input_string.size() - BT().size()) + temp.to_string().substr(0, s);
+                last_block = temp.to_string().substr(s);
+                bcm::split_input(input, input_string_patched);
+            }
+        }
+        else
+        {
+            bcm::split_input(input, input_string);
+        }
+        output.resize(input.size());
+        for (auto i = input.begin(), j = output.begin(); i != input.end(); i++, j++)
+        {
+            crypt_func(*j, *i, key);
+        }
+        bcm::merge_output(output_string, output);
+        if (s)
+        {
+            if (!decrypt)
+            {
+                BT temp(output_string.substr(output_string.size() - s) +
+                        input_string.substr(input_string.size() - (BT().size() - s)));
+                output_string = output_string.substr(0, output_string.size() - s);
+                crypt_func(temp, temp, key);
+                output_string += temp.to_string();
+            }
+            else
+            {
+                output_string += last_block;
+            }
+        }
     }
 }
 

@@ -26,7 +26,7 @@ void print_help()
             "  -k, --key=KEY       使用KEY作为密钥。当使用x_cbc分组模式时，KEY=k1k2k3\n"
             "  -d, --decrypt       解密模式\n"
             "  -a, --algorithm=ALG 使用ALG算法。可选：aes, des\n"
-            "  -m, --bcm=M         使用M分组模式。可选：ecb, ecb_stream_cipher_padding, cbc, ofb, cfb, x_cbc, ctr\n"
+            "  -m, --bcm=M         使用M分组模式。可选：ecb, ecb_stream_cipher_padding, ecb_ciphertext_stealing_padding, cbc, ofb, cfb, x_cbc, ctr\n"
             "  -e, --encoding=ENC  使用ENC编码。可选：binary, hex, "
             "ascii。默认为binary。ascii仅影响输入和输出；hex影响输入输出、KEY、SEED\n"
             "  -f, --file=FILE     从FILE读取输入\n"
@@ -94,6 +94,14 @@ void aes_ecb_stream_cipher_padding(string &output, const string &input,
     crypt::ecb_stream_cipher_padding(output, input, std::get<bitset<KN>>(key), seed, decrypt,
                                      function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>),
                                      function(crypt::aes_encrypt<128, KN>));
+}
+template <size_t KN>
+void aes_ecb_ciphertext_stealing_padding(string &output, const string &input,
+                                         const variant<bitset<128>, bitset<192>, bitset<256>> &key, const bitset<128> &seed,
+                                         const size_t &s, const bool &decrypt)
+{
+    crypt::ecb_ciphertext_stealing_padding(output, input, std::get<bitset<KN>>(key), seed, s, decrypt,
+                                          function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
 }
 template <size_t KN>
 void aes_cbc(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
@@ -200,6 +208,10 @@ int main(int argc, char *argv[])
         else
         {
             std::ifstream file(args["file"]);
+            if (!file.is_open())
+            {
+                throw std::invalid_argument("Cannot open file");
+            }
             file >> args["input"];
             file.close();
         }
@@ -276,6 +288,25 @@ int main(int argc, char *argv[])
                 output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]), args["decrypt"] == "true",
                 function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt),
                 function(crypt::des_encrypt));
+        }
+        else if (args["bcm"] == "ecb_ciphertext_stealing_padding")
+        {
+            if (args["key"].size() != 64)
+            {
+                throw std::invalid_argument("Invalid key size");
+            }
+            if (args["seed"].size() != 64)
+            {
+                throw std::invalid_argument("Invalid seed size");
+            }
+            if (args.count("size") == 0)
+            {
+                throw std::invalid_argument("No size");
+            }
+            crypt::ecb_ciphertext_stealing_padding(
+                output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]), std::stoi(args["size"]),
+                args["decrypt"] == "true",
+                function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
         }
         else if (args["bcm"] == "cbc")
         {
@@ -416,21 +447,40 @@ int main(int argc, char *argv[])
                 aes_ecb<256>(output, args["input"], key, args["decrypt"] == "true");
                 break;
             }
-        }else if (args["bcm"] ==  "ecb_stream_cipher_padding")
+        }
+        else if (args["bcm"] == "ecb_stream_cipher_padding")
         {
             switch (args["key"].size())
             {
             case 128:
                 aes_ecb_stream_cipher_padding<128>(output, args["input"], key, bitset<128>(args["seed"]),
-                                                    args["decrypt"] == "true");
+                                                   args["decrypt"] == "true");
                 break;
             case 192:
                 aes_ecb_stream_cipher_padding<192>(output, args["input"], key, bitset<128>(args["seed"]),
-                                                    args["decrypt"] == "true");
+                                                   args["decrypt"] == "true");
                 break;
             case 256:
                 aes_ecb_stream_cipher_padding<256>(output, args["input"], key, bitset<128>(args["seed"]),
-                                                    args["decrypt"] == "true");
+                                                   args["decrypt"] == "true");
+                break;
+            }
+        }
+        else if (args["bcm"] == "ecb_ciphertext_stealing_padding")
+        {
+            switch (args["key"].size())
+            {
+            case 128:
+                aes_ecb_ciphertext_stealing_padding<128>(output, args["input"], key, bitset<128>(args["seed"]),
+                                                         std::stoi(args["size"]), args["decrypt"] == "true");
+                break;
+            case 192:
+                aes_ecb_ciphertext_stealing_padding<192>(output, args["input"], key, bitset<128>(args["seed"]),
+                                                         std::stoi(args["size"]), args["decrypt"] == "true");
+                break;
+            case 256:
+                aes_ecb_ciphertext_stealing_padding<256>(output, args["input"], key, bitset<128>(args["seed"]),
+                                                         std::stoi(args["size"]), args["decrypt"] == "true");
                 break;
             }
         }
