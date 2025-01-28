@@ -34,7 +34,6 @@ template <typename BT, typename KT>
 void ecb(std::string &output_string, const std::string &input_string, const KT &key,
          std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
-    output_string.clear();
     std::vector<BT> input, output;
     bcm::split_input(input, input_string);
     output.resize(input.size());
@@ -51,7 +50,6 @@ void ecb_stream_cipher_padding(std::string &output_string, const std::string &in
                                std::function<void(BT &output, const BT &input, const KT &key)> crypt_func,
                                std::function<void(BT &output, const BT &input, const KT &key)> encrypt_func)
 {
-    output_string.clear();
     if (input_string.empty())
         return;
     std::vector<BT> input, output;
@@ -105,7 +103,7 @@ void ecb_stream_cipher_padding(std::string &output_string, const std::string &in
 }
 
 template <typename BT, typename KT>
-void ecb_ciphertext_stealing_padding(std::string &output_string, const std::string &input_string, const KT &key,
+void ecb_ciphertext_stealing_padding(std::string &output_string, const std::string input_string, const KT &key,
                                      const BT &seed, const size_t &s, const bool &decrypt,
                                      std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
@@ -184,7 +182,6 @@ template <typename BT, typename KT>
 void cbc(std::string &output_string, const std::string &input_string, const KT &key, const BT &z, const bool &decrypt,
          std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
-    output_string.clear();
     std::vector<BT> input, output;
     bcm::split_input(input, input_string);
     output.resize(input.size());
@@ -224,7 +221,6 @@ template <typename BT, typename KT>
 void ofb(std::string &output_string, const std::string &input_string, const KT &key, const BT &seed, const size_t &s,
          std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
-    output_string.clear();
     if (s > BT().size() || s < 1)
     {
         throw std::invalid_argument("Invalid size");
@@ -250,7 +246,6 @@ template <typename BT, typename KT>
 void cfb(std::string &output_string, const std::string &input_string, const KT &key, const BT &seed, const size_t &s,
          const bool &decrypt, std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
-    output_string.clear();
     if (s > BT().size() || s < 1)
     {
         throw std::invalid_argument("Invalid size");
@@ -288,7 +283,6 @@ void x_cbc(std::string &output_string, const std::string &input_string, const KT
            const BT &z, const bool &decrypt, const size_t padding,
            std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
-    output_string.clear();
     std::vector<BT> input, output;
     if (padding && !decrypt)
     {
@@ -357,7 +351,6 @@ template <typename BT, typename KT>
 void ctr(std::string &output_string, const std::string &input_string, const KT &key, const std::string &seed_string,
          std::function<void(BT &output, const BT &input, const KT &key)> crypt_func)
 {
-    output_string.clear();
     if (seed_string.size() % BT().size() != 0 || seed_string.size() < input_string.size())
     {
         throw std::invalid_argument("Invalid seed length");

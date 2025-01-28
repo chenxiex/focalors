@@ -96,7 +96,7 @@ void aes_ecb_stream_cipher_padding(string &output, const string &input,
                                      function(crypt::aes_encrypt<128, KN>));
 }
 template <size_t KN>
-void aes_ecb_ciphertext_stealing_padding(string &output, const string &input,
+void aes_ecb_ciphertext_stealing_padding(string &output, const string input,
                                          const variant<bitset<128>, bitset<192>, bitset<256>> &key, const bitset<128> &seed,
                                          const size_t &s, const bool &decrypt)
 {
