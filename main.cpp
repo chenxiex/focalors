@@ -15,7 +15,7 @@ using std::function;
 using std::string;
 using std::variant;
 std::unordered_map<string, string> args = {
-    {"decrypt", "false"}, {"algorithm", "des"}, {"bcm", "ecb"}, {"encoding", "binary"}};
+    {"decrypt", "false"}, {"bcm", "ecb"}, {"encoding", "binary"}};
 void print_help()
 {
     // 用中文打印Unix风格的帮助信息
@@ -25,7 +25,7 @@ void print_help()
             "  -h, --help          显示此帮助信息并退出\n"
             "  -k, --key=KEY       使用KEY作为密钥。当使用x_cbc分组模式时，KEY=k1k2k3\n"
             "  -d, --decrypt       解密模式\n"
-            "  -a, --algorithm=ALG 使用ALG算法。默认为des。可选：aes, des\n"
+            "  -a, --algorithm=ALG 使用ALG算法。可选：aes, des\n"
             "  -m, --bcm=M         使用M分组模式。默认为ecb。可选：ecb, ecb_stream_cipher_padding, ecb_ciphertext_stealing_padding, cbc, ofb, cfb, x_cbc, ctr\n"
             "  -e, --encoding=ENC  使用ENC编码。可选：binary, hex, "
             "ascii。默认为binary。ascii仅影响输入和输出；hex影响输入输出、KEY、SEED\n"
