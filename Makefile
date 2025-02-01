@@ -2,7 +2,7 @@ SRCS=des.cpp main.cpp bcm.cpp type.cpp aes.cpp
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 TARGET=crypt
-CXXFLAGS=-Wall -Iinclude/
+CXXFLAGS=-Wall -Iinclude/ --std=c++20
 
 ifdef DEBUG
 CXXFLAGS+=-g
