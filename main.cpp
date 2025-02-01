@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include <variant>
-using crypt::bitset;
+using crypt::reverse_bitset;
 using std::cout;
 using std::endl;
 using std::function;
@@ -80,61 +80,61 @@ std::string binary_to_hex_string(const std::string &binary)
     return ss.str();
 }
 template <size_t KN>
-void aes_ecb(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
+void aes_ecb(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key,
              const bool &decrypt)
 {
-    crypt::ecb(output, input, std::get<bitset<KN>>(key),
+    crypt::ecb(output, input, std::get<reverse_bitset<KN>>(key),
                function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
 }
 template <size_t KN>
 void aes_ecb_stream_cipher_padding(string &output, const string &input,
-                                   const variant<bitset<128>, bitset<192>, bitset<256>> &key, const bitset<128> &seed,
+                                   const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key, const reverse_bitset<128> &seed,
                                    const bool &decrypt)
 {
-    crypt::ecb_stream_cipher_padding(output, input, std::get<bitset<KN>>(key), seed, decrypt,
+    crypt::ecb_stream_cipher_padding(output, input, std::get<reverse_bitset<KN>>(key), seed, decrypt,
                                      function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>),
                                      function(crypt::aes_encrypt<128, KN>));
 }
 template <size_t KN>
 void aes_ecb_ciphertext_stealing_padding(string &output, const string input,
-                                         const variant<bitset<128>, bitset<192>, bitset<256>> &key, const bitset<128> &seed,
+                                         const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key, const reverse_bitset<128> &seed,
                                          const size_t &s, const bool &decrypt)
 {
-    crypt::ecb_ciphertext_stealing_padding(output, input, std::get<bitset<KN>>(key), seed, s, decrypt,
+    crypt::ecb_ciphertext_stealing_padding(output, input, std::get<reverse_bitset<KN>>(key), seed, s, decrypt,
                                           function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
 }
 template <size_t KN>
-void aes_cbc(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
-             const bitset<128> &seed, const bool &decrypt)
+void aes_cbc(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key,
+             const reverse_bitset<128> &seed, const bool &decrypt)
 {
-    crypt::cbc<bitset<128>, bitset<KN>>(output, input, std::get<bitset<KN>>(key), seed, decrypt,
+    crypt::cbc<reverse_bitset<128>, reverse_bitset<KN>>(output, input, std::get<reverse_bitset<KN>>(key), seed, decrypt,
                                         function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
 }
 template <size_t KN>
-void aes_ofb(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
-             const bitset<128> &seed, const size_t &s)
+void aes_ofb(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key,
+             const reverse_bitset<128> &seed, const size_t &s)
 {
-    crypt::ofb(output, input, std::get<bitset<KN>>(key), seed, s, function(crypt::aes_encrypt<128, KN>));
+    crypt::ofb(output, input, std::get<reverse_bitset<KN>>(key), seed, s, function(crypt::aes_encrypt<128, KN>));
 }
 template <size_t KN>
-void aes_cfb(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
-             const bitset<128> &seed, const size_t &s, const bool &decrypt)
+void aes_cfb(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key,
+             const reverse_bitset<128> &seed, const size_t &s, const bool &decrypt)
 {
-    crypt::cfb(output, input, std::get<bitset<KN>>(key), seed, s, decrypt, function(crypt::aes_encrypt<128, KN>));
+    crypt::cfb(output, input, std::get<reverse_bitset<KN>>(key), seed, s, decrypt, function(crypt::aes_encrypt<128, KN>));
 }
 template <size_t KN>
-void aes_x_cbc(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &k1,
-               const bitset<128> &k2, const bitset<128> &k3, const bitset<128> &z, const bool &decrypt,
+void aes_x_cbc(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &k1,
+               const reverse_bitset<128> &k2, const reverse_bitset<128> &k3, const reverse_bitset<128> &z, const bool &decrypt,
                const size_t padding)
 {
-    crypt::x_cbc(output, input, std::get<bitset<KN>>(k1), k2, k3, z, decrypt, padding,
+    crypt::x_cbc(output, input, std::get<reverse_bitset<KN>>(k1), k2, k3, z, decrypt, padding,
                  function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
 }
 template <size_t KN>
-void aes_ctr(string &output, const string &input, const variant<bitset<128>, bitset<192>, bitset<256>> &key,
+void aes_ctr(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key,
              const string &seed_string)
 {
-    crypt::ctr(output, input, std::get<bitset<KN>>(key), seed_string, function(crypt::aes_encrypt<128, KN>));
+    crypt::ctr(output, input, std::get<reverse_bitset<KN>>(key), seed_string, function(crypt::aes_encrypt<128, KN>));
 }
 int main(int argc, char *argv[])
 {
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("Invalid key size");
             }
-            crypt::ecb(output, args["input"], bitset<64>(args["key"]),
+            crypt::ecb(output, args["input"], reverse_bitset<64>(args["key"]),
                        function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
         }
         else if (args["bcm"] == "ecb_stream_cipher_padding")
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
                 throw std::invalid_argument("Invalid seed size");
             }
             crypt::ecb_stream_cipher_padding(
-                output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]), args["decrypt"] == "true",
+                output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]), args["decrypt"] == "true",
                 function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt),
                 function(crypt::des_encrypt));
         }
@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
                 throw std::invalid_argument("No size");
             }
             crypt::ecb_ciphertext_stealing_padding(
-                output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]), std::stoi(args["size"]),
+                output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]), std::stoi(args["size"]),
                 args["decrypt"] == "true",
                 function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
         }
@@ -318,8 +318,8 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("Invalid seed size");
             }
-            crypt::cbc<bitset<64>, bitset<64>>(
-                output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]), args["decrypt"] == "true",
+            crypt::cbc<reverse_bitset<64>, reverse_bitset<64>>(
+                output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]), args["decrypt"] == "true",
                 function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
         }
         else if (args["bcm"] == "ofb")
@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("No size");
             }
-            crypt::ofb(output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]),
+            crypt::ofb(output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]),
                        std::stoi(args["size"]), function(crypt::des_encrypt));
         }
         else if (args["bcm"] == "cfb")
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("No size");
             }
-            crypt::cfb(output, args["input"], bitset<64>(args["key"]), bitset<64>(args["seed"]),
+            crypt::cfb(output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]),
                        std::stoi(args["size"]), args["decrypt"] == "true", function(crypt::des_encrypt));
         }
         else if (args["bcm"] == "x_cbc")
@@ -370,8 +370,8 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("No size");
             }
-            bitset<64> k1(args["key"].substr(0, 64)), k2(args["key"].substr(64, 64)), k3(args["key"].substr(128, 64));
-            crypt::x_cbc(output, args["input"], k1, k2, k3, bitset<64>(args["seed"]), args["decrypt"] == "true",
+            reverse_bitset<64> k1(args["key"].substr(0, 64)), k2(args["key"].substr(64, 64)), k3(args["key"].substr(128, 64));
+            crypt::x_cbc(output, args["input"], k1, k2, k3, reverse_bitset<64>(args["seed"]), args["decrypt"] == "true",
                          stoi(args["size"]),
                          function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
         }
@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("Invalid key size");
             }
-            crypt::ctr(output, args["input"], bitset<64>(args["key"]), args["seed"], function(crypt::des_encrypt));
+            crypt::ctr(output, args["input"], reverse_bitset<64>(args["key"]), args["seed"], function(crypt::des_encrypt));
         }
         else
         {
@@ -390,26 +390,26 @@ int main(int argc, char *argv[])
     }
     else if (args["algorithm"] == "aes")
     {
-        variant<bitset<128>, bitset<192>, bitset<256>> key;
-        bitset<128> k2, k3;
+        variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> key;
+        reverse_bitset<128> k2, k3;
         if (args["bcm"] == "x_cbc")
         {
             switch (args["key"].size())
             {
             case 384:
-                key = bitset<128>(args["key"].substr(0, 128));
-                k2 = bitset<128>(args["key"].substr(128, 128));
-                k3 = bitset<128>(args["key"].substr(256, 128));
+                key = reverse_bitset<128>(args["key"].substr(0, 128));
+                k2 = reverse_bitset<128>(args["key"].substr(128, 128));
+                k3 = reverse_bitset<128>(args["key"].substr(256, 128));
                 break;
             case 448:
-                key = bitset<192>(args["key"].substr(0, 192));
-                k2 = bitset<128>(args["key"].substr(192, 128));
-                k3 = bitset<128>(args["key"].substr(320, 128));
+                key = reverse_bitset<192>(args["key"].substr(0, 192));
+                k2 = reverse_bitset<128>(args["key"].substr(192, 128));
+                k3 = reverse_bitset<128>(args["key"].substr(320, 128));
                 break;
             case 512:
-                key = bitset<256>(args["key"].substr(0, 256));
-                k2 = bitset<128>(args["key"].substr(256, 128));
-                k3 = bitset<128>(args["key"].substr(384, 128));
+                key = reverse_bitset<256>(args["key"].substr(0, 256));
+                k2 = reverse_bitset<128>(args["key"].substr(256, 128));
+                k3 = reverse_bitset<128>(args["key"].substr(384, 128));
                 break;
             default:
                 throw std::invalid_argument("Invalid key size");
@@ -420,13 +420,13 @@ int main(int argc, char *argv[])
             switch (args["key"].size())
             {
             case 128:
-                key = bitset<128>(args["key"]);
+                key = reverse_bitset<128>(args["key"]);
                 break;
             case 192:
-                key = bitset<192>(args["key"]);
+                key = reverse_bitset<192>(args["key"]);
                 break;
             case 256:
-                key = bitset<256>(args["key"]);
+                key = reverse_bitset<256>(args["key"]);
                 break;
             default:
                 throw std::invalid_argument("Invalid key size");
@@ -453,15 +453,15 @@ int main(int argc, char *argv[])
             switch (args["key"].size())
             {
             case 128:
-                aes_ecb_stream_cipher_padding<128>(output, args["input"], key, bitset<128>(args["seed"]),
+                aes_ecb_stream_cipher_padding<128>(output, args["input"], key, reverse_bitset<128>(args["seed"]),
                                                    args["decrypt"] == "true");
                 break;
             case 192:
-                aes_ecb_stream_cipher_padding<192>(output, args["input"], key, bitset<128>(args["seed"]),
+                aes_ecb_stream_cipher_padding<192>(output, args["input"], key, reverse_bitset<128>(args["seed"]),
                                                    args["decrypt"] == "true");
                 break;
             case 256:
-                aes_ecb_stream_cipher_padding<256>(output, args["input"], key, bitset<128>(args["seed"]),
+                aes_ecb_stream_cipher_padding<256>(output, args["input"], key, reverse_bitset<128>(args["seed"]),
                                                    args["decrypt"] == "true");
                 break;
             }
@@ -471,15 +471,15 @@ int main(int argc, char *argv[])
             switch (args["key"].size())
             {
             case 128:
-                aes_ecb_ciphertext_stealing_padding<128>(output, args["input"], key, bitset<128>(args["seed"]),
+                aes_ecb_ciphertext_stealing_padding<128>(output, args["input"], key, reverse_bitset<128>(args["seed"]),
                                                          std::stoi(args["size"]), args["decrypt"] == "true");
                 break;
             case 192:
-                aes_ecb_ciphertext_stealing_padding<192>(output, args["input"], key, bitset<128>(args["seed"]),
+                aes_ecb_ciphertext_stealing_padding<192>(output, args["input"], key, reverse_bitset<128>(args["seed"]),
                                                          std::stoi(args["size"]), args["decrypt"] == "true");
                 break;
             case 256:
-                aes_ecb_ciphertext_stealing_padding<256>(output, args["input"], key, bitset<128>(args["seed"]),
+                aes_ecb_ciphertext_stealing_padding<256>(output, args["input"], key, reverse_bitset<128>(args["seed"]),
                                                          std::stoi(args["size"]), args["decrypt"] == "true");
                 break;
             }
@@ -493,13 +493,13 @@ int main(int argc, char *argv[])
             switch (args["key"].size())
             {
             case 128:
-                aes_cbc<128>(output, args["input"], key, bitset<128>(args["seed"]), args["decrypt"] == "true");
+                aes_cbc<128>(output, args["input"], key, reverse_bitset<128>(args["seed"]), args["decrypt"] == "true");
                 break;
             case 192:
-                aes_cbc<192>(output, args["input"], key, bitset<128>(args["seed"]), args["decrypt"] == "true");
+                aes_cbc<192>(output, args["input"], key, reverse_bitset<128>(args["seed"]), args["decrypt"] == "true");
                 break;
             case 256:
-                aes_cbc<256>(output, args["input"], key, bitset<128>(args["seed"]), args["decrypt"] == "true");
+                aes_cbc<256>(output, args["input"], key, reverse_bitset<128>(args["seed"]), args["decrypt"] == "true");
                 break;
             }
         }
@@ -516,13 +516,13 @@ int main(int argc, char *argv[])
             switch (args["key"].size())
             {
             case 128:
-                aes_ofb<128>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]));
+                aes_ofb<128>(output, args["input"], key, reverse_bitset<128>(args["seed"]), std::stoi(args["size"]));
                 break;
             case 192:
-                aes_ofb<192>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]));
+                aes_ofb<192>(output, args["input"], key, reverse_bitset<128>(args["seed"]), std::stoi(args["size"]));
                 break;
             case 256:
-                aes_ofb<256>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]));
+                aes_ofb<256>(output, args["input"], key, reverse_bitset<128>(args["seed"]), std::stoi(args["size"]));
                 break;
             }
         }
@@ -539,15 +539,15 @@ int main(int argc, char *argv[])
             switch (args["key"].size())
             {
             case 128:
-                aes_cfb<128>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]),
+                aes_cfb<128>(output, args["input"], key, reverse_bitset<128>(args["seed"]), std::stoi(args["size"]),
                              args["decrypt"] == "true");
                 break;
             case 192:
-                aes_cfb<192>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]),
+                aes_cfb<192>(output, args["input"], key, reverse_bitset<128>(args["seed"]), std::stoi(args["size"]),
                              args["decrypt"] == "true");
                 break;
             case 256:
-                aes_cfb<256>(output, args["input"], key, bitset<128>(args["seed"]), std::stoi(args["size"]),
+                aes_cfb<256>(output, args["input"], key, reverse_bitset<128>(args["seed"]), std::stoi(args["size"]),
                              args["decrypt"] == "true");
                 break;
             }
@@ -561,15 +561,15 @@ int main(int argc, char *argv[])
             switch (args["key"].size())
             {
             case 384:
-                aes_x_cbc<128>(output, args["input"], key, k2, k3, bitset<128>(args["seed"]), args["decrypt"] == "true",
+                aes_x_cbc<128>(output, args["input"], key, k2, k3, reverse_bitset<128>(args["seed"]), args["decrypt"] == "true",
                                std::stoi(args["size"]));
                 break;
             case 448:
-                aes_x_cbc<192>(output, args["input"], key, k2, k3, bitset<128>(args["seed"]), args["decrypt"] == "true",
+                aes_x_cbc<192>(output, args["input"], key, k2, k3, reverse_bitset<128>(args["seed"]), args["decrypt"] == "true",
                                std::stoi(args["size"]));
                 break;
             case 512:
-                aes_x_cbc<256>(output, args["input"], key, k2, k3, bitset<128>(args["seed"]), args["decrypt"] == "true",
+                aes_x_cbc<256>(output, args["input"], key, k2, k3, reverse_bitset<128>(args["seed"]), args["decrypt"] == "true",
                                std::stoi(args["size"]));
                 break;
             }

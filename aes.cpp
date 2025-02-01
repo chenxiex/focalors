@@ -40,11 +40,11 @@ std::string binary_to_hex_string(const std::string &binary)
 
 namespace aes
 {
-template <size_t N> void bitset2vectorword(vector<word> &v, const crypt::bitset<N> &b)
+template <size_t N> void bitset2vectorword(vector<word> &v, const crypt::reverse_bitset<N> &b)
 {
     for (size_t i = 0; i < v.size(); i++)
     {
-        crypt::bitset<32> temp;
+        crypt::reverse_bitset<32> temp;
         for (size_t j = 0; j < 32; j++)
         {
             temp[j] = b[i * 32 + j];
@@ -52,11 +52,11 @@ template <size_t N> void bitset2vectorword(vector<word> &v, const crypt::bitset<
         v[i] = temp;
     }
 }
-template <size_t N> void vectorword2bitset(crypt::bitset<N> &b, const vector<word> &v)
+template <size_t N> void vectorword2bitset(crypt::reverse_bitset<N> &b, const vector<word> &v)
 {
     for (size_t i = 0; i < v.size(); i++)
     {
-        crypt::bitset<32> temp;
+        crypt::reverse_bitset<32> temp;
         temp = v[i];
         for (size_t j = 0; j < 32; j++)
         {
@@ -316,7 +316,7 @@ namespace crypt
 {
 using namespace aes;
 template <std::size_t BN, std::size_t KN>
-void aes_encrypt(crypt::bitset<BN> &ciphertext, const crypt::bitset<BN> &plaintext, const crypt::bitset<KN> &key)
+void aes_encrypt(crypt::reverse_bitset<BN> &ciphertext, const crypt::reverse_bitset<BN> &plaintext, const crypt::reverse_bitset<KN> &key)
 {
     int nb = NB.at(plaintext.size());
     int nk = NK.at(key.size());
@@ -336,7 +336,7 @@ void aes_encrypt(crypt::bitset<BN> &ciphertext, const crypt::bitset<BN> &plainte
     vectorword2bitset(ciphertext, state);
 }
 template <std::size_t BN, std::size_t KN>
-void aes_decrypt(crypt::bitset<BN> &plaintext, const crypt::bitset<BN> &ciphertext, const crypt::bitset<KN> &key)
+void aes_decrypt(crypt::reverse_bitset<BN> &plaintext, const crypt::reverse_bitset<BN> &ciphertext, const crypt::reverse_bitset<KN> &key)
 {
     int nb = NB.at(ciphertext.size());
     int nk = NK.at(key.size());
@@ -356,18 +356,18 @@ void aes_decrypt(crypt::bitset<BN> &plaintext, const crypt::bitset<BN> &cipherte
     vectorword2bitset(plaintext, state);
 }
 
-template void aes_encrypt<128, 128>(crypt::bitset<128> &ciphertext, const crypt::bitset<128> &plaintext,
-                                    const crypt::bitset<128> &key);
-template void aes_encrypt<128, 192>(crypt::bitset<128> &ciphertext, const crypt::bitset<128> &plaintext,
-                                    const crypt::bitset<192> &key);
-template void aes_encrypt<128, 256>(crypt::bitset<128> &ciphertext, const crypt::bitset<128> &plaintext,
-                                    const crypt::bitset<256> &key);
-template void aes_decrypt<128, 128>(crypt::bitset<128> &plaintext, const crypt::bitset<128> &cihpertext,
-                                    const crypt::bitset<128> &key);
-template void aes_decrypt<128, 192>(crypt::bitset<128> &plaintext, const crypt::bitset<128> &ciphertext,
-                                    const crypt::bitset<192> &key);
-template void aes_decrypt<128, 256>(crypt::bitset<128> &plaintext, const crypt::bitset<128> &ciphertext,
-                                    const crypt::bitset<256> &key);
+template void aes_encrypt<128, 128>(crypt::reverse_bitset<128> &ciphertext, const crypt::reverse_bitset<128> &plaintext,
+                                    const crypt::reverse_bitset<128> &key);
+template void aes_encrypt<128, 192>(crypt::reverse_bitset<128> &ciphertext, const crypt::reverse_bitset<128> &plaintext,
+                                    const crypt::reverse_bitset<192> &key);
+template void aes_encrypt<128, 256>(crypt::reverse_bitset<128> &ciphertext, const crypt::reverse_bitset<128> &plaintext,
+                                    const crypt::reverse_bitset<256> &key);
+template void aes_decrypt<128, 128>(crypt::reverse_bitset<128> &plaintext, const crypt::reverse_bitset<128> &cihpertext,
+                                    const crypt::reverse_bitset<128> &key);
+template void aes_decrypt<128, 192>(crypt::reverse_bitset<128> &plaintext, const crypt::reverse_bitset<128> &ciphertext,
+                                    const crypt::reverse_bitset<192> &key);
+template void aes_decrypt<128, 256>(crypt::reverse_bitset<128> &plaintext, const crypt::reverse_bitset<128> &ciphertext,
+                                    const crypt::reverse_bitset<256> &key);
 } // namespace crypt
 
 #ifdef DEBUG
