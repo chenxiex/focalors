@@ -1,6 +1,6 @@
 #ifndef ZUC_H
 #define ZUC_H
-#include "crypt.h"
+#include "focalors.h"
 #include <cstdint>
 
 namespace zuc

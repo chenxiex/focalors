@@ -1,4 +1,4 @@
-#include "crypt.h"
+#include "focalors.h"
 #include <cstring>
 #include <fstream>
 #include <getopt.h>
@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include <variant>
-using crypt::reverse_bitset;
+using focalors::reverse_bitset;
 using std::cout;
 using std::endl;
 using std::function;
@@ -83,58 +83,58 @@ template <size_t KN>
 void aes_ecb(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key,
              const bool &decrypt)
 {
-    crypt::ecb(output, input, std::get<reverse_bitset<KN>>(key),
-               function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
+    focalors::ecb(output, input, std::get<reverse_bitset<KN>>(key),
+               function(decrypt ? focalors::aes_decrypt<128, KN> : focalors::aes_encrypt<128, KN>));
 }
 template <size_t KN>
 void aes_ecb_stream_cipher_padding(string &output, const string &input,
                                    const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key, const reverse_bitset<128> &seed,
                                    const bool &decrypt)
 {
-    crypt::ecb_stream_cipher_padding(output, input, std::get<reverse_bitset<KN>>(key), seed, decrypt,
-                                     function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>),
-                                     function(crypt::aes_encrypt<128, KN>));
+    focalors::ecb_stream_cipher_padding(output, input, std::get<reverse_bitset<KN>>(key), seed, decrypt,
+                                     function(decrypt ? focalors::aes_decrypt<128, KN> : focalors::aes_encrypt<128, KN>),
+                                     function(focalors::aes_encrypt<128, KN>));
 }
 template <size_t KN>
 void aes_ecb_ciphertext_stealing_padding(string &output, const string input,
                                          const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key, const reverse_bitset<128> &seed,
                                          const size_t &s, const bool &decrypt)
 {
-    crypt::ecb_ciphertext_stealing_padding(output, input, std::get<reverse_bitset<KN>>(key), seed, s, decrypt,
-                                          function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
+    focalors::ecb_ciphertext_stealing_padding(output, input, std::get<reverse_bitset<KN>>(key), seed, s, decrypt,
+                                          function(decrypt ? focalors::aes_decrypt<128, KN> : focalors::aes_encrypt<128, KN>));
 }
 template <size_t KN>
 void aes_cbc(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key,
              const reverse_bitset<128> &seed, const bool &decrypt)
 {
-    crypt::cbc<reverse_bitset<128>, reverse_bitset<KN>>(output, input, std::get<reverse_bitset<KN>>(key), seed, decrypt,
-                                        function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
+    focalors::cbc<reverse_bitset<128>, reverse_bitset<KN>>(output, input, std::get<reverse_bitset<KN>>(key), seed, decrypt,
+                                        function(decrypt ? focalors::aes_decrypt<128, KN> : focalors::aes_encrypt<128, KN>));
 }
 template <size_t KN>
 void aes_ofb(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key,
              const reverse_bitset<128> &seed, const size_t &s)
 {
-    crypt::ofb(output, input, std::get<reverse_bitset<KN>>(key), seed, s, function(crypt::aes_encrypt<128, KN>));
+    focalors::ofb(output, input, std::get<reverse_bitset<KN>>(key), seed, s, function(focalors::aes_encrypt<128, KN>));
 }
 template <size_t KN>
 void aes_cfb(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key,
              const reverse_bitset<128> &seed, const size_t &s, const bool &decrypt)
 {
-    crypt::cfb(output, input, std::get<reverse_bitset<KN>>(key), seed, s, decrypt, function(crypt::aes_encrypt<128, KN>));
+    focalors::cfb(output, input, std::get<reverse_bitset<KN>>(key), seed, s, decrypt, function(focalors::aes_encrypt<128, KN>));
 }
 template <size_t KN>
 void aes_x_cbc(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &k1,
                const reverse_bitset<128> &k2, const reverse_bitset<128> &k3, const reverse_bitset<128> &z, const bool &decrypt,
                const size_t padding)
 {
-    crypt::x_cbc(output, input, std::get<reverse_bitset<KN>>(k1), k2, k3, z, decrypt, padding,
-                 function(decrypt ? crypt::aes_decrypt<128, KN> : crypt::aes_encrypt<128, KN>));
+    focalors::x_cbc(output, input, std::get<reverse_bitset<KN>>(k1), k2, k3, z, decrypt, padding,
+                 function(decrypt ? focalors::aes_decrypt<128, KN> : focalors::aes_encrypt<128, KN>));
 }
 template <size_t KN>
 void aes_ctr(string &output, const string &input, const variant<reverse_bitset<128>, reverse_bitset<192>, reverse_bitset<256>> &key,
              const string &seed_string)
 {
-    crypt::ctr(output, input, std::get<reverse_bitset<KN>>(key), seed_string, function(crypt::aes_encrypt<128, KN>));
+    focalors::ctr(output, input, std::get<reverse_bitset<KN>>(key), seed_string, function(focalors::aes_encrypt<128, KN>));
 }
 int main(int argc, char *argv[])
 {
@@ -271,8 +271,8 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("Invalid key size");
             }
-            crypt::ecb(output, args["input"], reverse_bitset<64>(args["key"]),
-                       function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
+            focalors::ecb(output, args["input"], reverse_bitset<64>(args["key"]),
+                       function(args["decrypt"] == "true" ? focalors::des_decrypt : focalors::des_encrypt));
         }
         else if (args["bcm"] == "ecb_stream_cipher_padding")
         {
@@ -284,10 +284,10 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("Invalid seed size");
             }
-            crypt::ecb_stream_cipher_padding(
+            focalors::ecb_stream_cipher_padding(
                 output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]), args["decrypt"] == "true",
-                function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt),
-                function(crypt::des_encrypt));
+                function(args["decrypt"] == "true" ? focalors::des_decrypt : focalors::des_encrypt),
+                function(focalors::des_encrypt));
         }
         else if (args["bcm"] == "ecb_ciphertext_stealing_padding")
         {
@@ -303,10 +303,10 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("No size");
             }
-            crypt::ecb_ciphertext_stealing_padding(
+            focalors::ecb_ciphertext_stealing_padding(
                 output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]), std::stoi(args["size"]),
                 args["decrypt"] == "true",
-                function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
+                function(args["decrypt"] == "true" ? focalors::des_decrypt : focalors::des_encrypt));
         }
         else if (args["bcm"] == "cbc")
         {
@@ -318,9 +318,9 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("Invalid seed size");
             }
-            crypt::cbc<reverse_bitset<64>, reverse_bitset<64>>(
+            focalors::cbc<reverse_bitset<64>, reverse_bitset<64>>(
                 output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]), args["decrypt"] == "true",
-                function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
+                function(args["decrypt"] == "true" ? focalors::des_decrypt : focalors::des_encrypt));
         }
         else if (args["bcm"] == "ofb")
         {
@@ -336,8 +336,8 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("No size");
             }
-            crypt::ofb(output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]),
-                       std::stoi(args["size"]), function(crypt::des_encrypt));
+            focalors::ofb(output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]),
+                       std::stoi(args["size"]), function(focalors::des_encrypt));
         }
         else if (args["bcm"] == "cfb")
         {
@@ -353,8 +353,8 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("No size");
             }
-            crypt::cfb(output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]),
-                       std::stoi(args["size"]), args["decrypt"] == "true", function(crypt::des_encrypt));
+            focalors::cfb(output, args["input"], reverse_bitset<64>(args["key"]), reverse_bitset<64>(args["seed"]),
+                       std::stoi(args["size"]), args["decrypt"] == "true", function(focalors::des_encrypt));
         }
         else if (args["bcm"] == "x_cbc")
         {
@@ -371,9 +371,9 @@ int main(int argc, char *argv[])
                 throw std::invalid_argument("No size");
             }
             reverse_bitset<64> k1(args["key"].substr(0, 64)), k2(args["key"].substr(64, 64)), k3(args["key"].substr(128, 64));
-            crypt::x_cbc(output, args["input"], k1, k2, k3, reverse_bitset<64>(args["seed"]), args["decrypt"] == "true",
+            focalors::x_cbc(output, args["input"], k1, k2, k3, reverse_bitset<64>(args["seed"]), args["decrypt"] == "true",
                          stoi(args["size"]),
-                         function(args["decrypt"] == "true" ? crypt::des_decrypt : crypt::des_encrypt));
+                         function(args["decrypt"] == "true" ? focalors::des_decrypt : focalors::des_encrypt));
         }
         else if (args["bcm"] == "ctr")
         {
@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
             {
                 throw std::invalid_argument("Invalid key size");
             }
-            crypt::ctr(output, args["input"], reverse_bitset<64>(args["key"]), args["seed"], function(crypt::des_encrypt));
+            focalors::ctr(output, args["input"], reverse_bitset<64>(args["key"]), args["seed"], function(focalors::des_encrypt));
         }
         else
         {

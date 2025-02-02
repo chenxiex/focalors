@@ -3,30 +3,36 @@
 #define CRYPT_H
 #include <array>
 #include <bitset>
+#include <cstdint>
 #include <functional>
-#include <stdexcept>
 #include <string>
 
-namespace crypt
+namespace focalors
 {
-// type
+//type
 template <std::size_t N> class reverse_bitset : public std::bitset<N>
 {
   public:
-    using std::bitset<N>::bitset;    // 继承 std::bitset 的构造函数
+    using std::bitset<N>::bitset; // 继承 std::bitset 的构造函数
+    reverse_bitset<N>(const std::vector<uint8_t> &v);
     using std::bitset<N>::operator=; // 继承 std::bitset 的赋值运算符
 
     // 重载[]运算符，支持从左向右索引，返回可修改的引用
-    typename crypt::reverse_bitset<N>::reference operator[](std::size_t pos);
+    typename focalors::reverse_bitset<N>::reference operator[](std::size_t pos);
     // 重载[]运算符，支持从左向右索引，返回只读的值
     bool operator[](std::size_t pos) const;
 
-    crypt::reverse_bitset<N> operator<<(const size_t &n) const;
-    crypt::reverse_bitset<N> operator>>(const size_t &n) const;
+    focalors::reverse_bitset<N> operator<<(const size_t &n) const;
+    focalors::reverse_bitset<N> operator>>(const size_t &n) const;
+
+    std::vector<uint8_t> to_vector() const;
 };
-template <std::size_t N> crypt::reverse_bitset<N> operator&(const crypt::reverse_bitset<N> &lhs, const crypt::reverse_bitset<N> &rhs);
-template <std::size_t N> crypt::reverse_bitset<N> operator|(const crypt::reverse_bitset<N> &lhs, const crypt::reverse_bitset<N> &rhs);
-template <std::size_t N> crypt::reverse_bitset<N> operator^(const crypt::reverse_bitset<N> &lhs, const crypt::reverse_bitset<N> &rhs);
+template <std::size_t N>
+focalors::reverse_bitset<N> operator&(const focalors::reverse_bitset<N> &lhs, const focalors::reverse_bitset<N> &rhs);
+template <std::size_t N>
+focalors::reverse_bitset<N> operator|(const focalors::reverse_bitset<N> &lhs, const focalors::reverse_bitset<N> &rhs);
+template <std::size_t N>
+focalors::reverse_bitset<N> operator^(const focalors::reverse_bitset<N> &lhs, const focalors::reverse_bitset<N> &rhs);
 
 typedef std::bitset<8> byte;
 
@@ -47,14 +53,24 @@ word operator|(const word &lhs, const word &rhs);
 word operator^(const word &lhs, const word &rhs);
 
 // DES
-void des_encrypt(crypt::reverse_bitset<64> &ciphertext, const crypt::reverse_bitset<64> &plaintext, const crypt::reverse_bitset<64> &key);
-void des_decrypt(crypt::reverse_bitset<64> &plaintext, const crypt::reverse_bitset<64> &ciphertext, const crypt::reverse_bitset<64> &key);
+
+/*
+ * DES加密或解密。
+ *
+ * @param input 输入数据。
+ * @param key 密钥。
+ * @param encrypt true表示加密，false表示解密。
+ * @return 加密或解密后的数据。
+ */
+std::vector<uint8_t> des(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key, bool encrypt);
 
 // AES
 template <std::size_t BN = 128, std::size_t KN>
-void aes_encrypt(crypt::reverse_bitset<BN> &ciphertext, const crypt::reverse_bitset<BN> &plaintext, const crypt::reverse_bitset<KN> &key);
+void aes_encrypt(focalors::reverse_bitset<BN> &ciphertext, const focalors::reverse_bitset<BN> &plaintext,
+                 const focalors::reverse_bitset<KN> &key);
 template <std::size_t BN = 128, std::size_t KN>
-void aes_decrypt(crypt::reverse_bitset<BN> &plaintext, const crypt::reverse_bitset<BN> &ciphertext, const crypt::reverse_bitset<KN> &key);
+void aes_decrypt(focalors::reverse_bitset<BN> &plaintext, const focalors::reverse_bitset<BN> &ciphertext,
+                 const focalors::reverse_bitset<KN> &key);
 
 // Block cipher mode
 template <typename BT, typename KT>
@@ -101,7 +117,22 @@ void elgamal_encrypt(std::string &c1, std::string &c2, const std::string &m, con
                      const std::string &y, const int &base);
 void elgamal_decrypt(std::string &m, const std::string &c1, const std::string &c2, const std::string &d,
                      const std::string &p, const int &base);
-} // namespace crypt
-#include "bcm_impl.h"
-#include "type_impl.h"
+
+// utils
+
+/*
+ * 将二进制字符串转换为字节序列。字符串不能被8整除的部分将被忽略。
+ *
+ * @param binary 二进制字符串。
+ * @return 字节序列。
+ */
+std::vector<uint8_t> binary_to_bytes(const std::string &binary);
+/*
+ * 将字节序列转换为二进制字符串。
+ *
+ * @param bytes 字节序列。
+ * @return 二进制字符串。
+ */
+std::string bytes_to_binary(const std::vector<uint8_t> &bytes);
+} // namespace focalors
 #endif // CRYPT_H

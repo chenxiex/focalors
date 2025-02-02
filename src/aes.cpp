@@ -1,9 +1,9 @@
 #include "aes.h"
-#include "crypt.h"
+#include "focalors.h"
 #include <cstddef>
 #include <vector>
-using crypt::byte;
-using crypt::word;
+using focalors::byte;
+using focalors::word;
 using std::vector;
 
 #ifdef DEBUG
@@ -40,11 +40,11 @@ std::string binary_to_hex_string(const std::string &binary)
 
 namespace aes
 {
-template <size_t N> void bitset2vectorword(vector<word> &v, const crypt::reverse_bitset<N> &b)
+template <size_t N> void bitset2vectorword(vector<word> &v, const focalors::reverse_bitset<N> &b)
 {
     for (size_t i = 0; i < v.size(); i++)
     {
-        crypt::reverse_bitset<32> temp;
+        focalors::reverse_bitset<32> temp;
         for (size_t j = 0; j < 32; j++)
         {
             temp[j] = b[i * 32 + j];
@@ -52,11 +52,11 @@ template <size_t N> void bitset2vectorword(vector<word> &v, const crypt::reverse
         v[i] = temp;
     }
 }
-template <size_t N> void vectorword2bitset(crypt::reverse_bitset<N> &b, const vector<word> &v)
+template <size_t N> void vectorword2bitset(focalors::reverse_bitset<N> &b, const vector<word> &v)
 {
     for (size_t i = 0; i < v.size(); i++)
     {
-        crypt::reverse_bitset<32> temp;
+        focalors::reverse_bitset<32> temp;
         temp = v[i];
         for (size_t j = 0; j < 32; j++)
         {
@@ -312,20 +312,20 @@ void inv_final_round(vector<word> &state, const vector<word> &w, int round)
 }
 } // namespace aes
 
-namespace crypt
+namespace focalors
 {
 using namespace aes;
 template <std::size_t BN, std::size_t KN>
-void aes_encrypt(crypt::reverse_bitset<BN> &ciphertext, const crypt::reverse_bitset<BN> &plaintext, const crypt::reverse_bitset<KN> &key)
+void aes_encrypt(focalors::reverse_bitset<BN> &ciphertext, const focalors::reverse_bitset<BN> &plaintext, const focalors::reverse_bitset<KN> &key)
 {
     int nb = NB.at(plaintext.size());
     int nk = NK.at(key.size());
     int nr = NR[(nk - 4) >> 1][(nb - 4) >> 1];
-    vector<crypt::word> w(nb * (nr + 1));
-    vector<crypt::word> cipher_key(nk);
+    vector<focalors::word> w(nb * (nr + 1));
+    vector<focalors::word> cipher_key(nk);
     bitset2vectorword(cipher_key, key);
     key_expansion(cipher_key, w, nk);
-    vector<crypt::word> state(nb);
+    vector<focalors::word> state(nb);
     bitset2vectorword(state, plaintext);
     add_round_key(state, w, 0);
     for (int i = 1; i < nr; i++)
@@ -336,16 +336,16 @@ void aes_encrypt(crypt::reverse_bitset<BN> &ciphertext, const crypt::reverse_bit
     vectorword2bitset(ciphertext, state);
 }
 template <std::size_t BN, std::size_t KN>
-void aes_decrypt(crypt::reverse_bitset<BN> &plaintext, const crypt::reverse_bitset<BN> &ciphertext, const crypt::reverse_bitset<KN> &key)
+void aes_decrypt(focalors::reverse_bitset<BN> &plaintext, const focalors::reverse_bitset<BN> &ciphertext, const focalors::reverse_bitset<KN> &key)
 {
     int nb = NB.at(ciphertext.size());
     int nk = NK.at(key.size());
     int nr = NR[(nk - 4) >> 1][(nb - 4) >> 1];
-    vector<crypt::word> w(nb * (nr + 1));
-    vector<crypt::word> cipher_key(nk);
+    vector<focalors::word> w(nb * (nr + 1));
+    vector<focalors::word> cipher_key(nk);
     bitset2vectorword(cipher_key, key);
     inv_key_expansion(cipher_key, w, nk, nb);
-    vector<crypt::word> state(nb);
+    vector<focalors::word> state(nb);
     bitset2vectorword(state, ciphertext);
     add_round_key(state, w, nr);
     for (int i = nr - 1; i >= 1; i--)
@@ -356,19 +356,19 @@ void aes_decrypt(crypt::reverse_bitset<BN> &plaintext, const crypt::reverse_bits
     vectorword2bitset(plaintext, state);
 }
 
-template void aes_encrypt<128, 128>(crypt::reverse_bitset<128> &ciphertext, const crypt::reverse_bitset<128> &plaintext,
-                                    const crypt::reverse_bitset<128> &key);
-template void aes_encrypt<128, 192>(crypt::reverse_bitset<128> &ciphertext, const crypt::reverse_bitset<128> &plaintext,
-                                    const crypt::reverse_bitset<192> &key);
-template void aes_encrypt<128, 256>(crypt::reverse_bitset<128> &ciphertext, const crypt::reverse_bitset<128> &plaintext,
-                                    const crypt::reverse_bitset<256> &key);
-template void aes_decrypt<128, 128>(crypt::reverse_bitset<128> &plaintext, const crypt::reverse_bitset<128> &cihpertext,
-                                    const crypt::reverse_bitset<128> &key);
-template void aes_decrypt<128, 192>(crypt::reverse_bitset<128> &plaintext, const crypt::reverse_bitset<128> &ciphertext,
-                                    const crypt::reverse_bitset<192> &key);
-template void aes_decrypt<128, 256>(crypt::reverse_bitset<128> &plaintext, const crypt::reverse_bitset<128> &ciphertext,
-                                    const crypt::reverse_bitset<256> &key);
-} // namespace crypt
+template void aes_encrypt<128, 128>(focalors::reverse_bitset<128> &ciphertext, const focalors::reverse_bitset<128> &plaintext,
+                                    const focalors::reverse_bitset<128> &key);
+template void aes_encrypt<128, 192>(focalors::reverse_bitset<128> &ciphertext, const focalors::reverse_bitset<128> &plaintext,
+                                    const focalors::reverse_bitset<192> &key);
+template void aes_encrypt<128, 256>(focalors::reverse_bitset<128> &ciphertext, const focalors::reverse_bitset<128> &plaintext,
+                                    const focalors::reverse_bitset<256> &key);
+template void aes_decrypt<128, 128>(focalors::reverse_bitset<128> &plaintext, const focalors::reverse_bitset<128> &cihpertext,
+                                    const focalors::reverse_bitset<128> &key);
+template void aes_decrypt<128, 192>(focalors::reverse_bitset<128> &plaintext, const focalors::reverse_bitset<128> &ciphertext,
+                                    const focalors::reverse_bitset<192> &key);
+template void aes_decrypt<128, 256>(focalors::reverse_bitset<128> &plaintext, const focalors::reverse_bitset<128> &ciphertext,
+                                    const focalors::reverse_bitset<256> &key);
+} // namespace focalors
 
 #ifdef DEBUG
 int main()
@@ -390,10 +390,10 @@ int main()
         {
             throw std::invalid_argument("输入长度错误");
         }
-        crypt::bitset<128> plaintext(hex_to_binary_string(plaintext_str));
-        crypt::bitset<128> key(hex_to_binary_string(key_str));
-        crypt::bitset<128> ciphertext;
-        crypt::aes_encrypt(ciphertext, plaintext, key);
+        focalors::bitset<128> plaintext(hex_to_binary_string(plaintext_str));
+        focalors::bitset<128> key(hex_to_binary_string(key_str));
+        focalors::bitset<128> ciphertext;
+        focalors::aes_encrypt(ciphertext, plaintext, key);
         cout << "明文：" << plaintext_str << endl;
         cout << "密钥：" << key_str << endl;
         cout << "密文：" << binary_to_hex_string(ciphertext.to_string()) << endl;
@@ -409,10 +409,10 @@ int main()
         {
             throw std::invalid_argument("输入长度错误");
         }
-        crypt::bitset<128> ciphertext(hex_to_binary_string(ciphertext_str));
-        crypt::bitset<128> key(hex_to_binary_string(key_str));
-        crypt::bitset<128> plaintext;
-        crypt::aes_decrypt(plaintext, ciphertext, key);
+        focalors::bitset<128> ciphertext(hex_to_binary_string(ciphertext_str));
+        focalors::bitset<128> key(hex_to_binary_string(key_str));
+        focalors::bitset<128> plaintext;
+        focalors::aes_decrypt(plaintext, ciphertext, key);
         cout << "密文：" << ciphertext_str << endl;
         cout << "密钥：" << key_str << endl;
         cout << "明文：" << binary_to_hex_string(plaintext.to_string()) << endl;

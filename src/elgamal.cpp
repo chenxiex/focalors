@@ -1,4 +1,4 @@
-#include "crypt.h"
+#include "focalors.h"
 #include <gmp.h>
 #include <gmpxx.h>
 #include <string>
@@ -40,7 +40,7 @@ void find_primative_root(mpz_class &a, const mpz_class &p)
 }
 } // namespace elgamal
 
-namespace crypt
+namespace focalors
 {
 void elgamal_generate_key(string &p, string &a, string &d, string &y, const int &base)
 {
@@ -162,7 +162,7 @@ bool elgamal_verify1(const string &m, const string &r, const string &s, const st
     mpz_powm_sec(am.get_mpz_t(), a_mpz.get_mpz_t(), m_mpz.get_mpz_t(), p_mpz.get_mpz_t());
     return v == am;
 }
-} // namespace crypt
+} // namespace focalors
 
 #ifdef DEBUG
 int main()
@@ -171,11 +171,11 @@ int main()
     string c1, c2;
     string p = "19", a, y, d;
     string decrypted;
-    crypt::elgamal_generate_key(a, d, y, std::move(p), 10);
+    focalors::elgamal_generate_key(a, d, y, std::move(p), 10);
     cout << "a=" << a << "\nd=" << d << "\ny=" << y << endl;
-    crypt::elgamal_sign1(c1, c2, m, p, a, d, 10);
+    focalors::elgamal_sign1(c1, c2, m, p, a, d, 10);
     cout << "c1=" << c1 << "\nc2=" << c2 << endl;
-    bool flag = crypt::elgamal_verify1(m, c1, c2, p, a, y, 10);
+    bool flag = focalors::elgamal_verify1(m, c1, c2, p, a, y, 10);
     cout << "flag=" << flag << endl;
 }
 #endif

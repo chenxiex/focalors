@@ -1,9 +1,9 @@
-#include "crypt.h"
+#include "focalors.h"
 #include <gmpxx.h>
 #include <string>
 using std::string;
 
-namespace crypt
+namespace focalors
 {
 void rsa_generate_key(string &e, string &d, string &n, const int &base)
 {
@@ -69,7 +69,7 @@ string rsa_decrypt(const string &c, const string &d, const string &n, const int 
     mpz_powm_sec(sum.get_mpz_t(), c_mpz.get_mpz_t(), d_mpz.get_mpz_t(), n_mpz.get_mpz_t());
     return sum.get_str(base);
 }
-} // namespace crypt
+} // namespace focalors
 
 #ifdef DEBUG
 #include <iostream>
@@ -82,14 +82,14 @@ int main()
     string p = "17", q = "11";
     string c;
 
-    crypt::rsa_generate_key(d, n, 10, p, q, e);
+    focalors::rsa_generate_key(d, n, 10, p, q, e);
     cout << "d=" << d << endl;
     cout << "n=" << n << endl;
 
-    c = crypt::rsa_decrypt(m, e, n, 10);
+    c = focalors::rsa_decrypt(m, e, n, 10);
     cout << "c=" << c << endl;
 
-    string decrypted = crypt::rsa_encrypt(c, d, n, 10);
+    string decrypted = focalors::rsa_encrypt(c, d, n, 10);
     cout << "flag=" << (decrypted == m) << endl;
 
     return 0;

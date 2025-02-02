@@ -1,7 +1,15 @@
 #include "des.h"
-#include "crypt.h"
+#include "focalors.h"
+#include "type_impl.h"
 #include <array>
-using crypt::reverse_bitset;
+#include <cstdint>
+#include <stdexcept>
+
+#ifdef DEBUG
+#include <iostream>
+#endif
+
+using focalors::reverse_bitset;
 using std::array;
 
 namespace des
@@ -114,11 +122,6 @@ void ip_1(reverse_bitset<64> &result, const reverse_bitset<64> &bits)
         result[i] = bits[IP_1[i] - 1];
     }
 }
-
-} // namespace des
-namespace crypt
-{
-using namespace des;
 void des_encrypt(reverse_bitset<64> &ciphertext, const reverse_bitset<64> &plaintext, const reverse_bitset<64> &key)
 {
     array<reverse_bitset<48>, 16> subkeys;
@@ -155,17 +158,37 @@ void des_decrypt(reverse_bitset<64> &plaintext, const reverse_bitset<64> &cipher
     }
     ip_1(plaintext, encrypted);
 }
-} // namespace crypt
+} // namespace des
+namespace focalors
+{
+using namespace focalors;
+using namespace std;
+vector<uint8_t> des(const vector<uint8_t> &input, const vector<uint8_t> &key, bool encrypt)
+{
+    if (key.size() != 8)
+    {
+        throw invalid_argument("Key size must be 8 bytes.");
+    }
+    if (input.size() != 8)
+    {
+        throw invalid_argument("Plaintext size must be 8 bytes.");
+    }
+    reverse_bitset<64> output, input_reverse_bitset(input), key_reverse_bitset(key);
+    if (encrypt)
+        des::des_encrypt(output, input_reverse_bitset, key_reverse_bitset);
+    else
+        des::des_decrypt(output, input_reverse_bitset, key_reverse_bitset);
+    return output.to_vector();
+}
+} // namespace focalors
 
 #ifdef DEBUG
-#include <iostream>
-
 int main()
 {
-    crypt::bitset<64> input("1101001100000011000100110010001100110011010000110101001101100011");
-    crypt::bitset<64> key("0011000100110010001100110011010000110101001101100011011100111000");
-    crypt::bitset<64> output;
-    crypt::des_encrypt(output, input, key);
+    focalors::reverse_bitset<64> input("0011000000110001001100100011001100110100001101010011011000110111");
+    focalors::reverse_bitset<64> key("0011000100110010001100110011010000110101001101100011011100111000");
+    focalors::reverse_bitset<64> output;
+    focalors::des_encrypt(output, input, key);
     std::cout << output << std::endl;
 }
 #endif

@@ -2,7 +2,7 @@
 #ifndef bcm_IMPL_H
 #define bcm_IMPL_H
 #include "bcm.h"
-#include "crypt.h"
+#include "focalors.h"
 namespace bcm
 {
 template <typename T> void split_input(std::vector<T> &text, const std::string &input)
@@ -28,7 +28,7 @@ template <typename T> void merge_output(std::string &output, const std::vector<T
 }
 } // namespace bcm
 
-namespace crypt
+namespace focalors
 {
 template <typename BT, typename KT>
 void ecb(std::string &output_string, const std::string &input_string, const KT &key,
@@ -386,5 +386,5 @@ void ctr(std::string &output_string, const std::string &input_string, const KT &
         output_string = output_string.substr(0, output_string.size() - padding);
     }
 }
-} // namespace crypt
+} // namespace focalors
 #endif

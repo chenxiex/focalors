@@ -1,5 +1,5 @@
 #include "zuc.h"
-#include "crypt.h"
+#include "focalors.h"
 #include <array>
 #include <bit>
 #include <cstdint>
@@ -64,16 +64,16 @@ word l2(word x)
 }
 word sbox(word x)
 {
-    crypt::word x1(x);
+    focalors::word x1(x);
     for (int i = 0; i < 4; i++)
     {
         if (i & 1)
         {
-            x1.set_byte(i, crypt::byte(S1[x1.get_byte(i).to_ulong() >> 4][x1.get_byte(i).to_ulong() & 0xf]));
+            x1.set_byte(i, focalors::byte(S1[x1.get_byte(i).to_ulong() >> 4][x1.get_byte(i).to_ulong() & 0xf]));
         }
         else
         {
-            x1.set_byte(i, crypt::byte(S0[x1.get_byte(i).to_ulong() >> 4][x1.get_byte(i).to_ulong() & 0xf]));
+            x1.set_byte(i, focalors::byte(S0[x1.get_byte(i).to_ulong() >> 4][x1.get_byte(i).to_ulong() & 0xf]));
         }
     }
     return x1.to_ulong();
@@ -133,7 +133,7 @@ void init(const array<byte, 16> &key, const array<byte, 16> &iv)
 }
 } // namespace zuc
 
-namespace crypt
+namespace focalors
 {
 void zuc_init(const array<byte, 16> &key, const array<byte, 16> &iv)
 {
@@ -161,11 +161,11 @@ word zuc_output()
     }
     bit_reconstruction();
     f();
-    crypt::word z(w ^ x[3]);
+    focalors::word z(w ^ x[3]);
     lsfr_with_work_mode();
     return z;
 }
-} // namespace crypt
+} // namespace focalors
 
 #ifdef DEBUG
 std::string hex_to_binary_string(const std::string &hex)
@@ -202,17 +202,17 @@ int main()
     cin>>n;
     key = hex_to_binary_string(key);
     iv = hex_to_binary_string(iv);
-    array<crypt::byte, 16> zuc_key;
-    array<crypt::byte, 16> zuc_iv;
+    array<focalors::byte, 16> zuc_key;
+    array<focalors::byte, 16> zuc_iv;
     for (auto i = 0; i < 16; i++)
     {
-        zuc_key[i] = crypt::byte(key.substr(i * 8, 8));
-        zuc_iv[i] = crypt::byte(iv.substr(i * 8, 8));
+        zuc_key[i] = focalors::byte(key.substr(i * 8, 8));
+        zuc_iv[i] = focalors::byte(iv.substr(i * 8, 8));
     }
-    crypt::zuc_init(zuc_key, zuc_iv);
+    focalors::zuc_init(zuc_key, zuc_iv);
     for (auto i = 0; i < n; i++)
     {
-        cout << std::hex << crypt::zuc_output().to_ullong() << endl;
+        cout << std::hex << focalors::zuc_output().to_ullong() << endl;
     }
     return 0;
 }

@@ -1,5 +1,6 @@
-#include "crypt.h"
-namespace crypt
+#include "focalors.h"
+#include <stdexcept>
+namespace focalors
 {
 // word
 byte word::get_byte(const std::size_t &pos) const
@@ -51,4 +52,4 @@ word operator^(const word &lhs, const word &rhs)
     result ^= rhs;
     return result;
 }
-}; // namespace crypt
+}; // namespace focalors

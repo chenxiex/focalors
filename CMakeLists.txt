@@ -8,19 +8,33 @@ set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type")
 
 include_directories(include)
 
-set(SRCS
+set(LIB_SRCS
     src/des.cpp
-    src/main.cpp
     src/bcm.cpp
     src/type.cpp
     src/aes.cpp
+    src/utils.cpp
 )
 
-add_executable(focalors ${SRCS})
+add_library(focalors ${LIB_SRCS})
 
+#add_executable(furina-cli src/main.cpp)
+
+#target_link_libraries(furina-cli PRIVATE focalors)
+
+#target_compile_options(furina-cli PRIVATE -Wall)
 target_compile_options(focalors PRIVATE -Wall)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#    target_compile_options(furina-cli PRIVATE -g)
     target_compile_options(focalors PRIVATE -g)
 else()
+#    target_compile_options(furina-cli PRIVATE -O2)
     target_compile_options(focalors PRIVATE -O2)
+endif()
+
+option(ENABLE_TESTING "Enable testing" OFF)
+if (ENABLE_TESTING)
+    enable_testing()
+    add_subdirectory(tests)
 endif()
