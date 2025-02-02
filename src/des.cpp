@@ -1,14 +1,9 @@
 #include "des.h"
 #include "focalors.h"
-#include "type_impl.h"
+#include "type.h"
 #include <array>
 #include <cstdint>
 #include <stdexcept>
-
-#ifdef DEBUG
-#include <iostream>
-#endif
-
 using focalors::reverse_bitset;
 using std::array;
 
@@ -161,7 +156,6 @@ void des_decrypt(reverse_bitset<64> &plaintext, const reverse_bitset<64> &cipher
 } // namespace des
 namespace focalors
 {
-using namespace focalors;
 using namespace std;
 vector<uint8_t> des(const vector<uint8_t> &input, const vector<uint8_t> &key, bool encrypt)
 {
@@ -181,14 +175,3 @@ vector<uint8_t> des(const vector<uint8_t> &input, const vector<uint8_t> &key, bo
     return output.to_vector();
 }
 } // namespace focalors
-
-#ifdef DEBUG
-int main()
-{
-    focalors::reverse_bitset<64> input("0011000000110001001100100011001100110100001101010011011000110111");
-    focalors::reverse_bitset<64> key("0011000100110010001100110011010000110101001101100011011100111000");
-    focalors::reverse_bitset<64> output;
-    focalors::des_encrypt(output, input, key);
-    std::cout << output << std::endl;
-}
-#endif
