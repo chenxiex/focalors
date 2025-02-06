@@ -1,8 +1,7 @@
-#include "type.h"
+#include "../include/word.h"
 #include <stdexcept>
 namespace focalors
 {
-// word
 uint8_t word::get_byte(const std::size_t &pos) const
 {
     if (pos >= 4)

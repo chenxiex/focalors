@@ -6,12 +6,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type")
 
-include_directories(include)
+include_directories(include src)
 
 set(LIB_SRCS
     src/des.cpp
     src/bcm.cpp
-    src/type.cpp
+    src/word.cpp
     src/aes.cpp
     src/utils.cpp
 )

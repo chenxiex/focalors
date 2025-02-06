@@ -1,7 +1,9 @@
+#pragma once
 #ifndef aes_H
 #define aes_H
-#include "type.h"
+#include "../include/word.h"
 #include <array>
+#include <cstdint>
 #include <unordered_map>
 
 namespace aes

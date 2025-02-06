@@ -1,3 +1,4 @@
+#pragma once
 #ifndef DES_H
 #define DES_H
 #include <array>

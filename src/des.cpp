@@ -1,6 +1,6 @@
-#include "des.h"
+#include "../include/des.h"
+#include "../include/reverse_bitset.h"
 #include "focalors.h"
-#include "type.h"
 #include <array>
 #include <cstdint>
 #include <stdexcept>

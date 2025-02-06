@@ -1,6 +1,6 @@
-#include "aes.h"
+#include "../include/aes.h"
+#include "../include/reverse_bitset.h"
 #include "focalors.h"
-#include "type.h"
 #include <stdexcept>
 #include <vector>
 using focalors::word;

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef CRYPT_H
-#define CRYPT_H
+#ifndef FOCALORS_H
+#define FOCALORS_H
 #include <array>
 #include <cstdint>
 #include <functional>
