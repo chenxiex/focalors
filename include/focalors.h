@@ -2,7 +2,6 @@
 #ifndef CRYPT_H
 #define CRYPT_H
 #include <array>
-#include <bitset>
 #include <cstdint>
 #include <functional>
 #include <string>

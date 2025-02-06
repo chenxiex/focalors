@@ -1,4 +1,5 @@
 #include "focalors.h"
+#include <bitset>
 #include <iomanip>
 #include <ios>
 #include <sstream>
