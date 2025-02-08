@@ -12,11 +12,6 @@ template <std::size_t N> class reverse_bitset : public std::bitset<N>
   public:
     using std::bitset<N>::bitset; // 继承 std::bitset 的构造函数
 
-    /*
-     * 从字节序列构造 reverse_bitset。请确保字节序列长度与位数 N 匹配。
-     *
-     * @param v 字节序列。
-     */
     reverse_bitset<N>(const std::vector<uint8_t> &v);
     using std::bitset<N>::operator=; // 继承 std::bitset 的赋值运算符
 
