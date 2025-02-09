@@ -2,3 +2,4 @@
 .clangd
 *.d
 /build
+.cache
