@@ -1,13 +1,15 @@
 #pragma once
 #ifndef aes_H
 #define aes_H
-#include "../include/word.h"
+#include "word.h"
 #include <array>
 #include <cstdint>
 #include <unordered_map>
+#include <vector>
 
 namespace aes
 {
+// 常量
 const std::unordered_map<int, int> NK = {{128, 4}, {192, 6}, {256, 8}};
 const std::unordered_map<int, int> NB = {{128, 4}};
 const int NR[3][3] = {{10, 12, 14}, {12, 12, 14}, {14, 14, 14}};
@@ -52,5 +54,45 @@ const uint8_t INV_C[4][4] = {
 const std::size_t CX[3][4] = {{0, 1, 2, 3}, {0, 1, 2, 3}, {0, 1, 3, 4}};
 const std::array<focalors::word, 10> RCON = {0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000,
                                              0x20000000, 0x40000000, 0x80000000, 0x1b000000, 0x36000000};
+
+// 函数
+std::vector<focalors::word> bytes_to_word(const std::vector<uint8_t> &v);
+std::vector<uint8_t> words_to_bytes(const std::vector<focalors::word> &v);
+focalors::word rotl(focalors::word w);
+uint8_t sbox(uint8_t b);
+focalors::word sbox(focalors::word w);
+void sbox(std::vector<focalors::word> &state);
+std::vector<focalors::word> key_expansion(const std::vector<focalors::word> &cipher_key, const int &nb, const int &nk,
+                                          const int &nr);
+uint8_t gf_mul(uint8_t a, uint8_t b);
+void add_round_key(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round);
+void shift_row(std::vector<focalors::word> &state);
+void mix_column(std::vector<focalors::word> &state);
+void round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round);
+void final_round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round);
+void inv_mix_column(focalors::word &w);
+void inv_mix_column(std::vector<focalors::word> &state);
+std::vector<focalors::word> inv_key_expansion(const std::vector<focalors::word> &cipher_key, const int &nb,
+                                              const int &nk, const int &nr);
+void inv_shift_row(std::vector<focalors::word> &state);
+uint8_t inv_sbox(uint8_t b);
+focalors::word inv_sbox(focalors::word w);
+void inv_sbox(std::vector<focalors::word> &state);
+void inv_round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round);
+void inv_final_round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round);
+/*
+ * @brief AES加密
+ * @param plaintext 明文
+ * @param key 密钥
+ * @return 密文
+ */
+std::vector<uint8_t> aes_encrypt(const std::vector<uint8_t> &plaintext, const std::vector<uint8_t> &key);
+/*
+ * @brief AES解密
+ * @param ciphertext 密文
+ * @param key 密钥
+ * @return 明文
+ */
+std::vector<uint8_t> aes_decrypt(const std::vector<uint8_t> &ciphertext, const std::vector<uint8_t> &key);
 } // namespace aes
 #endif // AES_H
