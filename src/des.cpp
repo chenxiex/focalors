@@ -1,15 +1,17 @@
-#include "../include/des.h"
-#include "../include/reverse_bitset.h"
+#include "des.h"
 #include "focalors.h"
+#include "reverse_bitset.h"
 #include <array>
 #include <cstdint>
 #include <stdexcept>
+#include <vector>
+#include <tuple>
 using focalors::reverse_bitset;
 using std::array;
 
 namespace des
 {
-reverse_bitset<28> left_shift(const reverse_bitset<28> &bits, const int &n)
+focalors::reverse_bitset<28> left_shift(const focalors::reverse_bitset<28> &bits, const int &n)
 {
     reverse_bitset<28> shifted;
     for (int i = 0; i < 28; i++)
@@ -18,7 +20,7 @@ reverse_bitset<28> left_shift(const reverse_bitset<28> &bits, const int &n)
     }
     return shifted;
 }
-reverse_bitset<48> choose(const reverse_bitset<56> &bits)
+focalors::reverse_bitset<48> choose(const focalors::reverse_bitset<56> &bits)
 {
     reverse_bitset<48> chosen;
     for (int i = 0; i < 48; i++)
@@ -27,17 +29,20 @@ reverse_bitset<48> choose(const reverse_bitset<56> &bits)
     }
     return chosen;
 }
-void choose1(reverse_bitset<28> &c, reverse_bitset<28> &d, const reverse_bitset<64> &key)
+std::pair<focalors::reverse_bitset<28>, focalors::reverse_bitset<28>> choose1(const focalors::reverse_bitset<64> &key)
 {
     // 选择置换1
+    reverse_bitset<28> c, d;
     for (int i = 0; i < 28; i++)
     {
         c[i] = key[C0[i] - 1];
         d[i] = key[D0[i] - 1];
     }
+    return {c, d};
 }
-void choose2(reverse_bitset<28> &c, reverse_bitset<28> &d, reverse_bitset<48> &subkey)
+focalors::reverse_bitset<48> choose2(const focalors::reverse_bitset<28> &c, const focalors::reverse_bitset<28> &d)
 {
+    reverse_bitset<48> subkey;
     reverse_bitset<56> cd;
     for (int j = 0; j < 28; j++)
     {
@@ -45,19 +50,23 @@ void choose2(reverse_bitset<28> &c, reverse_bitset<28> &d, reverse_bitset<48> &s
         cd[j + 28] = d[j];
     }
     subkey = choose(cd);
+    return subkey;
 }
-void generate_subkeys(array<reverse_bitset<48>, 16> &subkeys, const reverse_bitset<64> &key)
+array<reverse_bitset<48>, 16> generate_subkeys(const reverse_bitset<64> &key)
 {
+    array<reverse_bitset<48>, 16> subkeys;
     reverse_bitset<28> c, d;
-    choose1(c, d, key);
+    tie(c,d)=choose1(key);
     for (int i = 0; i < 16; i++)
     {
         c = left_shift(c, i);
         d = left_shift(d, i);
-        choose2(c, d, subkeys[i]);
+        subkeys[i] = choose2(c, d);
     }
+    return subkeys;
 }
-void initial_permutation(reverse_bitset<32> &l, reverse_bitset<32> &r, const reverse_bitset<64> &plaintext)
+void initial_permutation(focalors::reverse_bitset<32> &l, focalors::reverse_bitset<32> &r,
+                         const focalors::reverse_bitset<64> &plaintext)
 {
     for (int i = 0; i < 32; i++)
     {
@@ -65,7 +74,7 @@ void initial_permutation(reverse_bitset<32> &l, reverse_bitset<32> &r, const rev
         r[i] = plaintext[IP[i + 32] - 1];
     }
 }
-reverse_bitset<48> expand(const reverse_bitset<32> &bits)
+focalors::reverse_bitset<48> expand(const focalors::reverse_bitset<32> &bits)
 {
     reverse_bitset<48> expanded;
     for (int i = 0; i < 48; i++)
@@ -74,7 +83,7 @@ reverse_bitset<48> expand(const reverse_bitset<32> &bits)
     }
     return expanded;
 }
-reverse_bitset<32> sbox(const reverse_bitset<48> &bits)
+focalors::reverse_bitset<32> sbox(const focalors::reverse_bitset<48> &bits)
 {
     reverse_bitset<32> sboxed;
     for (int i = 0; i < 8; i++)
@@ -89,7 +98,7 @@ reverse_bitset<32> sbox(const reverse_bitset<48> &bits)
     }
     return sboxed;
 }
-reverse_bitset<32> permutation(const reverse_bitset<32> &bits)
+focalors::reverse_bitset<32> permutation(const focalors::reverse_bitset<32> &bits)
 {
     reverse_bitset<32> permuted;
     for (int i = 0; i < 32; i++)
@@ -98,7 +107,8 @@ reverse_bitset<32> permutation(const reverse_bitset<32> &bits)
     }
     return permuted;
 }
-void des_encrypt_f(reverse_bitset<32> &l, reverse_bitset<32> &r, const reverse_bitset<48> &subkey)
+void des_encrypt_f(focalors::reverse_bitset<32> &l, focalors::reverse_bitset<32> &r,
+                   const focalors::reverse_bitset<48> &subkey)
 {
     reverse_bitset<48> expanded = expand(r);
     expanded ^= subkey;
@@ -110,17 +120,19 @@ void des_encrypt_f(reverse_bitset<32> &l, reverse_bitset<32> &r, const reverse_b
     l = l1;
     r = r1;
 }
-void ip_1(reverse_bitset<64> &result, const reverse_bitset<64> &bits)
+focalors::reverse_bitset<64> ip_1(const focalors::reverse_bitset<64> &bits)
 {
+    reverse_bitset<64> result;
     for (int i = 0; i < 64; i++)
     {
         result[i] = bits[IP_1[i] - 1];
     }
+    return result;
 }
-void des_encrypt(reverse_bitset<64> &ciphertext, const reverse_bitset<64> &plaintext, const reverse_bitset<64> &key)
+focalors::reverse_bitset<64> des_encrypt(const focalors::reverse_bitset<64> &plaintext,
+                                         const focalors::reverse_bitset<64> &key)
 {
-    array<reverse_bitset<48>, 16> subkeys;
-    generate_subkeys(subkeys, key);
+    auto subkeys = generate_subkeys(key);
     reverse_bitset<32> l, r;
     initial_permutation(l, r, plaintext);
     for (int i = 0; i < 16; i++)
@@ -133,12 +145,12 @@ void des_encrypt(reverse_bitset<64> &ciphertext, const reverse_bitset<64> &plain
         encrypted[i] = r[i];
         encrypted[i + 32] = l[i];
     }
-    ip_1(ciphertext, encrypted);
+    return ip_1(encrypted);
 }
-void des_decrypt(reverse_bitset<64> &plaintext, const reverse_bitset<64> &ciphertext, const reverse_bitset<64> &key)
+focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &ciphertext,
+                                         const focalors::reverse_bitset<64> &key)
 {
-    array<reverse_bitset<48>, 16> subkeys;
-    generate_subkeys(subkeys, key);
+    auto subkeys = generate_subkeys(key);
     reverse_bitset<32> l, r;
     initial_permutation(l, r, ciphertext);
     for (auto i = subkeys.rbegin(); i != subkeys.rend(); i++)
@@ -151,7 +163,7 @@ void des_decrypt(reverse_bitset<64> &plaintext, const reverse_bitset<64> &cipher
         encrypted[i] = r[i];
         encrypted[i + 32] = l[i];
     }
-    ip_1(plaintext, encrypted);
+    return ip_1(encrypted);
 }
 } // namespace des
 namespace focalors
@@ -169,9 +181,9 @@ vector<uint8_t> des(const vector<uint8_t> &input, const vector<uint8_t> &key, bo
     }
     reverse_bitset<64> output, input_reverse_bitset(input), key_reverse_bitset(key);
     if (encrypt)
-        des::des_encrypt(output, input_reverse_bitset, key_reverse_bitset);
+        output = des::des_encrypt(input_reverse_bitset, key_reverse_bitset);
     else
-        des::des_decrypt(output, input_reverse_bitset, key_reverse_bitset);
+        output = des::des_decrypt(input_reverse_bitset, key_reverse_bitset);
     return output.to_vector();
 }
 } // namespace focalors
