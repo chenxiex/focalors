@@ -13,7 +13,14 @@ RUN if [ "${REINSTALL_CMAKE_VERSION_FROM_SOURCE}" != "none" ]; then \
 ARG SWITCHMIRROR="true"
 
 RUN if [ "${SWITCHMIRROR}" = "true" ]; then \
-        curl -sSL https://linuxmirrors.cn/main.sh | bash; \
+        curl -sSL https://linuxmirrors.cn/main.sh | bash -s -- \
+        --source mirrors.tencent.com \
+        --protocol https \
+        --use-intranet-source false\
+        --backup true \
+        --upgrade-software false \
+        --clean-cache true \
+        --ignore-backup-tips; \
     fi
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
