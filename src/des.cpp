@@ -4,8 +4,8 @@
 #include <array>
 #include <cstdint>
 #include <stdexcept>
-#include <vector>
 #include <tuple>
+#include <vector>
 using focalors::reverse_bitset;
 using std::array;
 
@@ -56,7 +56,7 @@ array<reverse_bitset<48>, 16> generate_subkeys(const reverse_bitset<64> &key)
 {
     array<reverse_bitset<48>, 16> subkeys;
     reverse_bitset<28> c, d;
-    tie(c,d)=choose1(key);
+    tie(c, d) = choose1(key);
     for (int i = 0; i < 16; i++)
     {
         c = left_shift(c, i);
@@ -166,6 +166,7 @@ focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &cip
     return ip_1(encrypted);
 }
 } // namespace des
+
 namespace focalors
 {
 using namespace std;
