@@ -32,5 +32,5 @@ focalors::reverse_bitset<N> operator|(const focalors::reverse_bitset<N> &lhs, co
 template <std::size_t N>
 focalors::reverse_bitset<N> operator^(const focalors::reverse_bitset<N> &lhs, const focalors::reverse_bitset<N> &rhs);
 } // namespace focalors
-#include "../src/reverse_bitset_impl.hpp"
+#include "reverse_bitset_impl.hpp"
 #endif

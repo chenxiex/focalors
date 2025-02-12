@@ -1,7 +1,7 @@
 #pragma once
 #ifndef REVERSE_BITSET_IMPL_H
 #define REVERSE_BITSET_IMPL_H
-#include "../include/reverse_bitset.h"
+#include "reverse_bitset.h"
 namespace focalors
 {
 template <std::size_t N> focalors::reverse_bitset<N>::reverse_bitset(const std::vector<uint8_t> &v)

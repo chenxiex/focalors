@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type")
 
-include_directories(include src)
+include_directories(include)
 
 set(LIB_SRCS
     src/des.cpp
