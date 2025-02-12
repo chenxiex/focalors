@@ -338,17 +338,16 @@ namespace focalors
 {
 using namespace std;
 using namespace focalors;
-vector<uint8_t> aes(const vector<uint8_t> &input, const vector<uint8_t> &key, bool encrypt)
+size_t AES::block_size() const noexcept
 {
-    vector<uint8_t> output;
-    if (encrypt)
-    {
-        output = aes::aes_encrypt(input, key);
-    }
-    else
-    {
-        output = aes::aes_decrypt(input, key);
-    }
-    return output;
+    return 16;
+}
+std::vector<uint8_t> AES::encrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const
+{
+    return aes::aes_encrypt(input, key);
+}
+std::vector<uint8_t> AES::decrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const
+{
+    return aes::aes_decrypt(input, key);
 }
 } // namespace focalors

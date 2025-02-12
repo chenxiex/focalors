@@ -13,13 +13,28 @@ namespace focalors
 class block_cipher
 {
   public:
+    /*
+     * @brief 获取块大小。
+     * @return 块大小。
+     */
     virtual size_t block_size() const noexcept = 0;
+    /*
+     * @brief 加密。
+     * @param input 输入数据。
+     * @param key 密钥。
+     * @return 加密后的数据。
+     */
     virtual std::vector<uint8_t> encrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const = 0;
+    /*
+     * @brief 解密。
+     * @param input 输入数据。
+     * @param key 密钥。
+     * @return 解密后的数据。
+     */
     virtual std::vector<uint8_t> decrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const = 0;
 };
 
 // DES
-
 class DES : public block_cipher
 {
   public:
@@ -44,19 +59,39 @@ class DES : public block_cipher
     std::vector<uint8_t> decrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const override;
 
   private:
+    /*
+     * @brief 检查输入参数是否合法。
+     * @param input 输入数据。
+     * @param key 密钥。
+     * @return true表示合法，false表示不合法。
+     */
     bool argument_check(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const;
 };
 
 // AES
-
-/*
- * @brief AES加密或解密。
- * @param input 输入数据。
- * @param key 密钥。
- * @param encrypt true表示加密，false表示解密。
- * @return 加密或解密后的数据。
- */
-std::vector<uint8_t> aes(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key, bool encrypt);
+class AES : public block_cipher
+{
+  public:
+    /*
+     * @brief 获取块大小。
+     * @return 块大小。
+     */
+    size_t block_size() const noexcept override;
+    /*
+     * @brief AES加密。
+     * @param input 输入数据。
+     * @param key 密钥。
+     * @return 加密后的数据。
+     */
+    std::vector<uint8_t> encrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const override;
+    /*
+     * @brief AES解密。
+     * @param input 输入数据。
+     * @param key 密钥。
+     * @return 解密后的数据。
+     */
+    std::vector<uint8_t> decrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const override;
+};
 
 // Block cipher mode
 template <typename BT, typename KT>

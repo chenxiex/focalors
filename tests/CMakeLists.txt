@@ -1,6 +1,8 @@
 find_package(GTest CONFIG REQUIRED)
 include(GoogleTest)
 
+include_directories(include)
+
 add_executable(des_test des_test.cpp)
 target_link_libraries(des_test GTest::gtest_main focalors)
 gtest_discover_tests(des_test)
