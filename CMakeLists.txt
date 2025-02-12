@@ -18,19 +18,12 @@ set(LIB_SRCS
 
 add_library(focalors ${LIB_SRCS})
 
-#add_executable(furina-cli src/main.cpp)
-
-#target_link_libraries(furina-cli PRIVATE focalors)
-
-#target_compile_options(furina-cli PRIVATE -Wall)
-target_compile_options(focalors PRIVATE -Wall)
+target_compile_options(focalors PRIVATE -Wall -Wextra)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#    target_compile_options(furina-cli PRIVATE -g)
     target_compile_options(focalors PRIVATE -g)
 else()
-#    target_compile_options(furina-cli PRIVATE -O2)
-    target_compile_options(focalors PRIVATE -O2)
+    target_compile_options(focalors PRIVATE -O3)
 endif()
 
 option(ENABLE_TESTING "Enable testing" OFF)
