@@ -10,13 +10,13 @@ const vector<uint8_t> ciphertext = binary_to_bytes("1000101110110100011110100000
 TEST(DesTest, Encrypt)
 {
     auto &input = plaintext;
-    vector<uint8_t> output = des(input, key, true);
+    vector<uint8_t> output = DES().encrypt(input, key);
     EXPECT_STREQ(bytes_to_binary(output).c_str(), bytes_to_binary(ciphertext).c_str());
 }
 
 TEST(DesTest, Decrypt)
 {
     auto &input = ciphertext;
-    vector<uint8_t> output = des(input, key, false);
+    vector<uint8_t> output = DES().decrypt(input, key);
     EXPECT_STREQ(bytes_to_binary(output).c_str(), bytes_to_binary(plaintext).c_str());
 }

@@ -9,16 +9,43 @@
 
 namespace focalors
 {
+// Block cipher
+class block_cipher
+{
+  public:
+    virtual size_t block_size() const noexcept = 0;
+    virtual std::vector<uint8_t> encrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const = 0;
+    virtual std::vector<uint8_t> decrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const = 0;
+};
+
 // DES
 
-/*
- * @brief DES加密或解密。
- * @param input 输入数据。
- * @param key 密钥。
- * @param encrypt true表示加密，false表示解密。
- * @return 加密或解密后的数据。
- */
-std::vector<uint8_t> des(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key, bool encrypt);
+class DES : public block_cipher
+{
+  public:
+    /*
+     * @brief 获取块大小。
+     * @return 块大小。
+     */
+    size_t block_size() const noexcept override;
+    /*
+     * @brief DES加密。
+     * @param input 输入数据。
+     * @param key 密钥。
+     * @return 加密后的数据。
+     */
+    std::vector<uint8_t> encrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const override;
+    /*
+     * @brief DES解密。
+     * @param input 输入数据。
+     * @param key 密钥。
+     * @return 解密后的数据。
+     */
+    std::vector<uint8_t> decrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const override;
+
+  private:
+    bool argument_check(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const;
+};
 
 // AES
 

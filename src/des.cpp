@@ -169,21 +169,34 @@ focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &cip
 namespace focalors
 {
 using namespace std;
-vector<uint8_t> des(const vector<uint8_t> &input, const vector<uint8_t> &key, bool encrypt)
+size_t DES::block_size() const noexcept
+{
+    return 8;
+}
+bool DES::argument_check(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const
 {
     if (key.size() != 8)
     {
         throw invalid_argument("Key size must be 8 bytes.");
     }
-    if (input.size() != 8)
+    if (input.size() != block_size())
     {
-        throw invalid_argument("Plaintext size must be 8 bytes.");
+        throw invalid_argument("Input size must be 8 bytes.");
     }
+    return true;
+}
+vector<uint8_t> DES::encrypt(const vector<uint8_t> &input, const vector<uint8_t> &key) const
+{
+    argument_check(input, key);
     reverse_bitset<64> output, input_reverse_bitset(input), key_reverse_bitset(key);
-    if (encrypt)
-        output = des::des_encrypt(input_reverse_bitset, key_reverse_bitset);
-    else
-        output = des::des_decrypt(input_reverse_bitset, key_reverse_bitset);
+    output = des::des_encrypt(input_reverse_bitset, key_reverse_bitset);
+    return output.to_vector();
+}
+vector<uint8_t> DES::decrypt(const vector<uint8_t> &input, const vector<uint8_t> &key) const
+{
+    argument_check(input, key);
+    reverse_bitset<64> output, input_reverse_bitset(input), key_reverse_bitset(key);
+    output = des::des_decrypt(input_reverse_bitset, key_reverse_bitset);
     return output.to_vector();
 }
 } // namespace focalors
