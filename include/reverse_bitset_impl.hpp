@@ -17,7 +17,7 @@ template <std::size_t N> std::vector<uint8_t> focalors::reverse_bitset<N>::to_ve
     std::vector<uint8_t> v;
     auto cnt = 0;
     uint8_t byte = 0;
-    for (auto i = 0; i < N; i++)
+    for (size_t i = 0; i < N; i++)
     {
         byte <<= 1;
         byte |= (*this)[i];
