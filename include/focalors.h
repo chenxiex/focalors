@@ -20,7 +20,8 @@ class block_cipher
     virtual size_t block_size() const noexcept = 0;
     /*
      * @brief 加密。
-     * @param input 输入数据。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
      * @param key 密钥。
      * @return 加密后的数据。
      */
@@ -29,7 +30,8 @@ class block_cipher
                                          const std::vector<uint8_t> &key) const = 0;
     /*
      * @brief 解密。
-     * @param input 输入数据。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
      * @param key 密钥。
      * @return 解密后的数据。
      */
@@ -49,7 +51,8 @@ class DES : public block_cipher
     size_t block_size() const noexcept override;
     /*
      * @brief DES加密。
-     * @param input 输入数据。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
      * @param key 密钥。
      * @return 加密后的数据。
      */
@@ -57,7 +60,8 @@ class DES : public block_cipher
                                  const std::vector<uint8_t> &key) const override;
     /*
      * @brief DES解密。
-     * @param input 输入数据。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
      * @param key 密钥。
      * @return 解密后的数据。
      */
@@ -76,7 +80,8 @@ class AES : public block_cipher
     size_t block_size() const noexcept override;
     /*
      * @brief AES加密。
-     * @param input 输入数据。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
      * @param key 密钥。
      * @return 加密后的数据。
      */
@@ -84,7 +89,8 @@ class AES : public block_cipher
                                  const std::vector<uint8_t> &key) const override;
     /*
      * @brief AES解密。
-     * @param input 输入数据。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
      * @param key 密钥。
      * @return 解密后的数据。
      */
@@ -95,8 +101,25 @@ class AES : public block_cipher
 // Block cipher mode
 
 // ECB
+
+/*
+ * @brief ECB模式加密。
+ * @param first 输入数据的起始迭代器。
+ * @param last 输入数据的结束迭代器。
+ * @param key 密钥。
+ * @param cipher 块密码。
+ * @return 加密后的数据。
+ */
 std::vector<uint8_t> ecb_encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
                                  const std::vector<uint8_t> &key, const block_cipher &cipher);
+/*
+ * @brief ECB模式解密。
+ * @param first 输入数据的起始迭代器。
+ * @param last 输入数据的结束迭代器。
+ * @param key 密钥。
+ * @param cipher 块密码。
+ * @return 解密后的数据。
+ */
 std::vector<uint8_t> ecb_decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
                                  const std::vector<uint8_t> &key, const block_cipher &cipher);
 
