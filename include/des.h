@@ -62,33 +62,5 @@ const std::array<const int, 64> IP_1 = {40, 8, 48, 16, 56, 24, 64, 32, 39, 7, 47
                                         38, 6, 46, 14, 54, 22, 62, 30, 37, 5, 45, 13, 53, 21, 61, 29,
                                         36, 4, 44, 12, 52, 20, 60, 28, 35, 3, 43, 11, 51, 19, 59, 27,
                                         34, 2, 42, 10, 50, 18, 58, 26, 33, 1, 41, 9,  49, 17, 57, 25};
-
-// 函数
-focalors::reverse_bitset<28> left_shift(const focalors::reverse_bitset<28> &bits, const int &n);
-focalors::reverse_bitset<48> choose(const focalors::reverse_bitset<56> &bits);
-std::pair<focalors::reverse_bitset<28>, focalors::reverse_bitset<28>> choose1(const focalors::reverse_bitset<64> &key);
-focalors::reverse_bitset<48> choose2(const focalors::reverse_bitset<28> &c, const focalors::reverse_bitset<28> &d);
-void initial_permutation(focalors::reverse_bitset<32> &l, focalors::reverse_bitset<32> &r, const focalors::reverse_bitset<64> &plaintext);
-focalors::reverse_bitset<48> expand(const focalors::reverse_bitset<32> &bits);
-focalors::reverse_bitset<32> sbox(const focalors::reverse_bitset<48> &bits);
-focalors::reverse_bitset<32> permutation(const focalors::reverse_bitset<32> &bits);
-void des_encrypt_f(focalors::reverse_bitset<32> &l, focalors::reverse_bitset<32> &r, const focalors::reverse_bitset<48> &subkey);
-focalors::reverse_bitset<64> ip_1(const focalors::reverse_bitset<64> &bits);
-/*
- * @brief DES加密
- * @param plaintext 64位明文
- * @param key 64位密钥
- * @return 64位密文
- */
-focalors::reverse_bitset<64> des_encrypt(const focalors::reverse_bitset<64> &plaintext,
-                                         const focalors::reverse_bitset<64> &key);
-/*
- * @brief DES解密
- * @param ciphertext 64位密文
- * @param key 64位密钥
- * @return 64位明文
- */
-focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &ciphertext,
-                                         const focalors::reverse_bitset<64> &key);
 } // namespace des
 #endif // DES_H
