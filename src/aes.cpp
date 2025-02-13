@@ -14,7 +14,7 @@ std::vector<focalors::word> bytes_to_word(std::vector<uint8_t>::const_iterator f
                                           std::vector<uint8_t>::const_iterator last)
 {
     vector<word> result;
-    for (auto i = first; i + 3 < last; i += 4)
+    for (auto i = first; i + 4 <= last; i += 4)
     {
         focalors::word temp(0);
         for (int j = 0; j < 4; j++)
