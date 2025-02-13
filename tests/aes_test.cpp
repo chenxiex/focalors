@@ -20,7 +20,7 @@ TEST(AesTest, Encrypt)
         auto &plaintext = i.plaintext;
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
-        auto output = AES().encrypt(plaintext, key);
+        auto output = AES().encrypt(plaintext.begin(), plaintext.end(), key);
         EXPECT_STREQ(bytes_to_hex(output).c_str(), bytes_to_hex(ciphertext).c_str());
     }
 }
@@ -32,7 +32,7 @@ TEST(AesTest, Decrypt)
         auto &plaintext = i.plaintext;
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
-        auto output = AES().decrypt(ciphertext, key);
+        auto output = AES().decrypt(ciphertext.begin(), ciphertext.end(), key);
         EXPECT_STREQ(bytes_to_hex(output).c_str(), bytes_to_hex(plaintext).c_str());
     }
 }

@@ -19,7 +19,7 @@ TEST(DesTest, Encrypt)
         auto &plaintext = i.plaintext;
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
-        vector<uint8_t> output = DES().encrypt(plaintext, key);
+        vector<uint8_t> output = DES().encrypt(plaintext.begin(), plaintext.end(), key);
         EXPECT_STREQ(bytes_to_binary(output).c_str(), bytes_to_binary(ciphertext).c_str());
     }
 }
@@ -31,7 +31,7 @@ TEST(DesTest, Decrypt)
         auto &plaintext = i.plaintext;
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
-        vector<uint8_t> output = DES().decrypt(ciphertext, key);
+        vector<uint8_t> output = DES().decrypt(ciphertext.begin(), ciphertext.end(), key);
         EXPECT_STREQ(bytes_to_binary(output).c_str(), bytes_to_binary(plaintext).c_str());
     }
 }

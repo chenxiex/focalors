@@ -3,11 +3,13 @@
 #include "reverse_bitset.h"
 #include <array>
 #include <cstdint>
+#include <iterator>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
 using focalors::reverse_bitset;
 using std::array;
+using std::vector;
 
 namespace des
 {
@@ -165,38 +167,39 @@ focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &cip
     }
     return ip_1(encrypted);
 }
+void check(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+           const std::vector<uint8_t> &key)
+{
+    if (key.size() != 8)
+    {
+        throw std::invalid_argument("Key size must be 8 bytes.");
+    }
+    if (std::distance(first, last) != 8)
+    {
+        throw std::invalid_argument("Input size must be 8 bytes.");
+    }
+}
 } // namespace des
 
 namespace focalors
 {
-using namespace std;
 size_t DES::block_size() const noexcept
 {
     return 8;
 }
-bool DES::argument_check(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const
+vector<uint8_t> DES::encrypt(vector<uint8_t>::const_iterator first, vector<uint8_t>::const_iterator last,
+                             const vector<uint8_t> &key) const
 {
-    if (key.size() != 8)
-    {
-        throw invalid_argument("Key size must be 8 bytes.");
-    }
-    if (input.size() != block_size())
-    {
-        throw invalid_argument("Input size must be 8 bytes.");
-    }
-    return true;
-}
-vector<uint8_t> DES::encrypt(const vector<uint8_t> &input, const vector<uint8_t> &key) const
-{
-    argument_check(input, key);
-    reverse_bitset<64> output, input_reverse_bitset(input), key_reverse_bitset(key);
+    des::check(first, last, key);
+    reverse_bitset<64> output, input_reverse_bitset(first, last), key_reverse_bitset(key);
     output = des::des_encrypt(input_reverse_bitset, key_reverse_bitset);
     return output.to_vector();
 }
-vector<uint8_t> DES::decrypt(const vector<uint8_t> &input, const vector<uint8_t> &key) const
+vector<uint8_t> DES::decrypt(vector<uint8_t>::const_iterator first, vector<uint8_t>::const_iterator last,
+                             const vector<uint8_t> &key) const
 {
-    argument_check(input, key);
-    reverse_bitset<64> output, input_reverse_bitset(input), key_reverse_bitset(key);
+    des::check(first, last, key);
+    reverse_bitset<64> output, input_reverse_bitset(first, last), key_reverse_bitset(key);
     output = des::des_decrypt(input_reverse_bitset, key_reverse_bitset);
     return output.to_vector();
 }

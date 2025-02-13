@@ -6,10 +6,30 @@ namespace focalors
 {
 template <std::size_t N> focalors::reverse_bitset<N>::reverse_bitset(const std::vector<uint8_t> &v)
 {
+    if (v.empty())
+    {
+        return;
+    }
+    auto unit_bit_size = sizeof(v[0]) * 8;
     for (auto i : v)
     {
-        *this <<= 8;
+        *this <<= unit_bit_size;
         *this |= i;
+    }
+}
+template <std::size_t N>
+focalors::reverse_bitset<N>::reverse_bitset(std::vector<uint8_t>::const_iterator first,
+                                            std::vector<uint8_t>::const_iterator last)
+{
+    if (first == last)
+    {
+        return;
+    }
+    auto unit_bit_size = sizeof(*first) * 8;
+    for (auto i = first; i != last; i++)
+    {
+        *this <<= unit_bit_size;
+        *this |= *i;
     }
 }
 template <std::size_t N> std::vector<uint8_t> focalors::reverse_bitset<N>::to_vector() const

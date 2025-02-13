@@ -2,6 +2,7 @@
 #include "focalors.h"
 #include "word.h"
 #include <cstdint>
+#include <iterator>
 #include <stdexcept>
 #include <vector>
 using focalors::word;
@@ -9,15 +10,16 @@ using std::vector;
 
 namespace aes
 {
-std::vector<focalors::word> bytes_to_word(const std::vector<uint8_t> &v)
+std::vector<focalors::word> bytes_to_word(std::vector<uint8_t>::const_iterator first,
+                                          std::vector<uint8_t>::const_iterator last)
 {
     vector<word> result;
-    for (size_t i = 0; i < v.size(); i += 4)
+    for (auto i = first; i + 3 < last; i += 4)
     {
         focalors::word temp(0);
         for (int j = 0; j < 4; j++)
         {
-            temp.set_byte(j, v.at(i + j));
+            temp.set_byte(j, *(i + j));
         }
         result.push_back(temp);
     }
@@ -282,9 +284,10 @@ void inv_final_round(std::vector<focalors::word> &state, const std::vector<focal
     inv_shift_row(state);
     add_round_key(state, w, round);
 }
-std::vector<uint8_t> aes_encrypt(const std::vector<uint8_t> &plaintext, const std::vector<uint8_t> &key)
+void check(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+           const std::vector<uint8_t> &key)
 {
-    if (plaintext.size() != 16)
+    if (std::distance(first, last) != 16)
     {
         throw std::invalid_argument("input size error");
     }
@@ -292,13 +295,18 @@ std::vector<uint8_t> aes_encrypt(const std::vector<uint8_t> &plaintext, const st
     {
         throw std::invalid_argument("key size error");
     }
+}
+std::vector<uint8_t> aes_encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                 const std::vector<uint8_t> &key)
+{
+    check(first, last, key);
 
-    auto nb = NB.at(plaintext.size() * 8);
+    auto nb = NB.at(std::distance(first, last) * 8);
     auto nk = NK.at(key.size() * 8);
     auto nr = NR[(nk - 4) >> 1][(nb - 4) >> 1];
-    auto cipher_key = bytes_to_word(key);
+    auto cipher_key = bytes_to_word(key.begin(), key.end());
     auto w = key_expansion(cipher_key, nb, nk, nr);
-    auto state = bytes_to_word(plaintext);
+    auto state = bytes_to_word(first, last);
     add_round_key(state, w, 0);
     for (int i = 1; i < nr; i++)
     {
@@ -307,23 +315,17 @@ std::vector<uint8_t> aes_encrypt(const std::vector<uint8_t> &plaintext, const st
     final_round(state, w, nr);
     return words_to_bytes(state);
 }
-std::vector<uint8_t> aes_decrypt(const std::vector<uint8_t> &ciphertext, const std::vector<uint8_t> &key)
+std::vector<uint8_t> aes_decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                 const std::vector<uint8_t> &key)
 {
-    if (ciphertext.size() != 16)
-    {
-        throw std::invalid_argument("input size error");
-    }
-    if (key.size() != 16 && key.size() != 24 && key.size() != 32)
-    {
-        throw std::invalid_argument("key size error");
-    }
+    check(first, last, key);
 
-    auto nb = NB.at(ciphertext.size() * 8);
+    auto nb = NB.at(std::distance(first, last) * 8);
     auto nk = NK.at(key.size() * 8);
     auto nr = NR[(nk - 4) >> 1][(nb - 4) >> 1];
-    auto cipher_key = bytes_to_word(key);
+    auto cipher_key = bytes_to_word(key.begin(), key.end());
     auto w = inv_key_expansion(cipher_key, nb, nk, nr);
-    auto state = bytes_to_word(ciphertext);
+    auto state = bytes_to_word(first, last);
     add_round_key(state, w, nr);
     for (int i = nr - 1; i >= 1; i--)
     {
@@ -342,12 +344,14 @@ size_t AES::block_size() const noexcept
 {
     return 16;
 }
-std::vector<uint8_t> AES::encrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const
+std::vector<uint8_t> AES::encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                  const std::vector<uint8_t> &key) const
 {
-    return aes::aes_encrypt(input, key);
+    return aes::aes_encrypt(first, last, key);
 }
-std::vector<uint8_t> AES::decrypt(const std::vector<uint8_t> &input, const std::vector<uint8_t> &key) const
+std::vector<uint8_t> AES::decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                  const std::vector<uint8_t> &key) const
 {
-    return aes::aes_decrypt(input, key);
+    return aes::aes_decrypt(first, last, key);
 }
 } // namespace focalors
