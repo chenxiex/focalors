@@ -24,14 +24,18 @@ class block_cipher
      * @param key 密钥。
      * @return 加密后的数据。
      */
-    virtual std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key) const = 0;
+    virtual std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
+                                         std::vector<uint8_t>::const_iterator last,
+                                         const std::vector<uint8_t> &key) const = 0;
     /*
      * @brief 解密。
      * @param input 输入数据。
      * @param key 密钥。
      * @return 解密后的数据。
      */
-    virtual std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key) const = 0;
+    virtual std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
+                                         std::vector<uint8_t>::const_iterator last,
+                                         const std::vector<uint8_t> &key) const = 0;
 };
 
 // DES
@@ -49,14 +53,16 @@ class DES : public block_cipher
      * @param key 密钥。
      * @return 加密后的数据。
      */
-    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key) const override;
+    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                 const std::vector<uint8_t> &key) const override;
     /*
      * @brief DES解密。
      * @param input 输入数据。
      * @param key 密钥。
      * @return 解密后的数据。
      */
-    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key) const override;
+    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                 const std::vector<uint8_t> &key) const override;
 };
 
 // AES
@@ -74,15 +80,25 @@ class AES : public block_cipher
      * @param key 密钥。
      * @return 加密后的数据。
      */
-    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key) const override;
+    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                 const std::vector<uint8_t> &key) const override;
     /*
      * @brief AES解密。
      * @param input 输入数据。
      * @param key 密钥。
      * @return 解密后的数据。
      */
-    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key) const override;
+    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                 const std::vector<uint8_t> &key) const override;
 };
+
+// Block cipher mode
+
+// ECB
+std::vector<uint8_t> ecb_encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                 const std::vector<uint8_t> &key, const block_cipher &cipher);
+std::vector<uint8_t> ecb_decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                 const std::vector<uint8_t> &key, const block_cipher &cipher);
 
 // ZUC
 void zuc_init(const std::array<uint8_t, 16> &key, const std::array<uint8_t, 16> &iv);

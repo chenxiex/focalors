@@ -10,10 +10,10 @@ include_directories(include)
 
 set(LIB_SRCS
     src/des.cpp
-    src/bcm.cpp
     src/word.cpp
     src/aes.cpp
     src/utils.cpp
+    src/bcm/ecb.cpp
 )
 
 add_library(focalors ${LIB_SRCS})
@@ -30,4 +30,8 @@ option(ENABLE_TESTING "Enable testing" OFF)
 if (ENABLE_TESTING)
     enable_testing()
     add_subdirectory(tests)
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_subdirectory(debug)
 endif()
