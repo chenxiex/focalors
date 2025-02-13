@@ -25,7 +25,7 @@ std::vector<uint8_t> ecb(
     for (auto i = first; i + block_sz <= last; i += block_sz)
     {
         auto block = cipher_func(i, i + block_sz, key);
-        std::copy(block.begin(), block.end(), output.begin() + (i - first));
+        std::move(block.begin(), block.end(), output.begin() + (i - first));
     }
     return output;
 }
