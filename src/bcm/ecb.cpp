@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iterator>
+#include <stdexcept>
 #include <vector>
 using std::vector;
 
@@ -32,14 +33,14 @@ std::vector<uint8_t> ecb(
 namespace focalors
 {
 std::vector<uint8_t> ECB::encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &key, const block_cipher &cipher)
+                                  const std::vector<uint8_t> &key, const block_cipher &cipher)
 {
     return bcm::ecb(first, last, key, cipher.block_size(),
                     [&cipher](std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
                               const std::vector<uint8_t> &key) { return cipher.encrypt(first, last, key); });
 }
 std::vector<uint8_t> ECB::decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &key, const block_cipher &cipher)
+                                  const std::vector<uint8_t> &key, const block_cipher &cipher)
 {
     return bcm::ecb(first, last, key, cipher.block_size(),
                     [&cipher](std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
