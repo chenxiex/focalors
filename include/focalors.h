@@ -101,27 +101,32 @@ class AES : public block_cipher
 // Block cipher mode
 
 // ECB
-
-/*
- * @brief ECB模式加密。
- * @param first 输入数据的起始迭代器。
- * @param last 输入数据的结束迭代器。
- * @param key 密钥。
- * @param cipher 块密码。
- * @return 加密后的数据。
- */
-std::vector<uint8_t> ecb_encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &key, const block_cipher &cipher);
-/*
- * @brief ECB模式解密。
- * @param first 输入数据的起始迭代器。
- * @param last 输入数据的结束迭代器。
- * @param key 密钥。
- * @param cipher 块密码。
- * @return 解密后的数据。
- */
-std::vector<uint8_t> ecb_decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &key, const block_cipher &cipher);
+class ECB
+{
+  public:
+    /*
+     * @brief ECB模式加密。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
+     * @param key 密钥。
+     * @param cipher 块密码。
+     * @return 加密后的数据。
+     */
+    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
+                                     std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
+                                     const block_cipher &cipher);
+    /*
+     * @brief ECB模式解密。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
+     * @param key 密钥。
+     * @param cipher 块密码。
+     * @return 解密后的数据。
+     */
+    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
+                                     std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
+                                     const block_cipher &cipher);
+};
 
 // ZUC
 void zuc_init(const std::array<uint8_t, 16> &key, const std::array<uint8_t, 16> &iv);
