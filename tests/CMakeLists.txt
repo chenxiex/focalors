@@ -16,3 +16,7 @@ gtest_discover_tests(aes_test)
 add_executable(ecb_test bcm_test/ecb_test.cpp)
 target_link_libraries(ecb_test GTest::gtest_main focalors test_lib)
 gtest_discover_tests(ecb_test)
+
+add_executable(cbc_test bcm_test/cbc_test.cpp)
+target_link_libraries(cbc_test GTest::gtest_main focalors test_lib)
+gtest_discover_tests(cbc_test)

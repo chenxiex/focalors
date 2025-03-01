@@ -66,4 +66,23 @@ std::string bytes_to_hex(const std::vector<uint8_t> &bytes)
     }
     return ss.str();
 }
+std::vector<uint8_t> bytes_xor(const std::vector<uint8_t> &a, const std::vector<uint8_t> &b)
+{
+    vector<uint8_t> result(max(a.size(), b.size()));
+    auto a_it = a.crbegin(), b_it = b.crbegin();
+    auto r_it = result.rbegin();
+    for (; a_it != a.crend() && b_it != b.crend() && r_it != result.rend(); ++a_it, ++b_it, ++r_it)
+    {
+        *r_it = *a_it ^ *b_it;
+    }
+    for (; a_it != a.crend() && r_it != result.rend(); ++a_it, ++r_it)
+    {
+        *r_it = *a_it;
+    }
+    for (; b_it != b.crend() && r_it != result.rend(); ++b_it, ++r_it)
+    {
+        *r_it = *b_it;
+    }
+    return result;
+}
 } // namespace focalors

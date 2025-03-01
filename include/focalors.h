@@ -112,9 +112,9 @@ class ECB
      * @param cipher 块密码。
      * @return 加密后的数据。
      */
-    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                     std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
-                                     const block_cipher &cipher);
+    static std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
+                                        std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
+                                        const block_cipher &cipher);
     /*
      * @brief ECB模式解密。
      * @param first 输入数据的起始迭代器。
@@ -123,9 +123,39 @@ class ECB
      * @param cipher 块密码。
      * @return 解密后的数据。
      */
-    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                     std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
-                                     const block_cipher &cipher);
+    static std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
+                                        std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
+                                        const block_cipher &cipher);
+};
+
+// CBC
+class CBC
+{
+  public:
+    /*
+     * @brief CBC模式加密。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
+     * @param key 密钥。
+     * @param cipher 块密码。
+     * @param z 初始向量。
+     * @return 加密后的数据。
+     */
+    static std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
+                                        std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
+                                        const block_cipher &cipher, const std::vector<uint8_t> &z);
+    /*
+     * @brief CBC模式解密。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
+     * @param key 密钥。
+     * @param cipher 块密码。
+     * @param z 初始向量。
+     * @return 解密后的数据。
+     */
+    static std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
+                                        std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
+                                        const block_cipher &cipher, const std::vector<uint8_t> &z);
 };
 
 // ZUC
@@ -181,5 +211,12 @@ std::vector<uint8_t> hex_to_bytes(const std::string &hex);
  * @return 十六进制字符串。
  */
 std::string bytes_to_hex(const std::vector<uint8_t> &bytes);
+/*
+ * @brief 计算两个字节序列的异或。
+ * @param a 字节序列a。
+ * @param b 字节序列b。
+ * @return 异或结果。
+ */
+std::vector<uint8_t> bytes_xor(const std::vector<uint8_t> &a, const std::vector<uint8_t> &b);
 } // namespace focalors
 #endif // CRYPT_H
