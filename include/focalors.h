@@ -13,6 +13,7 @@ namespace focalors
 class block_cipher
 {
   public:
+    virtual ~block_cipher() = default;
     /*
      * @brief 获取块大小。
      * @return 块大小。
