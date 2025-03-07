@@ -4,27 +4,12 @@
 #include <stdexcept>
 #include <vector>
 
-static void check(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                  const focalors::block_cipher &cipher, const std::vector<uint8_t> &z)
-{
-    if (std::distance(first, last) % cipher.block_size() != 0)
-    {
-        throw std::invalid_argument("Input size must be a multiple of block size.");
-    }
-    if (z.size() != cipher.block_size())
-    {
-        throw std::invalid_argument("Invalid initial vector size.");
-    }
-}
-
 namespace focalors
 {
 using std::vector;
-std::vector<uint8_t> CBC::encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                  const std::vector<uint8_t> &key, const block_cipher &cipher,
-                                  const std::vector<uint8_t> &z)
+std::vector<uint8_t> CBC::encrypt(std::vector<uint8_t>::const_iterator first,
+                                  std::vector<uint8_t>::const_iterator last) const
 {
-    check(first, last, cipher, z);
     auto block_sz = cipher.block_size();
     vector<uint8_t> output(std::distance(first, last));
     vector<uint8_t> ci_1;
@@ -45,11 +30,9 @@ std::vector<uint8_t> CBC::encrypt(std::vector<uint8_t>::const_iterator first, st
     }
     return output;
 }
-std::vector<uint8_t> CBC::decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                  const std::vector<uint8_t> &key, const block_cipher &cipher,
-                                  const std::vector<uint8_t> &z)
+std::vector<uint8_t> CBC::decrypt(std::vector<uint8_t>::const_iterator first,
+                                  std::vector<uint8_t>::const_iterator last) const
 {
-    check(first, last, cipher, z);
     auto block_sz = cipher.block_size();
     vector<uint8_t> output(std::distance(first, last));
     for (auto i = first; i + block_sz <= last; i += block_sz)

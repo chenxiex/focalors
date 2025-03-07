@@ -143,9 +143,11 @@ class ECB : public block_cipher_mode
 };
 
 // CBC
-class CBC
+class CBC : public block_cipher_mode
 {
   public:
+    CBC(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &z)
+        : key(key), cipher(cipher), z(z){};
     /*
      * @brief CBC模式加密。
      * @param first 输入数据的起始迭代器。
@@ -155,9 +157,8 @@ class CBC
      * @param z 初始向量。
      * @return 加密后的数据。
      */
-    static std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                        std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
-                                        const block_cipher &cipher, const std::vector<uint8_t> &z);
+    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
+                                 std::vector<uint8_t>::const_iterator last) const override;
     /*
      * @brief CBC模式解密。
      * @param first 输入数据的起始迭代器。
@@ -167,9 +168,13 @@ class CBC
      * @param z 初始向量。
      * @return 解密后的数据。
      */
-    static std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                        std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
-                                        const block_cipher &cipher, const std::vector<uint8_t> &z);
+    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
+                                 std::vector<uint8_t>::const_iterator last) const override;
+
+  private:
+    const std::vector<uint8_t> key;
+    const focalors::block_cipher &cipher;
+    const std::vector<uint8_t> z;
 };
 
 // ZUC

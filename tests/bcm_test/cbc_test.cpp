@@ -20,12 +20,13 @@ TEST(BlockCipherModeTest, CBC)
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
         vector<uint8_t> z(simple_block_cipher().block_size(), 0);
+        auto cbc = CBC(key, simple_block_cipher(), z);
         // encrypt
-        auto encrypted = CBC().encrypt(plaintext.begin(), plaintext.end(), key, simple_block_cipher(), z);
+        auto encrypted = cbc.encrypt(plaintext.begin(), plaintext.end());
         EXPECT_STREQ(bytes_to_hex(encrypted).c_str(), bytes_to_hex(ciphertext).c_str());
 
         // decrypt
-        auto decrypted = CBC().decrypt(ciphertext.begin(), ciphertext.end(), key, simple_block_cipher(), z);
+        auto decrypted = cbc.decrypt(ciphertext.begin(), ciphertext.end());
         EXPECT_STREQ(bytes_to_hex(decrypted).c_str(), bytes_to_hex(plaintext).c_str());
     }
 }
