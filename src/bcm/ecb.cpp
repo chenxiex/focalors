@@ -14,10 +14,6 @@ std::vector<uint8_t> ecb(
                                              const std::vector<uint8_t> &)> &cipher_func)
 {
     auto block_sz = block_size;
-    if (std::distance(first, last) % block_sz != 0)
-    {
-        throw std::invalid_argument("Input size must be a multiple of block size.");
-    }
     vector<uint8_t> output(std::distance(first, last));
     for (auto i = first; i + block_sz <= last; i += block_sz)
     {
