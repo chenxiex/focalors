@@ -29,18 +29,18 @@ std::vector<uint8_t> ecb(
 
 namespace focalors
 {
-std::vector<uint8_t> ECB::encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                  const std::vector<uint8_t> &key, const block_cipher &cipher)
+std::vector<uint8_t> ECB::encrypt(std::vector<uint8_t>::const_iterator first,
+                                  std::vector<uint8_t>::const_iterator last) const
 {
     return ecb(first, last, key, cipher.block_size(),
-               [&cipher](std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                         const std::vector<uint8_t> &key) { return cipher.encrypt(first, last, key); });
+               [this](std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                      const std::vector<uint8_t> &key) { return cipher.encrypt(first, last, key); });
 }
-std::vector<uint8_t> ECB::decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                  const std::vector<uint8_t> &key, const block_cipher &cipher)
+std::vector<uint8_t> ECB::decrypt(std::vector<uint8_t>::const_iterator first,
+                                  std::vector<uint8_t>::const_iterator last) const
 {
     return ecb(first, last, key, cipher.block_size(),
-               [&cipher](std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                         const std::vector<uint8_t> &key) { return cipher.decrypt(first, last, key); });
+               [this](std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                      const std::vector<uint8_t> &key) { return cipher.decrypt(first, last, key); });
 }
 } // namespace focalors

@@ -101,10 +101,21 @@ class AES : public block_cipher
 
 // Block cipher mode
 
-// ECB
-class ECB
+class block_cipher_mode
 {
   public:
+    virtual ~block_cipher_mode() = default;
+    virtual std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
+                                         std::vector<uint8_t>::const_iterator last) const = 0;
+    virtual std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
+                                         std::vector<uint8_t>::const_iterator last) const = 0;
+};
+
+// ECB
+class ECB : public block_cipher_mode
+{
+  public:
+    ECB(const std::vector<uint8_t> &key, const block_cipher &cipher) : key(key), cipher(cipher){};
     /*
      * @brief ECB模式加密。
      * @param first 输入数据的起始迭代器。
@@ -113,9 +124,8 @@ class ECB
      * @param cipher 块密码。
      * @return 加密后的数据。
      */
-    static std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                        std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
-                                        const block_cipher &cipher);
+    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
+                                 std::vector<uint8_t>::const_iterator last) const override;
     /*
      * @brief ECB模式解密。
      * @param first 输入数据的起始迭代器。
@@ -124,9 +134,12 @@ class ECB
      * @param cipher 块密码。
      * @return 解密后的数据。
      */
-    static std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                        std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key,
-                                        const block_cipher &cipher);
+    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
+                                 std::vector<uint8_t>::const_iterator last) const override;
+
+  private:
+    const std::vector<uint8_t> key;
+    const focalors::block_cipher &cipher;
 };
 
 // CBC
