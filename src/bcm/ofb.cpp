@@ -1,5 +1,6 @@
 #include "focalors.h"
 #include <algorithm>
+#include <functional>
 #include <stdexcept>
 #include <vector>
 using std::vector;
@@ -18,7 +19,7 @@ std::vector<uint8_t> OFB::encrypt(std::vector<uint8_t>::const_iterator first,
     {
         r = cipher.encrypt(r.begin(), r.end(), key);
         auto j = std::min(i + block_sz, last);
-        std::transform(i, j, r.begin(), result.begin() + std::distance(first, i),std::bit_xor<uint8_t>());
+        std::transform(i, j, r.begin(), result.begin() + std::distance(first, i), std::bit_xor<uint8_t>());
     }
     return result;
 }
