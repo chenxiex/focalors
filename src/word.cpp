@@ -1,4 +1,4 @@
-#include "../include/word.h"
+#include "word.h"
 #include <stdexcept>
 namespace focalors
 {
