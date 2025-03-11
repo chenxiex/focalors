@@ -1,4 +1,4 @@
-//echo -n "input_hex" | xxd -r -p | openssl enc -aes-128-ofb -K "key_hex" -nosalt -nopad -iv "z_hex" | xxd -p
+// echo -n "" | xxd -r -p | openssl enc -aes-128-ofb -K "" -nosalt -nopad -iv "" | xxd -p
 #include "focalors.h"
 #include "test.h"
 #include "gtest/gtest.h"
@@ -9,7 +9,14 @@ using namespace std;
 const vector<test_case> test_cases = {
 {hex_to_bytes("000000000000000000000000000000000000000000000000000000000000000000"),
 hex_to_bytes("00012001710198aeda79171460153594"),
-hex_to_bytes("6cdd596b8f5642cbd23b47981a65422ae447dd3d0b3cd81e087944b60f57e69883")}
+hex_to_bytes("6cdd596b8f5642cbd23b47981a65422ae447dd3d0b3cd81e087944b60f57e69883"),
+hex_to_bytes("0001000101a198afda78173486153566")},
+
+{hex_to_bytes("2e4f5d7d9b00dff25ced3e1fdaa9dff565c3d6cbfcc61e3ea88bcae9f537892f69fcab"),
+hex_to_bytes("942aafb742ad79e83c81bc22b1993f80"),
+hex_to_bytes("267909091a03f696536864d4644e9be099dbab81feb6e39c9758e9f7d9aec440c1fda4"),
+hex_to_bytes("833d0c6c7a9aba05ed3fb7cb07d2c6f5"),
+}
 };
 // clang-format on
 
@@ -20,8 +27,8 @@ TEST(BlockCipherModeTest, OFB)
         auto &plaintext = i.plaintext;
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
-        auto z = hex_to_bytes("0001000101a198afda78173486153566");
-        auto ofb = OFB(key, AES(), z);
+        auto &iv = i.iv;
+        auto ofb = OFB(key, AES(), iv);
         // encrypt
         auto encrypted = ofb.encrypt(plaintext.begin(), plaintext.end());
         EXPECT_STREQ(bytes_to_hex(encrypted).c_str(), bytes_to_hex(ciphertext).c_str());

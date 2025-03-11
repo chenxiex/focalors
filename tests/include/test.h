@@ -9,6 +9,7 @@ struct test_case
     std::vector<uint8_t> plaintext;
     std::vector<uint8_t> key;
     std::vector<uint8_t> ciphertext;
+    std::vector<uint8_t> iv;
 };
 class simple_block_cipher : public focalors::block_cipher
 {

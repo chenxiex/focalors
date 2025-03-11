@@ -172,7 +172,7 @@ class CBC : public block_cipher_mode
   private:
     const std::vector<uint8_t> key;
     const focalors::block_cipher &cipher;
-    const std::vector<uint8_t> z;
+    const std::vector<uint8_t> iv;
 };
 
 // OFB
@@ -206,7 +206,7 @@ class OFB : public block_cipher_mode
   private:
     const std::vector<uint8_t> key;
     const focalors::block_cipher &cipher;
-    const std::vector<uint8_t> z;
+    const std::vector<uint8_t> iv;
 };
 
 // ZUC

@@ -9,10 +9,10 @@
 namespace focalors
 {
 using std::vector;
-CBC::CBC(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &z)
-    : key(key), cipher(cipher), z(z)
+CBC::CBC(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &iv)
+    : key(key), cipher(cipher), iv(iv)
 {
-    if (z.size() != cipher.block_size())
+    if (iv.size() != cipher.block_size())
     {
         throw std::invalid_argument("IV size must be equal to block size");
     }
@@ -32,7 +32,7 @@ std::vector<uint8_t> CBC::encrypt(std::vector<uint8_t>::const_iterator first,
         auto output_it = output.begin() + (i - first);
         if (i == first)
         {
-            std::transform(i, i + block_sz, z.begin(), block.begin(), std::bit_xor<uint8_t>());
+            std::transform(i, i + block_sz, iv.begin(), block.begin(), std::bit_xor<uint8_t>());
         }
         else
         {
@@ -58,7 +58,7 @@ std::vector<uint8_t> CBC::decrypt(std::vector<uint8_t>::const_iterator first,
         auto output_it = output.begin() + (i - first);
         if (i == first)
         {
-            std::transform(block.begin(), block.end(), z.begin(), output_it, std::bit_xor<uint8_t>());
+            std::transform(block.begin(), block.end(), iv.begin(), output_it, std::bit_xor<uint8_t>());
         }
         else
         {

@@ -7,12 +7,12 @@ using std::vector;
 
 namespace focalors
 {
-OFB::OFB(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &z)
-    : key(key), cipher(cipher), z(z){};
+OFB::OFB(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &iv)
+    : key(key), cipher(cipher), iv(iv){};
 std::vector<uint8_t> OFB::encrypt(std::vector<uint8_t>::const_iterator first,
                                   std::vector<uint8_t>::const_iterator last) const
 {
-    std::vector<uint8_t> r(z.begin(), z.end());
+    std::vector<uint8_t> r(iv.begin(), iv.end());
     std::vector<uint8_t> result(std::distance(first, last));
     const auto block_sz = cipher.block_size();
     for (auto i = first; i < last; i += block_sz)
