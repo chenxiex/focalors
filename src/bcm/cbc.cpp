@@ -10,11 +10,21 @@ namespace focalors
 {
 using std::vector;
 CBC::CBC(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &z)
-    : key(key), cipher(cipher), z(z){};
+    : key(key), cipher(cipher), z(z)
+{
+    if (z.size() != cipher.block_size())
+    {
+        throw std::invalid_argument("IV size must be equal to block size");
+    }
+};
 std::vector<uint8_t> CBC::encrypt(std::vector<uint8_t>::const_iterator first,
                                   std::vector<uint8_t>::const_iterator last) const
 {
     auto block_sz = cipher.block_size();
+    if (std::distance(first, last) % block_sz)
+    {
+        throw std::invalid_argument("Input size must be a multiple of block size");
+    }
     vector<uint8_t> output(std::distance(first, last));
     for (auto i = first; i + block_sz <= last; i += block_sz)
     {
@@ -37,6 +47,10 @@ std::vector<uint8_t> CBC::decrypt(std::vector<uint8_t>::const_iterator first,
                                   std::vector<uint8_t>::const_iterator last) const
 {
     auto block_sz = cipher.block_size();
+    if (std::distance(first, last) % block_sz)
+    {
+        throw std::invalid_argument("Input size must be a multiple of block size");
+    }
     vector<uint8_t> output(std::distance(first, last));
     for (auto i = first; i + block_sz <= last; i += block_sz)
     {
