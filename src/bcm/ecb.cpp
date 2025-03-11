@@ -13,6 +13,10 @@ std::vector<uint8_t> ecb(
     const std::function<std::vector<uint8_t>(std::vector<uint8_t>::const_iterator, std::vector<uint8_t>::const_iterator,
                                              const std::vector<uint8_t> &)> &cipher_func)
 {
+    if (std::distance(first, last) % block_size != 0)
+    {
+        throw std::invalid_argument("Input size must be a multiple of block size");
+    }
     auto block_sz = block_size;
     vector<uint8_t> output(std::distance(first, last));
     for (auto i = first; i + block_sz <= last; i += block_sz)
