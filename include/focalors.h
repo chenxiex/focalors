@@ -115,14 +115,16 @@ class block_cipher_mode
 class ECB : public block_cipher_mode
 {
   public:
+    /*
+     * @brief ECB模式构造函数。
+     * @param key 密钥。
+     * @param cipher 块密码。
+     */
     ECB(const std::vector<uint8_t> &key, const block_cipher &cipher) : key(key), cipher(cipher){};
     /*
      * @brief ECB模式加密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
-     * @param key 密钥。
-     * @param cipher 块密码。
-     * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
                                  std::vector<uint8_t>::const_iterator last) const override;
@@ -130,9 +132,6 @@ class ECB : public block_cipher_mode
      * @brief ECB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
-     * @param key 密钥。
-     * @param cipher 块密码。
-     * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
                                  std::vector<uint8_t>::const_iterator last) const override;
@@ -146,15 +145,18 @@ class ECB : public block_cipher_mode
 class CBC : public block_cipher_mode
 {
   public:
+    /*
+     * @brief CBC模式构造函数。
+     * @param key 密钥。
+     * @param cipher 块密码。
+     * @param z 初始向量。
+     */
     CBC(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &z)
         : key(key), cipher(cipher), z(z){};
     /*
      * @brief CBC模式加密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
-     * @param key 密钥。
-     * @param cipher 块密码。
-     * @param z 初始向量。
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
