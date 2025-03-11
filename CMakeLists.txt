@@ -15,6 +15,7 @@ set(LIB_SRCS
     src/utils.cpp
     src/bcm/ecb.cpp
     src/bcm/cbc.cpp
+    src/bcm/ofb.cpp
 )
 
 add_library(focalors ${LIB_SRCS})
