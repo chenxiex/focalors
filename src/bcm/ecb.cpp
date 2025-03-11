@@ -25,6 +25,7 @@ std::vector<uint8_t> ecb(
 
 namespace focalors
 {
+ECB::ECB(const std::vector<uint8_t> &key, const block_cipher &cipher) : key(key), cipher(cipher){};
 std::vector<uint8_t> ECB::encrypt(std::vector<uint8_t>::const_iterator first,
                                   std::vector<uint8_t>::const_iterator last) const
 {

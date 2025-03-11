@@ -120,7 +120,7 @@ class ECB : public block_cipher_mode
      * @param key 密钥。
      * @param cipher 块密码。
      */
-    ECB(const std::vector<uint8_t> &key, const block_cipher &cipher) : key(key), cipher(cipher){};
+    ECB(const std::vector<uint8_t> &key, const block_cipher &cipher);
     /*
      * @brief ECB模式加密。
      * @param first 输入数据的起始迭代器。
@@ -151,8 +151,7 @@ class CBC : public block_cipher_mode
      * @param cipher 块密码。
      * @param z 初始向量。
      */
-    CBC(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &z)
-        : key(key), cipher(cipher), z(z){};
+    CBC(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &z);
     /*
      * @brief CBC模式加密。
      * @param first 输入数据的起始迭代器。

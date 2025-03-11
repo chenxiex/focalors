@@ -7,6 +7,8 @@
 namespace focalors
 {
 using std::vector;
+CBC::CBC(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &z)
+: key(key), cipher(cipher), z(z){};
 std::vector<uint8_t> CBC::encrypt(std::vector<uint8_t>::const_iterator first,
                                   std::vector<uint8_t>::const_iterator last) const
 {
