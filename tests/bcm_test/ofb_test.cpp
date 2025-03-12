@@ -31,10 +31,10 @@ TEST(BlockCipherModeTest, OFB)
         auto ofb = OFB(key, AES(), iv);
         // encrypt
         auto encrypted = ofb.encrypt(plaintext.begin(), plaintext.end());
-        EXPECT_STREQ(bytes_to_hex(encrypted).c_str(), bytes_to_hex(ciphertext).c_str());
+        EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));
 
         // decrypt
         auto decrypted = ofb.decrypt(ciphertext.begin(), ciphertext.end());
-        EXPECT_STREQ(bytes_to_hex(decrypted).c_str(), bytes_to_hex(plaintext).c_str());
+        EXPECT_EQ(bytes_to_hex(decrypted), bytes_to_hex(plaintext));
     }
 }
