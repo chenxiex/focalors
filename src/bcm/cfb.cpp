@@ -23,7 +23,7 @@ std::vector<uint8_t> process(std::vector<uint8_t>::const_iterator first, std::ve
         {
             r = cipher.encrypt(r.begin(), r.end(), key);
             std::transform(i, std::next(i, step), r.begin(), result_it, std::bit_xor<uint8_t>());
-            if (static_cast<size_t>(std::distance(result_it, result.end())) >= block_sz)
+            if (step == block_sz)
             {
                 std::copy(result_it, std::next(result_it, block_sz), r.begin());
             }
@@ -31,9 +31,9 @@ std::vector<uint8_t> process(std::vector<uint8_t>::const_iterator first, std::ve
         else
         {
             auto e = cipher.encrypt(r.begin(), r.end(), key);
-            if (i + step < last)
+            if (step == block_sz)
             {
-                std::copy(i, std::next(i, step), r.begin());
+                std::copy(i, std::next(i, block_sz), r.begin());
             }
             std::transform(i, std::next(i, step), e.begin(), result_it, std::bit_xor<uint8_t>());
         }

@@ -29,7 +29,7 @@ std::vector<uint8_t> OFB::encrypt(std::vector<uint8_t>::const_iterator first,
     {
         r = cipher.encrypt(r.begin(), r.end(), key);
         auto step = std::min(remainning, block_sz);
-        result_it = std::transform(i, i + step, r.begin(), result_it, std::bit_xor<uint8_t>());
+        result_it = std::transform(i, std::next(i, step), r.begin(), result_it, std::bit_xor<uint8_t>());
         std::advance(i, step);
         remainning -= step;
     }
