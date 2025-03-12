@@ -4,8 +4,6 @@ project(focalors)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type")
-
 include_directories(include)
 
 set(LIB_SRCS
@@ -22,12 +20,6 @@ set(LIB_SRCS
 add_library(focalors ${LIB_SRCS})
 
 target_compile_options(focalors PRIVATE -Wall -Wextra)
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(focalors PRIVATE -g)
-else()
-    target_compile_options(focalors PRIVATE -O3)
-endif()
 
 option(ENABLE_TESTING "Enable testing" OFF)
 if (ENABLE_TESTING)
