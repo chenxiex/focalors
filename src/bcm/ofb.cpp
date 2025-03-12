@@ -8,7 +8,13 @@ using std::vector;
 namespace focalors
 {
 OFB::OFB(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &iv)
-    : key(key), cipher(cipher), iv(iv){};
+    : key(key), cipher(cipher), iv(iv)
+{
+    if (iv.size() != cipher.block_size())
+    {
+        throw std::invalid_argument("IV size must be equal to block size.");
+    }
+}
 std::vector<uint8_t> OFB::encrypt(std::vector<uint8_t>::const_iterator first,
                                   std::vector<uint8_t>::const_iterator last) const
 {
