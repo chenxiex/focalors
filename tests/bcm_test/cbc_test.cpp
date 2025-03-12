@@ -20,7 +20,7 @@ hex_to_bytes("b1ed1ddec26677e3192932d9cf6fdddb"),
 };
 // clang-format on
 
-TEST(BlockCipherModeTest, CBC)
+TEST(BlockCipherModeTest, AESCBC)
 {
     for (const auto &i : test_cases)
     {

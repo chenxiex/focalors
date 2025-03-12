@@ -20,7 +20,7 @@ hex_to_bytes("833d0c6c7a9aba05ed3fb7cb07d2c6f5"),
 };
 // clang-format on
 
-TEST(BlockCipherModeTest, OFB)
+TEST(BlockCipherModeTest, AESOFB)
 {
     for (const auto &i : test_cases)
     {
