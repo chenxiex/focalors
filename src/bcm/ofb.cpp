@@ -22,12 +22,12 @@ std::vector<uint8_t> OFB::encrypt(std::vector<uint8_t>::const_iterator first,
     std::vector<uint8_t> r(iv.begin(), iv.end());
     std::vector<uint8_t> result(std::distance(first, last));
     const auto block_sz = cipher.block_size();
-    auto j = result.begin();
+    auto result_it = result.begin();
     for (auto i = first; i < last;)
     {
         r = cipher.encrypt(r.begin(), r.end(), key);
         auto step = std::min(static_cast<size_t>(std::distance(i, last)), block_sz);
-        j = std::transform(i, i + step, r.begin(), j, std::bit_xor<uint8_t>());
+        result_it = std::transform(i, i + step, r.begin(), result_it, std::bit_xor<uint8_t>());
         std::advance(i, step);
     }
     return result;
