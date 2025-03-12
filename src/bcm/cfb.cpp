@@ -18,7 +18,7 @@ CFB::CFB(const vector<uint8_t> &key, const block_cipher &cipher, const vector<ui
 std::vector<uint8_t> CFB::encrypt(std::vector<uint8_t>::const_iterator first,
                                   std::vector<uint8_t>::const_iterator last) const
 {
-    size_t length = std::distance(first, last);
+    const size_t length = std::distance(first, last);
     std::vector<uint8_t> r(iv.begin(), iv.end());
     std::vector<uint8_t> result(length);
     const auto block_sz = cipher.block_size();
@@ -42,7 +42,7 @@ std::vector<uint8_t> CFB::encrypt(std::vector<uint8_t>::const_iterator first,
 std::vector<uint8_t> CFB::decrypt(std::vector<uint8_t>::const_iterator first,
                                   std::vector<uint8_t>::const_iterator last) const
 {
-    size_t length = std::distance(first, last);
+    const size_t length = std::distance(first, last);
     std::vector<uint8_t> r(iv.begin(), iv.end());
     std::vector<uint8_t> result(std::distance(first, last));
     const auto block_sz = cipher.block_size();
