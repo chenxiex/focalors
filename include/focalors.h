@@ -183,9 +183,9 @@ class OFB : public block_cipher_mode
      * @brief OFB模式构造函数。
      * @param key 密钥。
      * @param cipher 块密码。
-     * @param z 初始向量。
+     * @param iv 初始向量。
      */
-    OFB(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &z);
+    OFB(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &iv);
     /*
      * @brief OFB模式加密。
      * @param first 输入数据的起始迭代器。
@@ -196,6 +196,40 @@ class OFB : public block_cipher_mode
                                  std::vector<uint8_t>::const_iterator last) const override;
     /*
      * @brief OFB模式解密。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
+     * @return 解密后的数据。
+     */
+    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
+                                 std::vector<uint8_t>::const_iterator last) const override;
+
+  private:
+    const std::vector<uint8_t> key;
+    const focalors::block_cipher &cipher;
+    const std::vector<uint8_t> iv;
+};
+
+// CFB
+class CFB : public block_cipher_mode
+{
+  public:
+    /*
+     * @brief CFB模式构造函数。
+     * @param key 密钥。
+     * @param cipher 块密码。
+     * @param iv 初始向量。
+     */
+    CFB(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &iv);
+    /*
+     * @brief CFB模式加密。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
+     * @return 加密后的数据。
+     */
+    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
+                                 std::vector<uint8_t>::const_iterator last) const override;
+    /*
+     * @brief CFB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      * @return 解密后的数据。

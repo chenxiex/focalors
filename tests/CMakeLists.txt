@@ -24,3 +24,7 @@ gtest_discover_tests(cbc_test)
 add_executable(ofb_test bcm_test/ofb_test.cpp)
 target_link_libraries(ofb_test GTest::gtest_main focalors test_lib)
 gtest_discover_tests(ofb_test)
+
+add_executable(cfb_test bcm_test/cfb_test.cpp)
+target_link_libraries(cfb_test GTest::gtest_main focalors test_lib)
+gtest_discover_tests(cfb_test)
