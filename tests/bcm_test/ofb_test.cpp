@@ -28,7 +28,8 @@ TEST(BlockCipherModeTest, AESOFB)
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
         auto &iv = i.iv;
-        auto ofb = OFB(key, AES(), iv);
+        AES aes;
+        auto ofb = OFB(key, aes, iv);
         // encrypt
         auto encrypted = ofb.encrypt(plaintext.begin(), plaintext.end());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));
