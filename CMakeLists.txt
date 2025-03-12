@@ -4,6 +4,11 @@ project(focalors)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+find_program(CLANG_TIDY "clang-tidy")
+if(CLANG_TIDY)
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY}")
+endif()
+
 include_directories(include)
 
 set(LIB_SRCS
