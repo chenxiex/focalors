@@ -12,7 +12,10 @@ class word : public std::bitset<32>
     using std::bitset<32>::bitset;    // 继承 std::bitset 的构造函数
     using std::bitset<32>::operator=; // 继承 std::bitset 的赋值运算符
 
-    uint8_t get_byte(const std::size_t &pos) const;
+    constexpr uint8_t get_byte(const std::size_t &pos) const
+    {
+        return static_cast<uint8_t>(((*this) << pos * 8 >> 24).to_ulong());
+    }
     void set_byte(const std::size_t &pos, const uint8_t &value);
 
     constexpr word operator<<(const size_t n) const

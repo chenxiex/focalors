@@ -4,15 +4,6 @@
 using std::vector;
 namespace focalors
 {
-uint8_t word::get_byte(const std::size_t &pos) const
-{
-    if (pos >= 4)
-    {
-        throw std::out_of_range("word::get_byte");
-    }
-    uint8_t result(((*this) << pos * 8 >> 24).to_ulong());
-    return result;
-}
 void word::set_byte(const std::size_t &pos, const uint8_t &value)
 {
     if (pos >= 4)
