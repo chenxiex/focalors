@@ -10,33 +10,6 @@ using std::vector;
 
 namespace aes
 {
-std::vector<focalors::word> bytes_to_word(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last)
-{
-    vector<word> result;
-    for (auto i = first; i + 4 <= last; i += 4)
-    {
-        focalors::word temp(0);
-        for (int j = 0; j < 4; j++)
-        {
-            temp.set_byte(j, *(i + j));
-        }
-        result.push_back(temp);
-    }
-    return result;
-}
-std::vector<uint8_t> words_to_bytes(const std::vector<focalors::word> &v)
-{
-    vector<uint8_t> result;
-    for (auto i : v)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            result.push_back(i.get_byte(j));
-        }
-    }
-    return result;
-}
 focalors::word rotl(focalors::word w)
 {
     return (w << 8) | (w >> 24);
@@ -304,9 +277,9 @@ std::vector<uint8_t> aes_encrypt(std::vector<uint8_t>::const_iterator first, std
     auto nb = NB.at(std::distance(first, last) * 8);
     auto nk = NK.at(key.size() * 8);
     auto nr = NR[(nk - 4) >> 1][(nb - 4) >> 1];
-    auto cipher_key = bytes_to_word(key.begin(), key.end());
+    auto cipher_key = focalors::bytes_to_word(key.begin(), key.end());
     auto w = key_expansion(cipher_key, nb, nk, nr);
-    auto state = bytes_to_word(first, last);
+    auto state = focalors::bytes_to_word(first, last);
     add_round_key(state, w, 0);
     for (int i = 1; i < nr; i++)
     {
@@ -323,9 +296,9 @@ std::vector<uint8_t> aes_decrypt(std::vector<uint8_t>::const_iterator first, std
     auto nb = NB.at(std::distance(first, last) * 8);
     auto nk = NK.at(key.size() * 8);
     auto nr = NR[(nk - 4) >> 1][(nb - 4) >> 1];
-    auto cipher_key = bytes_to_word(key.begin(), key.end());
+    auto cipher_key = focalors::bytes_to_word(key.begin(), key.end());
     auto w = inv_key_expansion(cipher_key, nb, nk, nr);
-    auto state = bytes_to_word(first, last);
+    auto state = focalors::bytes_to_word(first, last);
     add_round_key(state, w, nr);
     for (int i = nr - 1; i >= 1; i--)
     {

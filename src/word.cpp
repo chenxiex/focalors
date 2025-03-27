@@ -1,5 +1,7 @@
 #include "word.h"
 #include <stdexcept>
+#include <vector>
+using std::vector;
 namespace focalors
 {
 uint8_t word::get_byte(const std::size_t &pos) const
@@ -49,6 +51,33 @@ word operator^(const word &lhs, const word &rhs)
 {
     word result(lhs);
     result ^= rhs;
+    return result;
+}
+std::vector<focalors::word> bytes_to_word(std::vector<uint8_t>::const_iterator first,
+                                          std::vector<uint8_t>::const_iterator last)
+{
+    vector<word> result;
+    for (auto i = first; i + 4 <= last; i += 4)
+    {
+        focalors::word temp(0);
+        for (int j = 0; j < 4; j++)
+        {
+            temp.set_byte(j, *(i + j));
+        }
+        result.push_back(temp);
+    }
+    return result;
+}
+std::vector<uint8_t> words_to_bytes(const std::vector<focalors::word> &v)
+{
+    vector<uint8_t> result;
+    for (auto i : v)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            result.push_back(i.get_byte(j));
+        }
+    }
     return result;
 }
 }; // namespace focalors
