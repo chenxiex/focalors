@@ -1,4 +1,5 @@
 #include "focalors.h"
+#include "utils.h"
 #include <gtest/gtest.h>
 #include <test.h>
 

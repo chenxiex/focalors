@@ -1,5 +1,6 @@
 // echo -n "" | xxd -r -p | openssl enc -aes-128-cbc -K "" -nosalt -nopad -iv "" | xxd -p
 #include "focalors.h"
+#include "utils.h"
 #include "test.h"
 #include "gtest/gtest.h"
 using namespace focalors;
