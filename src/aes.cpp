@@ -14,7 +14,7 @@ constexpr focalors::word rotl(const focalors::word w)
 {
     return (w << 8) | (w >> 24);
 }
-uint8_t sbox(uint8_t b)
+constexpr uint8_t sbox(uint8_t b)
 {
     return S[b >> 4][b & 0xf];
 }
@@ -224,7 +224,7 @@ void inv_shift_row(std::vector<focalors::word> &state)
         }
     }
 }
-uint8_t inv_sbox(uint8_t b)
+constexpr uint8_t inv_sbox(uint8_t b)
 {
     return INV_S[b >> 4][b & 0xf];
 }
