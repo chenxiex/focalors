@@ -1,6 +1,7 @@
 #include "aes.h"
 #include "focalors.h"
 #include "word.h"
+#include <algorithm>
 #include <cstdint>
 #include <iterator>
 #include <stdexcept>
@@ -29,10 +30,7 @@ focalors::word sbox(focalors::word w)
 }
 void sbox(std::vector<focalors::word> &state)
 {
-    for (auto &i : state)
-    {
-        i = sbox(i);
-    }
+    std::for_each(state.begin(), state.end(), [](focalors::word &i) { i = sbox(i); });
 }
 std::vector<focalors::word> key_expansion(const std::vector<focalors::word> &cipher_key, const int &nb, const int &nk,
                                           const int &nr)
@@ -182,19 +180,13 @@ void inv_mix_column(focalors::word &w)
 }
 void inv_mix_column(std::vector<focalors::word> &state)
 {
-    for (auto &i : state)
-    {
-        inv_mix_column(i);
-    }
+    std::for_each(state.begin(), state.end(), [](focalors::word &w) { inv_mix_column(w); });
 }
 std::vector<focalors::word> inv_key_expansion(const std::vector<focalors::word> &cipher_key, const int &nb,
                                               const int &nk, const int &nr)
 {
     vector<word> w = key_expansion(cipher_key, nb, nk, nr);
-    for (auto i = w.begin() + nb; i + nb < w.end(); i++)
-    {
-        inv_mix_column(*i);
-    }
+    std::for_each(w.begin() + nb, w.end() - nb, [](focalors::word &i) { inv_mix_column(i); });
     return w;
 }
 void inv_shift_row(std::vector<focalors::word> &state)
@@ -239,10 +231,7 @@ focalors::word inv_sbox(focalors::word w)
 }
 void inv_sbox(std::vector<focalors::word> &state)
 {
-    for (auto &i : state)
-    {
-        i = inv_sbox(i);
-    }
+    std::for_each(state.begin(), state.end(), [](focalors::word &i) { i = inv_sbox(i); });
 }
 void inv_round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round)
 {
