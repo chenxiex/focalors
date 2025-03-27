@@ -15,12 +15,27 @@ class word : public std::bitset<32>
     uint8_t get_byte(const std::size_t &pos) const;
     void set_byte(const std::size_t &pos, const uint8_t &value);
 
-    word operator<<(const size_t &n) const;
-    word operator>>(const size_t &n) const;
+    constexpr word operator<<(const size_t n) const
+    {
+        return static_cast<word>(this->to_ulong() << n);
+    }
+    constexpr word operator>>(const size_t n) const
+    {
+        return static_cast<word>(this->to_ulong() >> n);
+    }
 };
-word operator&(const word &lhs, const word &rhs);
-word operator|(const word &lhs, const word &rhs);
-word operator^(const word &lhs, const word &rhs);
+constexpr word operator&(const word &lhs, const word &rhs)
+{
+    return static_cast<word>(lhs.to_ulong() & rhs.to_ulong());
+}
+constexpr word operator|(const word &lhs, const word &rhs)
+{
+    return static_cast<word>(lhs.to_ulong() | rhs.to_ulong());
+}
+constexpr word operator^(const word &lhs, const word &rhs)
+{
+    return static_cast<word>(lhs.to_ulong() ^ rhs.to_ulong());
+}
 std::vector<focalors::word> bytes_to_word(std::vector<uint8_t>::const_iterator first,
                                           std::vector<uint8_t>::const_iterator last);
 std::vector<uint8_t> words_to_bytes(const std::vector<focalors::word> &v);

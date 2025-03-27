@@ -10,7 +10,7 @@ using std::vector;
 
 namespace aes
 {
-focalors::word rotl(focalors::word w)
+constexpr focalors::word rotl(const focalors::word w)
 {
     return (w << 8) | (w >> 24);
 }

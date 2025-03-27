@@ -23,36 +23,6 @@ void word::set_byte(const std::size_t &pos, const uint8_t &value)
     mask = ~mask;
     (*this) = ((*this) & mask) | word(static_cast<uint32_t>(value) << (3 - pos) * 8);
 }
-word word::operator<<(const size_t &n) const
-{
-    word result(*this);
-    result <<= n;
-    return result;
-}
-word word::operator>>(const size_t &n) const
-{
-    word result(*this);
-    result >>= n;
-    return result;
-}
-word operator&(const word &lhs, const word &rhs)
-{
-    word result(lhs);
-    result &= rhs;
-    return result;
-}
-word operator|(const word &lhs, const word &rhs)
-{
-    word result(lhs);
-    result |= rhs;
-    return result;
-}
-word operator^(const word &lhs, const word &rhs)
-{
-    word result(lhs);
-    result ^= rhs;
-    return result;
-}
 std::vector<focalors::word> bytes_to_word(std::vector<uint8_t>::const_iterator first,
                                           std::vector<uint8_t>::const_iterator last)
 {
