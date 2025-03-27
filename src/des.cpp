@@ -1,6 +1,7 @@
 #include "des.h"
 #include "focalors.h"
 #include "reverse_bitset.h"
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <iterator>
@@ -155,10 +156,7 @@ focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &cip
     auto subkeys = generate_subkeys(key);
     reverse_bitset<32> l, r;
     initial_permutation(l, r, ciphertext);
-    for (auto i = subkeys.rbegin(); i != subkeys.rend(); i++)
-    {
-        des_encrypt_f(l, r, *i);
-    }
+    std::for_each(subkeys.rbegin(), subkeys.rend(), [&l, &r](reverse_bitset<48> &i) { des_encrypt_f(l, r, i); });
     reverse_bitset<64> encrypted;
     for (int i = 0; i < 32; i++)
     {
