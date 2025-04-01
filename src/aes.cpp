@@ -1,6 +1,6 @@
 #include "aes.h"
 #include "focalors.h"
-#include "word.h"
+#include "word.hpp"
 #include <algorithm>
 #include <cstdint>
 #include <iterator>

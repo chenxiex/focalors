@@ -1,7 +1,7 @@
 #pragma once
 #ifndef aes_H
 #define aes_H
-#include "word.h"
+#include "word.hpp"
 #include <array>
 #include <cstdint>
 #include <unordered_map>

@@ -1,4 +1,4 @@
-#include "word.h"
+#include "word.hpp"
 #include <stdexcept>
 #include <vector>
 using std::vector;
