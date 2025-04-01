@@ -11,11 +11,11 @@ using std::vector;
 
 namespace aes
 {
-constexpr focalors::word rotl(const focalors::word w)
+focalors::word rotl(const focalors::word w) noexcept
 {
     return (w << 8) | (w >> 24);
 }
-constexpr uint8_t sbox(uint8_t b)
+constexpr uint8_t sbox(uint8_t b) noexcept
 {
     return S[b >> 4][b & 0xf];
 }
@@ -98,11 +98,11 @@ uint8_t gf_mul(uint8_t a, uint8_t b)
     }
     return result;
 }
-void add_round_key(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round)
+void add_round_key(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round) noexcept
 {
     for (size_t i = 0; i < state.size(); i++)
     {
-        state[i] ^= w.at(round * state.size() + i);
+        state[i] ^= w[round * state.size() + i];
     }
 }
 void shift_row(std::vector<focalors::word> &state)
@@ -216,7 +216,7 @@ void inv_shift_row(std::vector<focalors::word> &state)
         }
     }
 }
-constexpr uint8_t inv_sbox(uint8_t b)
+constexpr uint8_t inv_sbox(uint8_t b) noexcept
 {
     return INV_S[b >> 4][b & 0xf];
 }

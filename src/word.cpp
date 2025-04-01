@@ -4,11 +4,11 @@
 using std::vector;
 namespace focalors
 {
-void word::set_byte(const std::size_t &pos, const uint8_t &value)
+void word::set_byte(const std::size_t &pos, const uint8_t &value) noexcept
 {
     if (pos >= 4)
     {
-        throw std::out_of_range("word::set_byte");
+        return;
     }
     word mask(0xff << (3 - pos) * 8);
     mask = ~mask;

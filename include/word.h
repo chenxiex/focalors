@@ -14,7 +14,7 @@ class word : public std::bitset<32>
 
     constexpr word(const std::bitset<32> &b) noexcept : std::bitset<32>(b) {}
 
-    constexpr uint8_t get_byte(const std::size_t &pos) const
+    constexpr uint8_t get_byte(const std::size_t &pos) const noexcept
     {
         return static_cast<uint8_t>(((*this) << pos * 8 >> 24).to_ulong());
     }
