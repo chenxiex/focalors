@@ -59,39 +59,5 @@ template <std::size_t N> bool reverse_bitset<N>::operator[](std::size_t pos) con
 {
     return std::bitset<N>::operator[](N - 1 - pos); // 左向右索引
 }
-template <std::size_t N> focalors::reverse_bitset<N> reverse_bitset<N>::operator<<(const size_t &n) const
-{
-    focalors::reverse_bitset<N> result(*this);
-    result <<= n;
-    return result;
-}
-template <std::size_t N> focalors::reverse_bitset<N> reverse_bitset<N>::operator>>(const size_t &n) const
-{
-    focalors::reverse_bitset<N> result(*this);
-    result >>= n;
-    return result;
-}
-
-template <std::size_t N>
-focalors::reverse_bitset<N> operator&(const focalors::reverse_bitset<N> &lhs, const focalors::reverse_bitset<N> &rhs)
-{
-    focalors::reverse_bitset<N> result(lhs);
-    result &= rhs;
-    return result;
-}
-template <std::size_t N>
-focalors::reverse_bitset<N> operator|(const focalors::reverse_bitset<N> &lhs, const focalors::reverse_bitset<N> &rhs)
-{
-    focalors::reverse_bitset<N> result(lhs);
-    result |= rhs;
-    return result;
-}
-template <std::size_t N>
-focalors::reverse_bitset<N> operator^(const focalors::reverse_bitset<N> &lhs, const focalors::reverse_bitset<N> &rhs)
-{
-    focalors::reverse_bitset<N> result(lhs);
-    result ^= rhs;
-    return result;
-}
 } // namespace focalors
 #endif
