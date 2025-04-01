@@ -12,33 +12,14 @@ class word : public std::bitset<32>
     using std::bitset<32>::bitset;    // 继承 std::bitset 的构造函数
     using std::bitset<32>::operator=; // 继承 std::bitset 的赋值运算符
 
+    constexpr word(const std::bitset<32> &b) noexcept : std::bitset<32>(b) {}
+
     constexpr uint8_t get_byte(const std::size_t &pos) const
     {
         return static_cast<uint8_t>(((*this) << pos * 8 >> 24).to_ulong());
     }
-    void set_byte(const std::size_t &pos, const uint8_t &value);
-
-    constexpr word operator<<(const size_t n) const
-    {
-        return static_cast<word>(this->to_ulong() << n);
-    }
-    constexpr word operator>>(const size_t n) const
-    {
-        return static_cast<word>(this->to_ulong() >> n);
-    }
+    void set_byte(const std::size_t &pos, const uint8_t &value) noexcept;
 };
-constexpr word operator&(const word &lhs, const word &rhs)
-{
-    return static_cast<word>(lhs.to_ulong() & rhs.to_ulong());
-}
-constexpr word operator|(const word &lhs, const word &rhs)
-{
-    return static_cast<word>(lhs.to_ulong() | rhs.to_ulong());
-}
-constexpr word operator^(const word &lhs, const word &rhs)
-{
-    return static_cast<word>(lhs.to_ulong() ^ rhs.to_ulong());
-}
 std::vector<focalors::word> bytes_to_word(std::vector<uint8_t>::const_iterator first,
                                           std::vector<uint8_t>::const_iterator last);
 std::vector<uint8_t> words_to_bytes(const std::vector<focalors::word> &v);
