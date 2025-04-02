@@ -4,13 +4,10 @@
 #include "reverse_bitset.h"
 namespace focalors
 {
-template <std::size_t N> focalors::reverse_bitset<N>::reverse_bitset(const std::vector<uint8_t> &v)
+template <std::size_t N> template <class T> focalors::reverse_bitset<N>::reverse_bitset(const T &v) noexcept
 {
-    if (v.empty())
-    {
-        return;
-    }
-    auto unit_bit_size = sizeof(v[0]) * 8;
+    using ValueType = typename T::value_type;
+    auto unit_bit_size = sizeof(ValueType) * 8;
     for (auto i : v)
     {
         *this <<= unit_bit_size;
@@ -18,14 +15,11 @@ template <std::size_t N> focalors::reverse_bitset<N>::reverse_bitset(const std::
     }
 }
 template <std::size_t N>
-focalors::reverse_bitset<N>::reverse_bitset(std::vector<uint8_t>::const_iterator first,
-                                            std::vector<uint8_t>::const_iterator last)
+template <class InputIt>
+focalors::reverse_bitset<N>::reverse_bitset(InputIt first, InputIt last) noexcept
 {
-    if (first == last)
-    {
-        return;
-    }
-    auto unit_bit_size = sizeof(*first) * 8;
+    using ValueType = typename std::iterator_traits<InputIt>::value_type;
+    auto unit_bit_size = sizeof(ValueType) * 8;
     for (auto i = first; i != last; i++)
     {
         *this <<= unit_bit_size;
@@ -51,11 +45,11 @@ template <std::size_t N> std::vector<uint8_t> focalors::reverse_bitset<N>::to_ve
     }
     return v;
 }
-template <std::size_t N> typename focalors::reverse_bitset<N>::reference reverse_bitset<N>::operator[](std::size_t pos)
+template <std::size_t N> typename focalors::reverse_bitset<N>::reference reverse_bitset<N>::operator[](std::size_t pos) noexcept
 {
     return std::bitset<N>::operator[](N - 1 - pos); // 左向右索引
 }
-template <std::size_t N> bool reverse_bitset<N>::operator[](std::size_t pos) const
+template <std::size_t N> constexpr bool reverse_bitset<N>::operator[](std::size_t pos) const noexcept
 {
     return std::bitset<N>::operator[](N - 1 - pos); // 左向右索引
 }
