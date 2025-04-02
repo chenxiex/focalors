@@ -13,6 +13,7 @@ class word : public std::bitset<32>
     using std::bitset<32>::operator=; // 继承 std::bitset 的赋值运算符
 
     constexpr word(const std::bitset<32> &b) noexcept : std::bitset<32>(b) {}
+    constexpr word(std::bitset<32> &&b) noexcept : std::bitset<32>(std::move(b)) {}
 
     constexpr uint8_t get_byte(const std::size_t &pos) const noexcept
     {

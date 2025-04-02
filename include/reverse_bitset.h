@@ -14,6 +14,7 @@ template <std::size_t N> class reverse_bitset : public std::bitset<N>
     reverse_bitset<N>(const std::vector<uint8_t> &v);
     reverse_bitset<N>(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last);
     constexpr reverse_bitset<N>(const std::bitset<N> &b) noexcept : std::bitset<N>(b) {}
+    constexpr reverse_bitset<N>(std::bitset<N> &&b) noexcept : std::bitset<N>(std::move(b)) {}
 
     using std::bitset<N>::operator=; // 继承 std::bitset 的赋值运算符
 
