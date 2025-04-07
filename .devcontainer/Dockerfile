@@ -1,4 +1,4 @@
-FROM ghcr.io/chenxiex/devcontainer-templates/cpp-extra:1-debian-12
+FROM ghcr.io/chenxiex/devcontainer/images/cpp-extra:1-debian-12
 
 ARG SWITCHMIRROR="mirrors.aliyun.com"
 
