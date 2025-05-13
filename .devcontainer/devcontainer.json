@@ -31,6 +31,5 @@
 	//"remoteUser": "root"
 
 	// Comment out if not using rootless podman
-	"runArgs": ["--userns=keep-id"],
-	"containerEnv":{"HOME":"/home/vscode"}
+	"runArgs": ["--userns=keep-id"]
 }
