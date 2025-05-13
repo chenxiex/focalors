@@ -4,17 +4,7 @@
 	"name": "C++ extra",
 	"build": {
 		"dockerfile": "Dockerfile"
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"llvm-vs-code-extensions.vscode-clangd"
-			],
-			"settings": {
-				"C_Cpp.intelliSenseEngine": "disabled"
-			}
-		}
-	},
+	}
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
@@ -28,8 +18,8 @@
 	// "customizations": {},
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	//"remoteUser": "root"
+	// "remoteUser": "root"
 
-	// Comment out if not using rootless podman
-	"runArgs": ["--userns=keep-id"]
+	// Uncomment for rootless podman
+	// "runArgs": ["--userns=keep-id"]
 }

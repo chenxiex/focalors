@@ -1,45 +1,41 @@
 #include "zuc.h"
 #include "focalors.h"
+#include "word.h"
 #include <array>
-#include <bit>
 #include <cstdint>
+#include <limits>
+#include <stdexcept>
 using std::array;
-using std::rotl;
-#ifdef DEBUG
-#include <iostream>
-#include <sstream>
-#include <string>
-using std::cout;
-using std::cin;
-using std::endl;
-using std::string;
-#endif
 
 namespace zuc
 {
-static array<word, 16> s;
-static array<word, 4> x;
-static word r1;
-static word r2;
-static word w;
+static array<uint16_t, 16> s;
+static array<uint16_t, 4> x;
+static uint16_t r1;
+static uint16_t r2;
+static uint16_t w;
 static bool prepared_for_output = false;
-uint64_t pow2(const size_t &n)
+template <typename T> constexpr T rotl(const T &x, const size_t s)
+{
+    return (x << s) | (x >> (std::numeric_limits<T>::digits - s));
+}
+constexpr uint64_t pow2(const size_t &n)
 {
     return uint64_t(1) << n;
 }
-word h(const word &x)
+constexpr uint16_t h(const uint16_t &x)
 {
     return (x >> 15) & 0xffff;
 }
-word l(const word &x)
+constexpr uint16_t l(const uint16_t &x)
 {
     return x & 0xffff;
 }
-word addhl(const word &a, const word &b)
+constexpr uint16_t addhl(const uint16_t &a, const uint16_t &b)
 {
     return h(a) << 16 | l(b);
 }
-word addlh(const word &a, const word &b)
+constexpr uint16_t addlh(const uint16_t &a, const uint16_t &b)
 {
     return l(a) << 16 | h(b);
 }
@@ -50,30 +46,30 @@ void bit_reconstruction()
     x[2] = addlh(s[7], s[5]);
     x[3] = addlh(s[2], s[0]);
 }
-word add_mod32(word a, word b)
+constexpr uint16_t add_mod32(uint16_t a, uint16_t b)
 {
     return (a + b) & 0xffffffff;
 }
-word l1(word x)
+constexpr uint16_t l1(uint16_t x)
 {
     return x ^ rotl(x, 2) ^ rotl(x, 10) ^ rotl(x, 18) ^ rotl(x, 24);
 }
-word l2(word x)
+constexpr uint16_t l2(uint16_t x)
 {
     return x ^ rotl(x, 8) ^ rotl(x, 14) ^ rotl(x, 22) ^ rotl(x, 30);
 }
-word sbox(word x)
+uint16_t sbox(uint16_t x)
 {
     focalors::word x1(x);
     for (int i = 0; i < 4; i++)
     {
         if (i & 1)
         {
-            x1.set_byte(i, focalors::byte(S1[x1.get_byte(i).to_ulong() >> 4][x1.get_byte(i).to_ulong() & 0xf]));
+            x1.set_byte(i, S1[x1.get_byte(i) >> 4][x1.get_byte(i) & 0xf]);
         }
         else
         {
-            x1.set_byte(i, focalors::byte(S0[x1.get_byte(i).to_ulong() >> 4][x1.get_byte(i).to_ulong() & 0xf]));
+            x1.set_byte(i, S0[x1.get_byte(i) >> 4][x1.get_byte(i) & 0xf]);
         }
     }
     return x1.to_ulong();
@@ -81,20 +77,20 @@ word sbox(word x)
 void f()
 {
     w = add_mod32(x[0] ^ r1, r2);
-    word w1 = add_mod32(r1, x[1]);
-    word w2 = r2 ^ x[2];
+    uint16_t w1 = add_mod32(r1, x[1]);
+    uint16_t w2 = r2 ^ x[2];
     r1 = sbox(l1(w1 << 16 | w2 >> 16));
     r2 = sbox(l2(w2 << 16 | w1 >> 16));
 }
 void lsfr_with_init_mode()
 {
-    word u = w >> 1;
-    word v = (pow2(15) * s[15] + pow2(17) * s[13] + pow2(21) * s[10] + pow2(20) * s[4] + (1 + pow2(8)) * s[0]) %
-             (pow2(31) - 1);
-    word s16 = (v + u) % (word(1 << 31) - 1);
+    uint16_t u = w >> 1;
+    uint16_t v = (pow2(15) * s[15] + pow2(17) * s[13] + pow2(21) * s[10] + pow2(20) * s[4] + (1 + pow2(8)) * s[0]) %
+                 (pow2(31) - 1);
+    uint16_t s16 = (v + u) % (uint16_t(1 << 31) - 1);
     if (s16 == 0)
     {
-        s16 = word(1 << 31) - 1;
+        s16 = uint16_t(1 << 31) - 1;
     }
     for (auto i = s.begin(); i + 1 < s.end(); i++)
     {
@@ -104,11 +100,11 @@ void lsfr_with_init_mode()
 }
 void lsfr_with_work_mode()
 {
-    word s16 = (pow2(15) * s[15] + pow2(17) * s[13] + pow2(21) * s[10] + pow2(20) * s[4] + (1 + pow2(8)) * s[0]) %
-               (pow2(31) - 1);
+    uint16_t s16 = (pow2(15) * s[15] + pow2(17) * s[13] + pow2(21) * s[10] + pow2(20) * s[4] + (1 + pow2(8)) * s[0]) %
+                   (pow2(31) - 1);
     if (s16 == 0)
     {
-        s16 = word(1 << 31) - 1;
+        s16 = uint16_t(1 << 31) - 1;
     }
     for (auto i = s.begin(); i + 1 < s.end(); i++)
     {
@@ -116,7 +112,7 @@ void lsfr_with_work_mode()
     }
     *(s.rbegin()) = s16;
 }
-void init(const array<byte, 16> &key, const array<byte, 16> &iv)
+void init(const array<uint8_t, 16> &key, const array<uint8_t, 16> &iv)
 {
     for (auto i = 0; i < 16; i++)
     {
@@ -135,15 +131,15 @@ void init(const array<byte, 16> &key, const array<byte, 16> &iv)
 
 namespace focalors
 {
-void zuc_init(const array<byte, 16> &key, const array<byte, 16> &iv)
+void zuc_init(const array<uint8_t, 16> &key, const array<uint8_t, 16> &iv)
 {
     using namespace zuc;
-    array<zuc::byte, 16> zuc_key;
-    array<zuc::byte, 16> zuc_iv;
+    array<uint8_t, 16> zuc_key;
+    array<uint8_t, 16> zuc_iv;
     for (auto i = 0; i < 16; i++)
     {
-        zuc_key[i] = key[i].to_ulong();
-        zuc_iv[i] = iv[i].to_ulong();
+        zuc_key[i] = key[i];
+        zuc_iv[i] = iv[i];
     }
     init(zuc_key, zuc_iv);
     bit_reconstruction();
@@ -152,7 +148,7 @@ void zuc_init(const array<byte, 16> &key, const array<byte, 16> &iv)
     w = 0;
     prepared_for_output = true;
 }
-word zuc_output()
+uint16_t zuc_output()
 {
     using namespace zuc;
     if (!prepared_for_output)
@@ -163,57 +159,6 @@ word zuc_output()
     f();
     focalors::word z(w ^ x[3]);
     lsfr_with_work_mode();
-    return z;
+    return z.to_ulong();
 }
 } // namespace focalors
-
-#ifdef DEBUG
-std::string hex_to_binary_string(const std::string &hex)
-{
-    std::stringstream ss;
-    for (size_t i = 0; i < hex.size(); ++i)
-    {
-        unsigned int n;
-        std::stringstream(hex.substr(i, 1)) >> std::hex >> n;
-        ss << std::bitset<4>(n);
-    }
-    return ss.str();
-}
-std::string binary_to_hex_string(const std::string &binary)
-{
-    std::stringstream ss;
-    for (size_t i = 0; i < binary.size(); i += 4)
-    {
-        std::bitset<4> b(binary.substr(i, 4));
-        ss << std::hex << b.to_ulong();
-    }
-    return ss.str();
-}
-
-int main()
-{
-    string key,iv;
-    cout<<"输入key（16进制连续输入）：";
-    cin>>key;
-    cout<<"输入iv（16进制连续输入）：";
-    cin>>iv;
-    cout<<"输入输出次数：";
-    int n;
-    cin>>n;
-    key = hex_to_binary_string(key);
-    iv = hex_to_binary_string(iv);
-    array<focalors::byte, 16> zuc_key;
-    array<focalors::byte, 16> zuc_iv;
-    for (auto i = 0; i < 16; i++)
-    {
-        zuc_key[i] = focalors::byte(key.substr(i * 8, 8));
-        zuc_iv[i] = focalors::byte(iv.substr(i * 8, 8));
-    }
-    focalors::zuc_init(zuc_key, zuc_iv);
-    for (auto i = 0; i < n; i++)
-    {
-        cout << std::hex << focalors::zuc_output().to_ullong() << endl;
-    }
-    return 0;
-}
-#endif
