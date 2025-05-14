@@ -1,5 +1,4 @@
 {
     "name": "focalors",
-    "image": "ghcr.io/chenxiex/focalors/devcontainer:latest",
-    "runArgs": ["--userns=keep-id"]
+    "image": "ghcr.io/chenxiex/focalors/devcontainer:latest"
 }
