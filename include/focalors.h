@@ -258,4 +258,4 @@ void elgamal_encrypt(std::string &c1, std::string &c2, const std::string &m, con
 void elgamal_decrypt(std::string &m, const std::string &c1, const std::string &c2, const std::string &d,
                      const std::string &p, const int &base);
 } // namespace focalors
-#endif // CRYPT_H
+#endif // FOCALORS_H
