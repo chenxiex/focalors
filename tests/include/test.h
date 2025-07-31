@@ -1,7 +1,7 @@
 #pragma once
 #ifndef TEST_H
 #define TEST_H
-#include "focalors.h"
+#include "focalors.hpp"
 #include <cstdint>
 #include <vector>
 struct test_case

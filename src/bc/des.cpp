@@ -1,5 +1,5 @@
 #include "des.h"
-#include "focalors.h"
+#include "focalors.hpp"
 #include "reverse_bitset.h"
 #include <algorithm>
 #include <array>

@@ -1,4 +1,4 @@
-#include "focalors.h"
+#include "focalors.hpp"
 #include <gmpxx.h>
 #include <string>
 using std::string;

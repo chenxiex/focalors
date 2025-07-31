@@ -1,5 +1,5 @@
 #include "aes.h"
-#include "focalors.h"
+#include "focalors.hpp"
 #include "word.hpp"
 #include <algorithm>
 #include <cstdint>

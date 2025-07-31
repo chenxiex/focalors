@@ -1,5 +1,5 @@
 // echo -n "" | xxd -r -p | openssl enc -aes-128-ecb -K "" -nosalt -nopad | xxd -p
-#include "focalors.h"
+#include "focalors.hpp"
 #include "utils.h"
 #include "test.h"
 #include "gtest/gtest.h"
@@ -25,8 +25,7 @@ TEST(BlockCipherModeTest, AESECB)
         auto &plaintext = i.plaintext;
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
-        AES aes;
-        auto ecb = ECB(key, aes);
+        auto ecb = ECB<AES>(key, AES());
         // encrypt
         auto encrypted = ecb.encrypt(plaintext.begin(), plaintext.end());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));

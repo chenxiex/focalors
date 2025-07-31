@@ -2,7 +2,7 @@
 #ifndef bcm_IMPL_H
 #define bcm_IMPL_H
 #include "bcm.h"
-#include "focalors.h"
+#include "focalors.hpp"
 namespace bcm
 {
 template <typename T> void split_input(std::vector<T> &text, const std::string &input)

@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+#include <stdexcept>
 #ifndef FOCALORS_H
 #define FOCALORS_H
 #include <array>
@@ -112,7 +114,7 @@ class block_cipher_mode
 };
 
 // ECB
-class ECB : public block_cipher_mode
+template <typename Cipher> class ECB : public block_cipher_mode
 {
   public:
     /*
@@ -120,25 +122,52 @@ class ECB : public block_cipher_mode
      * @param key 密钥。
      * @param cipher 块密码。
      */
-    ECB(const std::vector<uint8_t> &key, const block_cipher &cipher);
+    ECB(const std::vector<uint8_t> &key, const Cipher cipher) : key(key), cipher(cipher){};
     /*
      * @brief ECB模式加密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override;
+                                 std::vector<uint8_t>::const_iterator last) const override
     /*
      * @brief ECB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      */
+    {
+        return ecb(first, last, key, cipher.block_size(),
+                   [this](auto first, auto last, auto key) { return cipher.encrypt(first, last, key); });
+    }
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override;
+                                 std::vector<uint8_t>::const_iterator last) const override
+    {
+        return ecb(first, last, key, cipher.block_size(),
+                   [this](auto first, auto last, auto key) { return cipher.decrypt(first, last, key); });
+    }
 
   private:
     const std::vector<uint8_t> key;
-    const focalors::block_cipher &cipher;
+    const Cipher cipher;
+
+    template <typename Func>
+    std::vector<uint8_t> ecb(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                             const std::vector<uint8_t> &key, const size_t block_size, Func cipher_func) const
+    {
+        using std::vector;
+        if (std::distance(first, last) % block_size != 0)
+        {
+            throw std::invalid_argument("Input size must be a multiple of block size");
+        }
+        auto block_sz = block_size;
+        vector<uint8_t> output(std::distance(first, last));
+        for (auto i = first; i + block_sz <= last; i += block_sz)
+        {
+            auto block = cipher_func(i, i + block_sz, key);
+            std::move(block.begin(), block.end(), output.begin() + (i - first));
+        }
+        return output;
+    }
 };
 
 // CBC

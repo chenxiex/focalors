@@ -1,5 +1,5 @@
 #include "zuc.h"
-#include "focalors.h"
+#include "focalors.hpp"
 #include "word.h"
 #include <array>
 #include <cstdint>

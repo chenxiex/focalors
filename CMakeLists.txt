@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project("focalors")
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(ENABLE_CLANG_TIDY "Enable clang-tidy" OFF)
@@ -19,7 +19,6 @@ set(LIB_SRCS
     "src/utils/utils.cpp"
     "src/bc/des.cpp"
     "src/bc/aes.cpp"
-    "src/bcm/ecb.cpp"
     "src/bcm/cbc.cpp"
     "src/bcm/ofb.cpp"
     "src/bcm/cfb.cpp"

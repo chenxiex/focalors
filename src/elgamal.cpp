@@ -1,4 +1,4 @@
-#include "focalors.h"
+#include "focalors.hpp"
 #include <gmp.h>
 #include <gmpxx.h>
 #include <string>
