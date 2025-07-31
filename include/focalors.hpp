@@ -122,7 +122,7 @@ template <typename Cipher> class ECB : public block_cipher_mode
      * @param key 密钥。
      * @param cipher 块密码。
      */
-    ECB(const std::vector<uint8_t> &key, const Cipher cipher) : key(key), cipher(cipher){};
+    ECB(const std::vector<uint8_t> &key, Cipher cipher) : key(key), cipher(std::move(cipher)){}
     /*
      * @brief ECB模式加密。
      * @param first 输入数据的起始迭代器。
@@ -180,8 +180,8 @@ template <typename Cipher> class CBC : public block_cipher_mode
      * @param cipher 块密码。
      * @param z 初始向量。
      */
-    CBC(const std::vector<uint8_t> &key, const Cipher cipher, const std::vector<uint8_t> &iv)
-        : key(key), cipher(cipher), iv(iv)
+    CBC(const std::vector<uint8_t> &key, Cipher cipher, const std::vector<uint8_t> &iv)
+        : key(key), cipher(std::move(cipher)), iv(iv)
     {
         if (iv.size() != cipher.block_size())
         {
