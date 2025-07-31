@@ -122,7 +122,9 @@ template <typename Cipher> class ECB : public block_cipher_mode
      * @param key 密钥。
      * @param cipher 块密码。
      */
-    ECB(const std::vector<uint8_t> &key, Cipher cipher) : key(key), cipher(std::move(cipher)){}
+    ECB(const std::vector<uint8_t> &key, Cipher cipher) : key(key), cipher(std::move(cipher))
+    {
+    }
     /*
      * @brief ECB模式加密。
      * @param first 输入数据的起始迭代器。
@@ -260,7 +262,7 @@ template <typename Cipher> class CBC : public block_cipher_mode
 };
 
 // OFB
-class OFB : public block_cipher_mode
+template <typename Cipher> class OFB : public block_cipher_mode
 {
   public:
     /*
@@ -269,7 +271,14 @@ class OFB : public block_cipher_mode
      * @param cipher 块密码。
      * @param iv 初始向量。
      */
-    OFB(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &iv);
+    OFB(const std::vector<uint8_t> &key, Cipher cipher, const std::vector<uint8_t> &iv)
+        : key(key), cipher(cipher), iv(iv)
+    {
+        if (iv.size() != cipher.block_size())
+        {
+            throw std::invalid_argument("IV size must be equal to block size.");
+        }
+    }
     /*
      * @brief OFB模式加密。
      * @param first 输入数据的起始迭代器。
@@ -277,7 +286,24 @@ class OFB : public block_cipher_mode
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override;
+                                 std::vector<uint8_t>::const_iterator last) const
+    {
+        const size_t length = std::distance(first, last);
+        std::vector<uint8_t> r(iv.begin(), iv.end());
+        std::vector<uint8_t> result(length);
+        const auto block_sz = cipher.block_size();
+        auto result_it = result.begin();
+        auto remainning = length;
+        for (auto i = first; i < last;)
+        {
+            r = cipher.encrypt(r.begin(), r.end(), key);
+            auto step = std::min(remainning, block_sz);
+            result_it = std::transform(i, std::next(i, step), r.begin(), result_it, std::bit_xor<uint8_t>());
+            std::advance(i, step);
+            remainning -= step;
+        }
+        return result;
+    }
     /*
      * @brief OFB模式解密。
      * @param first 输入数据的起始迭代器。
@@ -285,11 +311,14 @@ class OFB : public block_cipher_mode
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override;
+                                 std::vector<uint8_t>::const_iterator last) const
+    {
+        return encrypt(first, last);
+    }
 
   private:
     const std::vector<uint8_t> key;
-    const focalors::block_cipher &cipher;
+    const Cipher cipher;
     const std::vector<uint8_t> iv;
 };
 
