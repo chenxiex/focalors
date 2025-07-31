@@ -12,46 +12,30 @@
 namespace focalors
 {
 // Block cipher
-class block_cipher
+template <typename Cipher>
+concept BlockCipher = requires(Cipher c, std::vector<uint8_t>::const_iterator first,
+                               std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key)
 {
-  public:
-    virtual ~block_cipher() = default;
-    /*
-     * @brief 获取块大小。
-     * @return 块大小。
-     */
-    virtual size_t block_size() const noexcept = 0;
-    /*
-     * @brief 加密。
-     * @param first 输入数据的起始迭代器。
-     * @param last 输入数据的结束迭代器。
-     * @param key 密钥。
-     * @return 加密后的数据。
-     */
-    virtual std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                         std::vector<uint8_t>::const_iterator last,
-                                         const std::vector<uint8_t> &key) const = 0;
-    /*
-     * @brief 解密。
-     * @param first 输入数据的起始迭代器。
-     * @param last 输入数据的结束迭代器。
-     * @param key 密钥。
-     * @return 解密后的数据。
-     */
-    virtual std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                         std::vector<uint8_t>::const_iterator last,
-                                         const std::vector<uint8_t> &key) const = 0;
+    {
+        c.block_size()
+        } -> std::convertible_to<size_t>;
+    {
+        c.encrypt(first, last, key)
+        } -> std::same_as<std::vector<uint8_t>>;
+    {
+        c.decrypt(first, last, key)
+        } -> std::same_as<std::vector<uint8_t>>;
 };
 
 // DES
-class DES : public block_cipher
+class DES
 {
   public:
     /*
      * @brief 获取块大小。
      * @return 块大小。
      */
-    size_t block_size() const noexcept override;
+    size_t block_size() const noexcept;
     /*
      * @brief DES加密。
      * @param first 输入数据的起始迭代器。
@@ -60,7 +44,7 @@ class DES : public block_cipher
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &key) const override;
+                                 const std::vector<uint8_t> &key) const;
     /*
      * @brief DES解密。
      * @param first 输入数据的起始迭代器。
@@ -69,18 +53,18 @@ class DES : public block_cipher
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &key) const override;
+                                 const std::vector<uint8_t> &key) const;
 };
 
 // AES
-class AES : public block_cipher
+class AES
 {
   public:
     /*
      * @brief 获取块大小。
      * @return 块大小。
      */
-    size_t block_size() const noexcept override;
+    size_t block_size() const noexcept;
     /*
      * @brief AES加密。
      * @param first 输入数据的起始迭代器。
@@ -89,7 +73,7 @@ class AES : public block_cipher
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &key) const override;
+                                 const std::vector<uint8_t> &key) const;
     /*
      * @brief AES解密。
      * @param first 输入数据的起始迭代器。
@@ -98,23 +82,13 @@ class AES : public block_cipher
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &key) const override;
+                                 const std::vector<uint8_t> &key) const;
 };
 
 // Block cipher mode
 
-class block_cipher_mode
-{
-  public:
-    virtual ~block_cipher_mode() = default;
-    virtual std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                         std::vector<uint8_t>::const_iterator last) const = 0;
-    virtual std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                         std::vector<uint8_t>::const_iterator last) const = 0;
-};
-
 // ECB
-template <typename Cipher> class ECB : public block_cipher_mode
+template <BlockCipher Cipher> class ECB
 {
   public:
     /*
@@ -131,7 +105,7 @@ template <typename Cipher> class ECB : public block_cipher_mode
      * @param last 输入数据的结束迭代器。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override
+                                 std::vector<uint8_t>::const_iterator last) const
     {
         return ecb(first, last, key, cipher.block_size(),
                    [this](auto first, auto last, auto key) { return cipher.encrypt(first, last, key); });
@@ -142,7 +116,7 @@ template <typename Cipher> class ECB : public block_cipher_mode
      * @param last 输入数据的结束迭代器。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override
+                                 std::vector<uint8_t>::const_iterator last) const
     {
         return ecb(first, last, key, cipher.block_size(),
                    [this](auto first, auto last, auto key) { return cipher.decrypt(first, last, key); });
@@ -173,7 +147,7 @@ template <typename Cipher> class ECB : public block_cipher_mode
 };
 
 // CBC
-template <typename Cipher> class CBC : public block_cipher_mode
+template <BlockCipher Cipher> class CBC
 {
   public:
     /*
@@ -197,7 +171,7 @@ template <typename Cipher> class CBC : public block_cipher_mode
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override
+                                 std::vector<uint8_t>::const_iterator last) const
     {
         using std::vector;
         auto block_sz = cipher.block_size();
@@ -230,7 +204,7 @@ template <typename Cipher> class CBC : public block_cipher_mode
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override
+                                 std::vector<uint8_t>::const_iterator last) const
     {
         using std::vector;
         auto block_sz = cipher.block_size();
@@ -262,7 +236,7 @@ template <typename Cipher> class CBC : public block_cipher_mode
 };
 
 // OFB
-template <typename Cipher> class OFB : public block_cipher_mode
+template <BlockCipher Cipher> class OFB
 {
   public:
     /*
@@ -286,7 +260,7 @@ template <typename Cipher> class OFB : public block_cipher_mode
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override
+                                 std::vector<uint8_t>::const_iterator last) const
     {
         const size_t length = std::distance(first, last);
         std::vector<uint8_t> r(iv.begin(), iv.end());
@@ -311,7 +285,7 @@ template <typename Cipher> class OFB : public block_cipher_mode
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override
+                                 std::vector<uint8_t>::const_iterator last) const
     {
         return encrypt(first, last);
     }
@@ -323,7 +297,7 @@ template <typename Cipher> class OFB : public block_cipher_mode
 };
 
 // CFB
-template <typename Cipher> class CFB : public block_cipher_mode
+template <BlockCipher Cipher> class CFB
 {
   public:
     /*
@@ -347,7 +321,7 @@ template <typename Cipher> class CFB : public block_cipher_mode
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override
+                                 std::vector<uint8_t>::const_iterator last) const
     {
         return process<true>(first, last, key, iv, cipher);
     }
@@ -358,7 +332,7 @@ template <typename Cipher> class CFB : public block_cipher_mode
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override
+                                 std::vector<uint8_t>::const_iterator last) const
     {
         return process<false>(first, last, key, iv, cipher);
     }
