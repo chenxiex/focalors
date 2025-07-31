@@ -187,17 +187,16 @@ template <BlockCipher Cipher> class CBC
         vector<uint8_t> output(std::distance(first, last));
         for (auto i = first; i + block_sz <= last; i += block_sz)
         {
-            vector<uint8_t> block(block_sz);
             auto output_it = output.begin() + (i - first);
             if (i == first)
             {
-                std::transform(i, i + block_sz, iv.begin(), block.begin(), std::bit_xor<uint8_t>());
+                std::transform(i, i + block_sz, iv.begin(), output_it, std::bit_xor<uint8_t>());
             }
             else
             {
-                std::transform(i, i + block_sz, output_it - block_sz, block.begin(), std::bit_xor<uint8_t>());
+                std::transform(i, i + block_sz, output_it - block_sz, output_it, std::bit_xor<uint8_t>());
             }
-            block = cipher.encrypt(block.begin(), block.end(), key);
+            auto block = cipher.encrypt(output_it, output_it + block_sz, key);
             std::move(block.begin(), block.end(), output_it);
         }
         return output;
