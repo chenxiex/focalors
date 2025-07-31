@@ -286,7 +286,7 @@ template <typename Cipher> class OFB : public block_cipher_mode
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const
+                                 std::vector<uint8_t>::const_iterator last) const override
     {
         const size_t length = std::distance(first, last);
         std::vector<uint8_t> r(iv.begin(), iv.end());
@@ -311,7 +311,7 @@ template <typename Cipher> class OFB : public block_cipher_mode
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const
+                                 std::vector<uint8_t>::const_iterator last) const override
     {
         return encrypt(first, last);
     }
