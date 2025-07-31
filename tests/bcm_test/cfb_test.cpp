@@ -29,8 +29,7 @@ TEST(BlockCipherModeTest, AESCFB)
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
         auto &iv = i.iv;
-        AES aes;
-        CFB cfb(key, aes, iv);
+        CFB cfb(key, AES(), iv);
         // encrypt
         auto encrypted = cfb.encrypt(plaintext.begin(), plaintext.end());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));

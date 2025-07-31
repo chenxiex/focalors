@@ -323,7 +323,7 @@ template <typename Cipher> class OFB : public block_cipher_mode
 };
 
 // CFB
-class CFB : public block_cipher_mode
+template <typename Cipher> class CFB : public block_cipher_mode
 {
   public:
     /*
@@ -332,7 +332,14 @@ class CFB : public block_cipher_mode
      * @param cipher 块密码。
      * @param iv 初始向量。
      */
-    CFB(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &iv);
+    CFB(const std::vector<uint8_t> &key, Cipher cipher, const std::vector<uint8_t> &iv)
+        : key(key), cipher(std::move(cipher)), iv(iv)
+    {
+        if (iv.size() != cipher.block_size())
+        {
+            throw std::invalid_argument("IV size must be equal to block size.");
+        }
+    }
     /*
      * @brief CFB模式加密。
      * @param first 输入数据的起始迭代器。
@@ -340,7 +347,10 @@ class CFB : public block_cipher_mode
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override;
+                                 std::vector<uint8_t>::const_iterator last) const override
+    {
+        return process<true>(first, last, key, iv, cipher);
+    }
     /*
      * @brief CFB模式解密。
      * @param first 输入数据的起始迭代器。
@@ -348,12 +358,54 @@ class CFB : public block_cipher_mode
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override;
+                                 std::vector<uint8_t>::const_iterator last) const override
+    {
+        return process<false>(first, last, key, iv, cipher);
+    }
 
   private:
     const std::vector<uint8_t> key;
-    const focalors::block_cipher &cipher;
+    const Cipher cipher;
     const std::vector<uint8_t> iv;
+
+    template <bool encrypt>
+    std::vector<uint8_t> process(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
+                                 const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv,
+                                 const Cipher &cipher) const
+    {
+        const size_t length = std::distance(first, last);
+        std::vector<uint8_t> r(iv.begin(), iv.end());
+        std::vector<uint8_t> result(length);
+        const auto block_sz = cipher.block_size();
+        auto result_it = result.begin();
+        auto remainning = length;
+        for (auto i = first; i < last;)
+        {
+            auto step = std::min(remainning, block_sz);
+            if constexpr (encrypt)
+            {
+                r = cipher.encrypt(r.begin(), r.end(), key);
+                std::transform(i, std::next(i, step), r.begin(), result_it, std::bit_xor<uint8_t>());
+                if (step == block_sz)
+                {
+                    std::copy(result_it, std::next(result_it, block_sz), r.begin());
+                }
+            }
+            else
+            {
+                auto e = cipher.encrypt(r.begin(), r.end(), key);
+                if (step == block_sz)
+                {
+                    std::copy(i, std::next(i, block_sz), r.begin());
+                }
+                std::transform(i, std::next(i, step), e.begin(), result_it, std::bit_xor<uint8_t>());
+            }
+            std::advance(i, step);
+            std::advance(result_it, step);
+            remainning -= step;
+        }
+        return result;
+    }
 };
 
 // ZUC

@@ -19,7 +19,6 @@ set(LIB_SRCS
     "src/utils/utils.cpp"
     "src/bc/des.cpp"
     "src/bc/aes.cpp"
-    "src/bcm/cfb.cpp"
 )
 
 add_library("focalors" ${LIB_SRCS})
