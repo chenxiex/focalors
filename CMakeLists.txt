@@ -19,7 +19,6 @@ set(LIB_SRCS
     "src/utils/utils.cpp"
     "src/bc/des.cpp"
     "src/bc/aes.cpp"
-    "src/bcm/cbc.cpp"
     "src/bcm/ofb.cpp"
     "src/bcm/cfb.cpp"
 )

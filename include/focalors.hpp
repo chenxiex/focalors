@@ -171,7 +171,7 @@ template <typename Cipher> class ECB : public block_cipher_mode
 };
 
 // CBC
-class CBC : public block_cipher_mode
+template <typename Cipher> class CBC : public block_cipher_mode
 {
   public:
     /*
@@ -180,7 +180,14 @@ class CBC : public block_cipher_mode
      * @param cipher 块密码。
      * @param z 初始向量。
      */
-    CBC(const std::vector<uint8_t> &key, const block_cipher &cipher, const std::vector<uint8_t> &z);
+    CBC(const std::vector<uint8_t> &key, const Cipher cipher, const std::vector<uint8_t> &iv)
+        : key(key), cipher(cipher), iv(iv)
+    {
+        if (iv.size() != cipher.block_size())
+        {
+            throw std::invalid_argument("IV size must be equal to block size");
+        }
+    };
     /*
      * @brief CBC模式加密。
      * @param first 输入数据的起始迭代器。
@@ -188,7 +195,32 @@ class CBC : public block_cipher_mode
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override;
+                                 std::vector<uint8_t>::const_iterator last) const override
+    {
+        using std::vector;
+        auto block_sz = cipher.block_size();
+        if (std::distance(first, last) % block_sz)
+        {
+            throw std::invalid_argument("Input size must be a multiple of block size");
+        }
+        vector<uint8_t> output(std::distance(first, last));
+        for (auto i = first; i + block_sz <= last; i += block_sz)
+        {
+            vector<uint8_t> block(block_sz);
+            auto output_it = output.begin() + (i - first);
+            if (i == first)
+            {
+                std::transform(i, i + block_sz, iv.begin(), block.begin(), std::bit_xor<uint8_t>());
+            }
+            else
+            {
+                std::transform(i, i + block_sz, output_it - block_sz, block.begin(), std::bit_xor<uint8_t>());
+            }
+            block = cipher.encrypt(block.begin(), block.end(), key);
+            std::move(block.begin(), block.end(), output_it);
+        }
+        return output;
+    }
     /*
      * @brief CBC模式解密。
      * @param first 输入数据的起始迭代器。
@@ -196,11 +228,34 @@ class CBC : public block_cipher_mode
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const override;
+                                 std::vector<uint8_t>::const_iterator last) const override
+    {
+        using std::vector;
+        auto block_sz = cipher.block_size();
+        if (std::distance(first, last) % block_sz)
+        {
+            throw std::invalid_argument("Input size must be a multiple of block size");
+        }
+        vector<uint8_t> output(std::distance(first, last));
+        for (auto i = first; i + block_sz <= last; i += block_sz)
+        {
+            auto block = cipher.decrypt(i, i + block_sz, key);
+            auto output_it = output.begin() + (i - first);
+            if (i == first)
+            {
+                std::transform(block.begin(), block.end(), iv.begin(), output_it, std::bit_xor<uint8_t>());
+            }
+            else
+            {
+                std::transform(block.begin(), block.end(), i - block_sz, output_it, std::bit_xor<uint8_t>());
+            }
+        }
+        return output;
+    }
 
   private:
     const std::vector<uint8_t> key;
-    const focalors::block_cipher &cipher;
+    const Cipher cipher;
     const std::vector<uint8_t> iv;
 };
 
