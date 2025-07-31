@@ -35,7 +35,10 @@ class DES
      * @brief 获取块大小。
      * @return 块大小。
      */
-    size_t block_size() const noexcept;
+    constexpr size_t block_size() const noexcept
+    {
+        return 8;
+    }
     /*
      * @brief DES加密。
      * @param first 输入数据的起始迭代器。
@@ -64,7 +67,10 @@ class AES
      * @brief 获取块大小。
      * @return 块大小。
      */
-    size_t block_size() const noexcept;
+    constexpr size_t block_size() const noexcept
+    {
+        return 16;
+    }
     /*
      * @brief AES加密。
      * @param first 输入数据的起始迭代器。
@@ -96,7 +102,7 @@ template <BlockCipher Cipher> class ECB
      * @param key 密钥。
      * @param cipher 块密码。
      */
-    ECB(const std::vector<uint8_t> &key, Cipher cipher) : key(key), cipher(std::move(cipher))
+    ECB(const std::vector<uint8_t> &key) : key(key), cipher(Cipher())
     {
     }
     /*
@@ -156,8 +162,7 @@ template <BlockCipher Cipher> class CBC
      * @param cipher 块密码。
      * @param z 初始向量。
      */
-    CBC(const std::vector<uint8_t> &key, Cipher cipher, const std::vector<uint8_t> &iv)
-        : key(key), cipher(std::move(cipher)), iv(iv)
+    CBC(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv) : key(key), cipher(Cipher()), iv(iv)
     {
         if (iv.size() != cipher.block_size())
         {
@@ -245,8 +250,7 @@ template <BlockCipher Cipher> class OFB
      * @param cipher 块密码。
      * @param iv 初始向量。
      */
-    OFB(const std::vector<uint8_t> &key, Cipher cipher, const std::vector<uint8_t> &iv)
-        : key(key), cipher(cipher), iv(iv)
+    OFB(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv) : key(key), cipher(Cipher()), iv(iv)
     {
         if (iv.size() != cipher.block_size())
         {
@@ -306,8 +310,8 @@ template <BlockCipher Cipher> class CFB
      * @param cipher 块密码。
      * @param iv 初始向量。
      */
-    CFB(const std::vector<uint8_t> &key, Cipher cipher, const std::vector<uint8_t> &iv)
-        : key(key), cipher(std::move(cipher)), iv(iv)
+    CFB(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv)
+        : key(key), cipher(Cipher()), iv(iv)
     {
         if (iv.size() != cipher.block_size())
         {

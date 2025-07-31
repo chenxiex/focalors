@@ -181,10 +181,6 @@ void check(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::con
 
 namespace focalors
 {
-size_t DES::block_size() const noexcept
-{
-    return 8;
-}
 vector<uint8_t> DES::encrypt(vector<uint8_t>::const_iterator first, vector<uint8_t>::const_iterator last,
                              const vector<uint8_t> &key) const
 {

@@ -1,7 +1,7 @@
 // echo -n "" | xxd -r -p | openssl enc -aes-128-cfb -K "" -nosalt -nopad -iv "" | xxd -p
 #include "focalors.hpp"
-#include "utils.h"
 #include "test.h"
+#include "utils.h"
 #include "gtest/gtest.h"
 using namespace focalors;
 using namespace std;
@@ -29,7 +29,7 @@ TEST(BlockCipherModeTest, AESCFB)
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
         auto &iv = i.iv;
-        CFB cfb(key, AES(), iv);
+        auto cfb = CFB<AES>(key, iv);
         // encrypt
         auto encrypted = cfb.encrypt(plaintext.begin(), plaintext.end());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));

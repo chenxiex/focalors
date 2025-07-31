@@ -25,7 +25,7 @@ TEST(BlockCipherModeTest, AESECB)
         auto &plaintext = i.plaintext;
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
-        auto ecb = ECB(key, AES());
+        auto ecb = ECB<AES>(key);
         // encrypt
         auto encrypted = ecb.encrypt(plaintext.begin(), plaintext.end());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));

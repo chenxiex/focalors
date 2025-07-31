@@ -29,7 +29,7 @@ TEST(BlockCipherModeTest, AESCBC)
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
         auto &iv = i.iv;
-        auto cbc = CBC(key, AES(), iv);
+        auto cbc = CBC<AES>(key, iv);
         // encrypt
         auto encrypted = cbc.encrypt(plaintext.begin(), plaintext.end());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));

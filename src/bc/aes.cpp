@@ -302,10 +302,6 @@ namespace focalors
 {
 using namespace std;
 using namespace focalors;
-size_t AES::block_size() const noexcept
-{
-    return 16;
-}
 std::vector<uint8_t> AES::encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
                                   const std::vector<uint8_t> &key) const
 {
