@@ -130,15 +130,15 @@ template <typename Cipher> class ECB : public block_cipher_mode
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
                                  std::vector<uint8_t>::const_iterator last) const override
+    {
+        return ecb(first, last, key, cipher.block_size(),
+                   [this](auto first, auto last, auto key) { return cipher.encrypt(first, last, key); });
+    }
     /*
      * @brief ECB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      */
-    {
-        return ecb(first, last, key, cipher.block_size(),
-                   [this](auto first, auto last, auto key) { return cipher.encrypt(first, last, key); });
-    }
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
                                  std::vector<uint8_t>::const_iterator last) const override
     {
