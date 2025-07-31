@@ -1,11 +1,11 @@
 #pragma once
-#include <memory>
-#include <stdexcept>
 #ifndef FOCALORS_H
 #define FOCALORS_H
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -310,8 +310,7 @@ template <BlockCipher Cipher> class CFB
      * @param cipher 块密码。
      * @param iv 初始向量。
      */
-    CFB(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv)
-        : key(key), cipher(Cipher()), iv(iv)
+    CFB(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv) : key(key), cipher(Cipher()), iv(iv)
     {
         if (iv.size() != cipher.block_size())
         {
