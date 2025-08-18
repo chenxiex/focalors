@@ -102,7 +102,7 @@ template <BlockCipher Cipher> class ECB
      * @param key 密钥。
      * @param cipher 块密码。
      */
-    ECB(const std::vector<uint8_t> &key) : key(key), cipher(Cipher())
+    ECB(const std::vector<uint8_t> &key) : key(key)
     {
     }
     /*
@@ -162,7 +162,7 @@ template <BlockCipher Cipher> class CBC
      * @param cipher 块密码。
      * @param z 初始向量。
      */
-    CBC(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv) : key(key), cipher(Cipher()), iv(iv)
+    CBC(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv) : key(key), iv(iv)
     {
         if (iv.size() != cipher.block_size())
         {
@@ -249,7 +249,7 @@ template <BlockCipher Cipher> class OFB
      * @param cipher 块密码。
      * @param iv 初始向量。
      */
-    OFB(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv) : key(key), cipher(Cipher()), iv(iv)
+    OFB(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv) : key(key), iv(iv)
     {
         if (iv.size() != cipher.block_size())
         {
@@ -309,7 +309,7 @@ template <BlockCipher Cipher> class CFB
      * @param cipher 块密码。
      * @param iv 初始向量。
      */
-    CFB(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv) : key(key), cipher(Cipher()), iv(iv)
+    CFB(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv) : key(key), iv(iv)
     {
         if (iv.size() != cipher.block_size())
         {
