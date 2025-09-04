@@ -3,6 +3,7 @@
 #define FOCALORS_H
 #include "reverse_bitset.hpp"
 #include <array>
+#include <cassert>
 #include <concepts>
 #include <cstdint>
 #include <functional>
@@ -48,11 +49,11 @@ class DES
      */
     constexpr size_t block_size() const noexcept
     {
-        return 8;
+        return block_size_;
     }
     constexpr bool is_inited() const noexcept
     {
-        return inited;
+        return inited_;
     }
     /*
      * @brief 初始化DES。
@@ -60,9 +61,9 @@ class DES
      */
     void constexpr init(const auto &key)
     {
-        subkeys = des::generate_subkeys(reverse_bitset<64>(key));
+        subkeys_ = des::generate_subkeys(reverse_bitset<64>(key));
 
-        inited = true;
+        inited_ = true;
     }
     /*
      * @brief DES加密。
@@ -75,8 +76,20 @@ class DES
     constexpr auto encrypt(InputIt first, Sentinel last, const auto &key)
     {
         init(key);
+        return encrypt(first, last);
+    }
+    /*
+     * @brief DES加密。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
+     * @return 加密后的数据。
+     */
+    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
+    constexpr auto encrypt(InputIt first, Sentinel last) noexcept
+    {
+        assert(is_inited());
         reverse_bitset<64> data(first, last);
-        data = des::des_encrypt(data, subkeys);
+        data = des::des_encrypt(data, subkeys_);
         return data;
     }
     /*
@@ -90,14 +103,27 @@ class DES
     constexpr auto decrypt(InputIt first, Sentinel last, const auto &key)
     {
         init(key);
+        return decrypt(first, last);
+    }
+    /*
+     * @brief DES解密。
+     * @param first 输入数据的起始迭代器。
+     * @param last 输入数据的结束迭代器。
+     * @return 解密后的数据。
+     */
+    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
+    constexpr auto decrypt(InputIt first, Sentinel last) noexcept
+    {
+        assert(is_inited());
         reverse_bitset<64> data(first, last);
-        data = des::des_decrypt(data, subkeys);
+        data = des::des_decrypt(data, subkeys_);
         return data;
     }
 
   private:
-    bool inited = false;
-    std::array<reverse_bitset<48>, 16> subkeys;
+    bool inited_ = false;
+    std::array<reverse_bitset<48>, 16> subkeys_;
+    static constexpr size_t block_size_ = 8;
 };
 
 // AES
