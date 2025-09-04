@@ -34,9 +34,9 @@ namespace des
 {
 std::array<focalors::reverse_bitset<48>, 16> generate_subkeys(const focalors::reverse_bitset<64> &key);
 focalors::reverse_bitset<64> des_encrypt(const focalors::reverse_bitset<64> &plaintext,
-                                         const std::array<focalors::reverse_bitset<48>, 16> &subkeys);
+                                         const std::array<focalors::reverse_bitset<48>, 16> &subkeys) noexcept;
 focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &ciphertext,
-                                         const std::array<focalors::reverse_bitset<48>, 16> &subkeys);
+                                         const std::array<focalors::reverse_bitset<48>, 16> &subkeys) noexcept;
 } // namespace des
 // DES
 class DES
@@ -50,16 +50,16 @@ class DES
     {
         return 8;
     }
+    constexpr bool is_inited() const noexcept
+    {
+        return inited;
+    }
     /*
      * @brief 初始化DES。
      * @param key 密钥。
      */
     void constexpr init(const auto &key)
     {
-        if (key.size() != 8)
-        {
-            throw std::invalid_argument("Key size must be 8 bytes.");
-        }
         subkeys = des::generate_subkeys(reverse_bitset<64>(key));
 
         inited = true;
@@ -74,10 +74,6 @@ class DES
     template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
     constexpr auto encrypt(InputIt first, Sentinel last, const auto &key)
     {
-        if (static_cast<size_t>(std::distance(first, last)) != block_size())
-        {
-            throw std::invalid_argument("Input size must be 8 bytes.");
-        }
         init(key);
         reverse_bitset<64> data(first, last);
         data = des::des_encrypt(data, subkeys);
@@ -90,13 +86,9 @@ class DES
      * @param key 密钥。
      * @return 解密后的数据。
      */
-    template<std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
+    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
     constexpr auto decrypt(InputIt first, Sentinel last, const auto &key)
     {
-        if (static_cast<size_t>(std::distance(first, last)) != block_size())
-        {
-            throw std::invalid_argument("Input size must be 8 bytes.");
-        }
         init(key);
         reverse_bitset<64> data(first, last);
         data = des::des_decrypt(data, subkeys);
