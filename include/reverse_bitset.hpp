@@ -12,7 +12,7 @@ namespace focalors
 template <std::size_t N> class reverse_bitset : public std::bitset<N>
 {
   public:
-    using std::bitset<N>::bitset; // 继承 std::bitset 的构造函数
+    using std::bitset<N>::bitset;
     template <class T> reverse_bitset(const T &v) noexcept
     {
         using ValueType = typename T::value_type;
@@ -34,16 +34,26 @@ template <std::size_t N> class reverse_bitset : public std::bitset<N>
             *this |= *it;
         }
     }
+    /*
+     * @brief 重载下标运算符，实现从左到右的索引。
+     * @param pos 位的位置（从0开始）。
+     * @return 指向该位置的引用。
+     */
     typename focalors::reverse_bitset<N>::reference operator[](std::size_t pos) noexcept
     {
-        return std::bitset<N>::operator[](N - 1 - pos); // 左向右索引
+        return std::bitset<N>::operator[](N - 1 - pos);
     }
+    /*
+     * @brief 重载下标运算符，实现从左到右的索引。
+     * @param pos 位的位置（从0开始）。
+     * @return 该位置的值。
+     */
     constexpr bool operator[](std::size_t pos) const noexcept
     {
-        return std::bitset<N>::operator[](N - 1 - pos); // 左向右索引
+        return std::bitset<N>::operator[](N - 1 - pos);
     }
 
-    using std::bitset<N>::operator=; // 继承 std::bitset 的赋值运算符
+    using std::bitset<N>::operator=;
 
     template <template <typename...> class Container, typename ValueType, typename... Args>
     requires(requires(Container<ValueType, Args...> c, ValueType v) {
@@ -56,34 +66,8 @@ template <std::size_t N> class reverse_bitset : public std::bitset<N>
     }) constexpr Container<ValueType, Args...> to_container() const
     {
         Container<ValueType, Args...> container;
-        auto cnt = 0;
-        ValueType value = 0;
-        constexpr auto value_bit_size = sizeof(ValueType) * 8;
 
-        for (size_t i = 0; i < N; i++)
-        {
-            value <<= 1;
-            value |= (*this)[i];
-            cnt++;
-            if (cnt == value_bit_size)
-            {
-                if constexpr (requires { container.push_back(value); })
-                {
-                    container.push_back(value);
-                }
-                else if constexpr (requires { container.insert(container.end(), value); })
-                {
-                    container.insert(container.end(), value);
-                }
-                cnt = 0;
-                value = 0;
-            }
-        }
-
-        // 处理不足一个完整值大小的剩余位
-        if (cnt > 0)
-        {
-            value <<= (value_bit_size - cnt); // 将已有位移到高位，以保持原始位顺序
+        process_bits_to_values<ValueType>([&container](const ValueType &value) {
             if constexpr (requires { container.push_back(value); })
             {
                 container.push_back(value);
@@ -92,9 +76,14 @@ template <std::size_t N> class reverse_bitset : public std::bitset<N>
             {
                 container.insert(container.end(), value);
             }
-        }
+        });
 
         return container;
+    }
+
+    template <typename ValueType, std::output_iterator<ValueType> OutputIt> void to_container(OutputIt dest) const
+    {
+        process_bits_to_values<ValueType>([&dest](const ValueType &value) { *dest++ = value; });
     }
 
     template <template <typename...> class Container, typename ValueType = uint8_t, typename... Args>
@@ -109,6 +98,34 @@ template <std::size_t N> class reverse_bitset : public std::bitset<N>
     operator Container<ValueType, Args...>() const
     {
         return to_container<Container, ValueType, Args...>();
+    }
+
+  private:
+    template <typename ValueType, typename Callback> constexpr void process_bits_to_values(Callback &&store_value) const
+    {
+        constexpr auto value_bit_size = sizeof(ValueType) * 8;
+        size_t cnt = 0;
+        ValueType value = 0;
+
+        for (size_t i = 0; i < N; i++)
+        {
+            value <<= 1;
+            value |= (*this)[i];
+            cnt++;
+            if (cnt == value_bit_size)
+            {
+                store_value(value);
+                cnt = 0;
+                value = 0;
+            }
+        }
+
+        // 处理不足一个完整值大小的剩余位
+        if (cnt > 0)
+        {
+            value <<= (value_bit_size - cnt); // 将已有位移到高位，以保持原始位顺序
+            store_value(value);
+        }
     }
 };
 } // namespace focalors
