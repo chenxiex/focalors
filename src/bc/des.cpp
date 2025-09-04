@@ -1,6 +1,6 @@
 #include "des.h"
 #include "focalors.hpp"
-#include "reverse_bitset.h"
+#include "reverse_bitset.hpp"
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -10,8 +10,9 @@
 #include <vector>
 using focalors::reverse_bitset;
 using std::array;
-using std::vector;
 
+namespace focalors
+{
 namespace des
 {
 focalors::reverse_bitset<28> left_shift(const focalors::reverse_bitset<28> &bits, const int &n)
@@ -132,10 +133,8 @@ focalors::reverse_bitset<64> ip_1(const focalors::reverse_bitset<64> &bits)
     }
     return result;
 }
-focalors::reverse_bitset<64> des_encrypt(const focalors::reverse_bitset<64> &plaintext,
-                                         const focalors::reverse_bitset<64> &key)
+focalors::reverse_bitset<64> des_encrypt(const focalors::reverse_bitset<64> &plaintext, const std::array<focalors::reverse_bitset<48>, 16> &subkeys)
 {
-    auto subkeys = generate_subkeys(key);
     reverse_bitset<32> l, r;
     initial_permutation(l, r, plaintext);
     for (int i = 0; i < 16; i++)
@@ -150,13 +149,11 @@ focalors::reverse_bitset<64> des_encrypt(const focalors::reverse_bitset<64> &pla
     }
     return ip_1(encrypted);
 }
-focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &ciphertext,
-                                         const focalors::reverse_bitset<64> &key)
+focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &ciphertext, const std::array<focalors::reverse_bitset<48>, 16> &subkeys)
 {
-    auto subkeys = generate_subkeys(key);
     reverse_bitset<32> l, r;
     initial_permutation(l, r, ciphertext);
-    std::for_each(subkeys.rbegin(), subkeys.rend(), [&l, &r](reverse_bitset<48> &i) { des_encrypt_f(l, r, i); });
+    std::for_each(subkeys.rbegin(), subkeys.rend(), [&l, &r](const reverse_bitset<48> &i) { des_encrypt_f(l, r, i); });
     reverse_bitset<64> encrypted;
     for (int i = 0; i < 32; i++)
     {
@@ -165,36 +162,5 @@ focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &cip
     }
     return ip_1(encrypted);
 }
-void check(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-           const std::vector<uint8_t> &key)
-{
-    if (key.size() != 8)
-    {
-        throw std::invalid_argument("Key size must be 8 bytes.");
-    }
-    if (std::distance(first, last) != 8)
-    {
-        throw std::invalid_argument("Input size must be 8 bytes.");
-    }
-}
 } // namespace des
-
-namespace focalors
-{
-vector<uint8_t> DES::encrypt(vector<uint8_t>::const_iterator first, vector<uint8_t>::const_iterator last,
-                             const vector<uint8_t> &key) const
-{
-    des::check(first, last, key);
-    reverse_bitset<64> output, input_reverse_bitset(first, last), key_reverse_bitset(key);
-    output = des::des_encrypt(input_reverse_bitset, key_reverse_bitset);
-    return output.to_vector();
 }
-vector<uint8_t> DES::decrypt(vector<uint8_t>::const_iterator first, vector<uint8_t>::const_iterator last,
-                             const vector<uint8_t> &key) const
-{
-    des::check(first, last, key);
-    reverse_bitset<64> output, input_reverse_bitset(first, last), key_reverse_bitset(key);
-    output = des::des_decrypt(input_reverse_bitset, key_reverse_bitset);
-    return output.to_vector();
-}
-} // namespace focalors

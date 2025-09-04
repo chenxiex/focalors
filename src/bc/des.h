@@ -1,9 +1,11 @@
 #pragma once
 #ifndef DES_H
 #define DES_H
-#include "reverse_bitset.h"
+#include "reverse_bitset.hpp"
 #include <array>
 
+namespace focalors
+{
 namespace des
 {
 // 常量
@@ -63,4 +65,5 @@ const std::array<const int, 64> IP_1 = {40, 8, 48, 16, 56, 24, 64, 32, 39, 7, 47
                                         36, 4, 44, 12, 52, 20, 60, 28, 35, 3, 43, 11, 51, 19, 59, 27,
                                         34, 2, 42, 10, 50, 18, 58, 26, 33, 1, 41, 9,  49, 17, 57, 25};
 } // namespace des
+} // namespace focalors
 #endif // DES_H
