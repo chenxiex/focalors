@@ -33,7 +33,8 @@ focalors::reverse_bitset<48> choose(const focalors::reverse_bitset<56> &bits) no
     }
     return chosen;
 }
-std::pair<focalors::reverse_bitset<28>, focalors::reverse_bitset<28>> choose1(const focalors::reverse_bitset<64> &key) noexcept
+std::pair<focalors::reverse_bitset<28>, focalors::reverse_bitset<28>> choose1(
+    const focalors::reverse_bitset<64> &key) noexcept
 {
     // 选择置换1
     reverse_bitset<28> c, d;
@@ -44,7 +45,8 @@ std::pair<focalors::reverse_bitset<28>, focalors::reverse_bitset<28>> choose1(co
     }
     return {c, d};
 }
-focalors::reverse_bitset<48> choose2(const focalors::reverse_bitset<28> &c, const focalors::reverse_bitset<28> &d) noexcept
+focalors::reverse_bitset<48> choose2(const focalors::reverse_bitset<28> &c,
+                                     const focalors::reverse_bitset<28> &d) noexcept
 {
     reverse_bitset<48> subkey;
     reverse_bitset<56> cd;
@@ -132,7 +134,8 @@ focalors::reverse_bitset<64> ip_1(const focalors::reverse_bitset<64> &bits) noex
     }
     return result;
 }
-focalors::reverse_bitset<64> des_encrypt(const focalors::reverse_bitset<64> &plaintext, const std::array<focalors::reverse_bitset<48>, 16> &subkeys) noexcept
+focalors::reverse_bitset<64> des_encrypt(const focalors::reverse_bitset<64> &plaintext,
+                                         const std::array<focalors::reverse_bitset<48>, 16> &subkeys) noexcept
 {
     reverse_bitset<32> l, r;
     initial_permutation(l, r, plaintext);
@@ -145,7 +148,8 @@ focalors::reverse_bitset<64> des_encrypt(const focalors::reverse_bitset<64> &pla
     }
     return ip_1(encrypted);
 }
-focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &ciphertext, const std::array<focalors::reverse_bitset<48>, 16> &subkeys) noexcept
+focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &ciphertext,
+                                         const std::array<focalors::reverse_bitset<48>, 16> &subkeys) noexcept
 {
     reverse_bitset<32> l, r;
     initial_permutation(l, r, ciphertext);
@@ -159,4 +163,4 @@ focalors::reverse_bitset<64> des_decrypt(const focalors::reverse_bitset<64> &cip
     return ip_1(encrypted);
 }
 } // namespace des
-}
+} // namespace focalors
