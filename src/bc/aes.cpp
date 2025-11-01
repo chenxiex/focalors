@@ -1,4 +1,3 @@
-#include "aes.h"
 #include "focalors.hpp"
 #include "word.hpp"
 #include <algorithm>
@@ -11,17 +10,15 @@ using std::vector;
 
 namespace focalors
 {
-namespace aes
-{
-focalors::word rotl(const focalors::word w) noexcept
+focalors::word AES::rotl(const focalors::word w) noexcept
 {
     return (w << 8) | (w >> 24);
 }
-constexpr uint8_t sbox(uint8_t b) noexcept
+constexpr uint8_t AES::sbox(uint8_t b) noexcept
 {
     return S[b >> 4][b & 0xf];
 }
-focalors::word sbox(focalors::word w)
+focalors::word AES::sbox(focalors::word w)
 {
     word result(0);
     for (int i = 0; i < 4; i++)
@@ -30,56 +27,55 @@ focalors::word sbox(focalors::word w)
     }
     return result;
 }
-void sbox(std::vector<focalors::word> &state)
+void AES::sbox(std::vector<focalors::word> &state)
 {
-    std::for_each(state.begin(), state.end(), [](focalors::word &i) { i = sbox(i); });
+    std::for_each(state.begin(), state.end(), [](focalors::word &i) { i = AES::sbox(i); });
 }
-std::vector<focalors::word> key_expansion(const std::vector<focalors::word> &cipher_key, const int &nb, const int &nk,
-                                          const int &nr)
+std::vector<focalors::word> AES::key_expansion(const std::vector<focalors::word> &cipher_key)
 {
-    vector<word> w(nb * (nr + 1));
-    if (nk <= 6)
+    vector<word> w(nb_ * (nr_ + 1));
+    if (nk_ <= 6)
     {
-        for (int i = 0; i < nk; i++)
+        for (int i = 0; i < nk_; i++)
         {
             w.at(i) = cipher_key.at(i);
         }
-        for (size_t i = nk; i < w.size(); i++)
+        for (size_t i = nk_; i < w.size(); i++)
         {
             auto temp = w.at(i - 1);
-            if (i % nk == 0)
+            if (i % nk_ == 0)
             {
-                temp = sbox(rotl(temp)) ^ RCON.at(i / nk - 1);
+                temp = sbox(rotl(temp)) ^ RCON.at(i / nk_ - 1);
             }
-            w.at(i) = w.at(i - nk) ^ temp;
+            w.at(i) = w.at(i - nk_) ^ temp;
         }
     }
     else
     {
-        for (int i = 0; i < nk; i++)
+        for (int i = 0; i < nk_; i++)
         {
             w.at(i) = cipher_key.at(i);
         }
-        for (size_t i = nk; i < w.size(); i++)
+        for (size_t i = nk_; i < w.size(); i++)
         {
             auto temp = w.at(i - 1);
-            if (i % nk == 0)
+            if (i % nk_ == 0)
             {
-                temp = sbox(rotl(temp)) ^ RCON.at(i / nk - 1);
+                temp = sbox(rotl(temp)) ^ RCON.at(i / nk_ - 1);
             }
             else
             {
-                if (i % nk == 4)
+                if (i % nk_ == 4)
                 {
                     temp = sbox(temp);
                 }
             }
-            w.at(i) = w.at(i - nk) ^ temp;
+            w.at(i) = w.at(i - nk_) ^ temp;
         }
     }
     return w;
 }
-uint8_t gf_mul(uint8_t a, uint8_t b)
+uint8_t AES::gf_mul(uint8_t a, uint8_t b)
 {
     uint8_t result = 0;
     for (int i = 0; i < 8; i++)
@@ -100,14 +96,15 @@ uint8_t gf_mul(uint8_t a, uint8_t b)
     }
     return result;
 }
-void add_round_key(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round) noexcept
+void AES::add_round_key(std::vector<focalors::word> &state, const std::vector<focalors::word> &w,
+                        const int &round) noexcept
 {
     for (size_t i = 0; i < state.size(); i++)
     {
         state[i] ^= w[round * state.size() + i];
     }
 }
-void shift_row(std::vector<focalors::word> &state)
+void AES::shift_row(std::vector<focalors::word> &state)
 {
     const auto &cx = CX[(state.size() - 4) >> 1];
     for (int i = 0; i < 4; i++)
@@ -134,7 +131,7 @@ void shift_row(std::vector<focalors::word> &state)
         }
     }
 }
-void mix_column(std::vector<focalors::word> &state)
+void AES::mix_column(std::vector<focalors::word> &state)
 {
     for (size_t i = 0; i < state.size(); i++)
     {
@@ -152,20 +149,20 @@ void mix_column(std::vector<focalors::word> &state)
         }
     }
 }
-void round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round)
+void AES::round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round)
 {
     sbox(state);
     shift_row(state);
     mix_column(state);
     add_round_key(state, w, round);
 }
-void final_round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round)
+void AES::final_round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round)
 {
     sbox(state);
     shift_row(state);
     add_round_key(state, w, round);
 }
-void inv_mix_column(focalors::word &w)
+void AES::inv_mix_column(focalors::word &w)
 {
     vector<uint8_t> temp(4, 0);
     for (int j = 0; j < 4; j++)
@@ -180,13 +177,13 @@ void inv_mix_column(focalors::word &w)
         w.set_byte(j, temp.at(j));
     }
 }
-void inv_mix_column(std::vector<focalors::word> &state)
+void AES::inv_mix_column(std::vector<focalors::word> &state)
 {
-    std::for_each(state.begin(), state.end(), [](focalors::word &w) { inv_mix_column(w); });
+    std::for_each(state.begin(), state.end(), [](focalors::word &w) { AES::inv_mix_column(w); });
 }
-void inv_shift_row(std::vector<focalors::word> &state)
+void AES::inv_shift_row(std::vector<focalors::word> &state)
 {
-    const auto &cx = aes::CX[(state.size() - 4) >> 1];
+    const auto &cx = CX[(state.size() - 4) >> 1];
     for (int i = 0; i < 4; i++)
     {
         vector<uint8_t> temp(cx[i]);
@@ -211,11 +208,11 @@ void inv_shift_row(std::vector<focalors::word> &state)
         }
     }
 }
-constexpr uint8_t inv_sbox(uint8_t b) noexcept
+constexpr uint8_t AES::inv_sbox(uint8_t b) noexcept
 {
     return INV_S[b >> 4][b & 0xf];
 }
-focalors::word inv_sbox(focalors::word w)
+focalors::word AES::inv_sbox(focalors::word w)
 {
     word result(0);
     for (int i = 0; i < 4; i++)
@@ -224,22 +221,22 @@ focalors::word inv_sbox(focalors::word w)
     }
     return result;
 }
-void inv_sbox(std::vector<focalors::word> &state)
+void AES::inv_sbox(std::vector<focalors::word> &state)
 {
-    std::for_each(state.begin(), state.end(), [](focalors::word &i) { i = inv_sbox(i); });
+    std::for_each(state.begin(), state.end(), [](focalors::word &i) { i = AES::inv_sbox(i); });
 }
-void inv_round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round)
+void AES::inv_round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round)
 {
     inv_sbox(state);
     inv_shift_row(state);
     inv_mix_column(state);
     add_round_key(state, w, round);
 }
-void inv_final_round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w, const int &round)
+void AES::inv_final_round(std::vector<focalors::word> &state, const std::vector<focalors::word> &w,
+                          const int &round)
 {
     inv_sbox(state);
     inv_shift_row(state);
     add_round_key(state, w, round);
 }
-} // namespace aes
 } // namespace focalors
