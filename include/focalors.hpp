@@ -193,6 +193,8 @@ class AES
   private:
     std::vector<focalors::word> w_, inv_w_;
     int nb_, nk_, nr_;
+    static constexpr size_t block_size_ = 16;
+
     template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
     void check(InputIt first, Sentinel last) const;
 

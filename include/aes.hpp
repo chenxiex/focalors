@@ -14,7 +14,7 @@ namespace focalors
 // public
 constexpr size_t AES::block_size() const noexcept
 {
-    return 16;
+    return block_size_;
 }
 AES::AES(const auto &key)
 {
