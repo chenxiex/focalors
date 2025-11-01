@@ -1,8 +1,8 @@
 #pragma once
 #ifndef FOCALORS_HPP
 #define FOCALORS_HPP
-#include "reverse_bitset.hpp"
-#include "word.hpp"
+#include "./reverse_bitset.hpp"
+#include "./word.hpp"
 #include <array>
 #include <concepts>
 #include <cstdint>
@@ -565,6 +565,6 @@ void elgamal_encrypt(std::string &c1, std::string &c2, const std::string &m, con
 void elgamal_decrypt(std::string &m, const std::string &c1, const std::string &c2, const std::string &d,
                      const std::string &p, const int &base);
 } // namespace focalors
-#include "aes.hpp"
-#include "des.hpp"
+#include "./bc/aes.hpp"
+#include "./bc/des.hpp"
 #endif // FOCALORS_H

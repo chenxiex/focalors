@@ -1,8 +1,8 @@
 #pragma once
 #ifndef AES_HPP
 #define AES_HPP
-#include "focalors.hpp"
-#include "word.hpp"
+#include "../focalors.hpp"
+#include "../word.hpp"
 #include <array>
 #include <cstdint>
 #include <unordered_map>
