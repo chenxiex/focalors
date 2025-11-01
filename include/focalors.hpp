@@ -179,7 +179,7 @@ class AES
      * @param last 输入数据的结束迭代器。
      * @return 加密后的数据。
      */
-    template <ByteIterable InputIt, std::sentinel_for<InputIt> Sentinel>
+    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
     std::vector<uint8_t> encrypt(InputIt first, Sentinel last) const;
     /*
      * @brief AES解密。
@@ -187,7 +187,7 @@ class AES
      * @param last 输入数据的结束迭代器。
      * @return 解密后的数据。
      */
-    template <ByteIterable InputIt, std::sentinel_for<InputIt> Sentinel>
+    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
     std::vector<uint8_t> decrypt(InputIt first, Sentinel last) const;
 
   private:

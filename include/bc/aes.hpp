@@ -4,6 +4,7 @@
 #include "../focalors.hpp"
 #include "../word.hpp"
 #include <array>
+#include <concepts>
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
@@ -30,7 +31,7 @@ void AES::set_key(const auto &key)
     inv_w_ = w_;
     std::for_each(inv_w_.begin() + nb_, inv_w_.end() - nb_, [](focalors::word &i) { AES::inv_mix_column(i); });
 }
-template <ByteIterable InputIt, std::sentinel_for<InputIt> Sentinel>
+template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
 inline std::vector<uint8_t> AES::encrypt(InputIt first, Sentinel last) const
 {
     check(first, last);
@@ -43,7 +44,7 @@ inline std::vector<uint8_t> AES::encrypt(InputIt first, Sentinel last) const
     final_round(state, w_, nr_);
     return words_to_bytes(state);
 }
-template <ByteIterable InputIt, std::sentinel_for<InputIt> Sentinel>
+template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
 inline std::vector<uint8_t> AES::decrypt(InputIt first, Sentinel last) const
 {
     check(first, last);
