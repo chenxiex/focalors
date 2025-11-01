@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace focalors
+{
 namespace aes
 {
 // 常量
@@ -55,4 +57,5 @@ const std::size_t CX[3][4] = {{0, 1, 2, 3}, {0, 1, 2, 3}, {0, 1, 3, 4}};
 const std::array<focalors::word, 10> RCON = {0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000,
                                              0x20000000, 0x40000000, 0x80000000, 0x1b000000, 0x36000000};
 } // namespace aes
+} // namespace focalors
 #endif // AES_H

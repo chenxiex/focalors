@@ -15,7 +15,7 @@ namespace focalors
 {
 namespace des
 {
-focalors::reverse_bitset<28> left_shift(const focalors::reverse_bitset<28> &bits, const int &n)
+constexpr focalors::reverse_bitset<28> left_shift(const focalors::reverse_bitset<28> &bits, const int &n)
 {
     reverse_bitset<28> shifted;
     for (int i = 0; i < 28; i++)
@@ -33,7 +33,7 @@ focalors::reverse_bitset<48> choose(const focalors::reverse_bitset<56> &bits) no
     }
     return chosen;
 }
-std::pair<focalors::reverse_bitset<28>, focalors::reverse_bitset<28>> choose1(
+constexpr std::pair<focalors::reverse_bitset<28>, focalors::reverse_bitset<28>> choose1(
     const focalors::reverse_bitset<64> &key) noexcept
 {
     // 选择置换1
@@ -45,7 +45,7 @@ std::pair<focalors::reverse_bitset<28>, focalors::reverse_bitset<28>> choose1(
     }
     return {c, d};
 }
-focalors::reverse_bitset<48> choose2(const focalors::reverse_bitset<28> &c,
+constexpr focalors::reverse_bitset<48> choose2(const focalors::reverse_bitset<28> &c,
                                      const focalors::reverse_bitset<28> &d) noexcept
 {
     reverse_bitset<48> subkey;

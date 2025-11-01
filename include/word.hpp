@@ -25,8 +25,28 @@ class word : public std::bitset<32>
     }
     void set_byte(const std::size_t &pos, const uint8_t &value) noexcept;
 };
-std::vector<focalors::word> bytes_to_word(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last);
+template <typename It>
+concept ByteIterable = std::input_iterator<It> && requires(It it)
+{
+    {
+        *it
+        } -> std::convertible_to<uint8_t>;
+};
+template <ByteIterable InputIt, std::sentinel_for<InputIt> Sentinel>
+std::vector<focalors::word> bytes_to_word(InputIt first, Sentinel last)
+{
+    std::vector<word> result;
+    for (auto i = first; i + 4 <= last; i += 4)
+    {
+        focalors::word temp(0);
+        for (int j = 0; j < 4; j++)
+        {
+            temp.set_byte(j, *(i + j));
+        }
+        result.push_back(temp);
+    }
+    return result;
+}
 std::vector<uint8_t> words_to_bytes(const std::vector<focalors::word> &v);
 } // namespace focalors
 #endif // WORD_H

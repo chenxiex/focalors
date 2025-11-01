@@ -21,12 +21,13 @@ TEST(BlockCipherTest, AES)
         auto &plaintext = i.plaintext;
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
+        auto aes = AES(key);
         // encrypt
-        auto encrypted = AES().encrypt(plaintext.begin(), plaintext.end(), key);
+        auto encrypted = aes.encrypt(plaintext.begin(), plaintext.end());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));
 
         // decrypt
-        auto decrypted = AES().decrypt(ciphertext.begin(), ciphertext.end(), key);
+        auto decrypted = aes.decrypt(ciphertext.begin(), ciphertext.end());
         EXPECT_EQ(bytes_to_hex(decrypted), bytes_to_hex(plaintext));
     }
 }

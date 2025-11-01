@@ -9,6 +9,8 @@
 using focalors::word;
 using std::vector;
 
+namespace focalors
+{
 namespace aes
 {
 focalors::word rotl(const focalors::word w) noexcept
@@ -182,16 +184,9 @@ void inv_mix_column(std::vector<focalors::word> &state)
 {
     std::for_each(state.begin(), state.end(), [](focalors::word &w) { inv_mix_column(w); });
 }
-std::vector<focalors::word> inv_key_expansion(const std::vector<focalors::word> &cipher_key, const int &nb,
-                                              const int &nk, const int &nr)
-{
-    vector<word> w = key_expansion(cipher_key, nb, nk, nr);
-    std::for_each(w.begin() + nb, w.end() - nb, [](focalors::word &i) { inv_mix_column(i); });
-    return w;
-}
 void inv_shift_row(std::vector<focalors::word> &state)
 {
-    const auto &cx = CX[(state.size() - 4) >> 1];
+    const auto &cx = aes::CX[(state.size() - 4) >> 1];
     for (int i = 0; i < 4; i++)
     {
         vector<uint8_t> temp(cx[i]);
@@ -246,70 +241,5 @@ void inv_final_round(std::vector<focalors::word> &state, const std::vector<focal
     inv_shift_row(state);
     add_round_key(state, w, round);
 }
-void check(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-           const std::vector<uint8_t> &key)
-{
-    if (std::distance(first, last) != 16)
-    {
-        throw std::invalid_argument("input size error");
-    }
-    if (key.size() != 16 && key.size() != 24 && key.size() != 32)
-    {
-        throw std::invalid_argument("key size error");
-    }
-}
-std::vector<uint8_t> aes_encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &key)
-{
-    check(first, last, key);
-
-    auto nb = NB.at(std::distance(first, last) * 8);
-    auto nk = NK.at(key.size() * 8);
-    auto nr = NR[(nk - 4) >> 1][(nb - 4) >> 1];
-    auto cipher_key = focalors::bytes_to_word(key.begin(), key.end());
-    auto w = key_expansion(cipher_key, nb, nk, nr);
-    auto state = focalors::bytes_to_word(first, last);
-    add_round_key(state, w, 0);
-    for (int i = 1; i < nr; i++)
-    {
-        round(state, w, i);
-    }
-    final_round(state, w, nr);
-    return words_to_bytes(state);
-}
-std::vector<uint8_t> aes_decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &key)
-{
-    check(first, last, key);
-
-    auto nb = NB.at(std::distance(first, last) * 8);
-    auto nk = NK.at(key.size() * 8);
-    auto nr = NR[(nk - 4) >> 1][(nb - 4) >> 1];
-    auto cipher_key = focalors::bytes_to_word(key.begin(), key.end());
-    auto w = inv_key_expansion(cipher_key, nb, nk, nr);
-    auto state = focalors::bytes_to_word(first, last);
-    add_round_key(state, w, nr);
-    for (int i = nr - 1; i >= 1; i--)
-    {
-        inv_round(state, w, i);
-    }
-    inv_final_round(state, w, 0);
-    return words_to_bytes(state);
-}
 } // namespace aes
-
-namespace focalors
-{
-using namespace std;
-using namespace focalors;
-std::vector<uint8_t> AES::encrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                  const std::vector<uint8_t> &key) const
-{
-    return aes::aes_encrypt(first, last, key);
-}
-std::vector<uint8_t> AES::decrypt(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                  const std::vector<uint8_t> &key) const
-{
-    return aes::aes_decrypt(first, last, key);
-}
 } // namespace focalors
