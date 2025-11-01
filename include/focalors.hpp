@@ -17,14 +17,9 @@
 
 namespace focalors
 {
-// Block cipher
-template <typename Cipher>
-concept BlockCipher = requires(Cipher c, std::vector<uint8_t>::const_iterator first,
-                               std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &key)
+template <typename T>
+concept Cipher = requires(T c, std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last)
 {
-    {
-        c.block_size()
-        } -> std::convertible_to<size_t>;
     {
         c.encrypt(first, last)
         } -> std::same_as<std::vector<uint8_t>>;
@@ -32,6 +27,14 @@ concept BlockCipher = requires(Cipher c, std::vector<uint8_t>::const_iterator fi
         c.decrypt(first, last)
         } -> std::same_as<std::vector<uint8_t>>;
 };
+// Block cipher
+template <typename T>
+concept BlockCipher = requires(T c)
+{
+    {
+        c.block_size()
+        } -> std::convertible_to<size_t>;
+} && Cipher<T>;
 
 namespace des
 {
@@ -184,7 +187,8 @@ class AES
   private:
     std::vector<focalors::word> w_, inv_w_;
     int nb_, nk_, nr_;
-    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel> void check(InputIt first, Sentinel last) const
+    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
+    void check(InputIt first, Sentinel last) const
     {
         if (std::distance(first, last) != block_size())
         {
