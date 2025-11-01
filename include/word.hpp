@@ -1,6 +1,6 @@
 #pragma once
-#ifndef WORD_H
-#define WORD_H
+#ifndef WORD_HPP
+#define WORD_HPP
 #include <bitset>
 #include <cstdint>
 #include <vector>

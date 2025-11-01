@@ -1,6 +1,6 @@
 #pragma once
-#ifndef REVERSE_BITSET_H
-#define REVERSE_BITSET_H
+#ifndef REVERSE_BITSET_HPP
+#define REVERSE_BITSET_HPP
 #include <bitset>
 #include <concepts>
 #include <cstdint>
