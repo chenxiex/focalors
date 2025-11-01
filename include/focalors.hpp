@@ -195,9 +195,6 @@ class AES
     int nb_, nk_, nr_;
     static constexpr size_t block_size_ = 16;
 
-    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
-    void check(InputIt first, Sentinel last) const;
-
     // 常量
     const inline static std::unordered_map<int, int> NK = {{128, 4}, {192, 6}, {256, 8}};
     const inline static std::unordered_map<int, int> NB = {{128, 4}};
@@ -245,6 +242,8 @@ class AES
                                                             0x20000000, 0x40000000, 0x80000000, 0x1b000000, 0x36000000};
 
     // 辅助函数
+    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
+    void check(InputIt first, Sentinel last) const;
     static focalors::word rotl(focalors::word w) noexcept;
     static constexpr uint8_t sbox(uint8_t b) noexcept;
     static focalors::word sbox(focalors::word w);
