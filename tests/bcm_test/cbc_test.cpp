@@ -1,7 +1,7 @@
 // echo -n "" | xxd -r -p | openssl enc -aes-128-cbc -K "" -nosalt -nopad -iv "" | xxd -p
 #include "focalors.hpp"
+#include "test.hpp"
 #include "utils.h"
-#include "test.h"
 #include "gtest/gtest.h"
 using namespace focalors;
 using namespace std;
@@ -31,13 +31,13 @@ TEST(BlockCipherModeTest, AESCBC)
         auto &iv = i.iv;
         auto cbc = CBC(AES(key), iv);
         // encrypt
-        auto encrypted = vector<uint8_t>(plaintext.size());
-        cbc.encrypt(plaintext.begin(), plaintext.end(), encrypted.begin());
+        auto encrypted = vector<uint8_t>(plaintext);
+        cbc.encrypt(encrypted.begin(), encrypted.end(), encrypted.begin());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));
 
         // decrypt
-        auto decrypted = vector<uint8_t>(ciphertext.size());
-        cbc.decrypt(ciphertext.begin(), ciphertext.end(), decrypted.begin());
+        auto decrypted = vector<uint8_t>(ciphertext);
+        cbc.decrypt(decrypted.begin(), decrypted.end(), decrypted.begin());
         EXPECT_EQ(bytes_to_hex(decrypted), bytes_to_hex(plaintext));
     }
 }
