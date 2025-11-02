@@ -23,11 +23,11 @@ TEST(BlockCipherTest, AES)
         auto &ciphertext = i.ciphertext;
         auto aes = AES(key);
         // encrypt
-        auto encrypted = aes.encrypt(plaintext.begin(), plaintext.end());
+        auto encrypted = aes.encrypt(plaintext.begin());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));
 
         // decrypt
-        auto decrypted = aes.decrypt(ciphertext.begin(), ciphertext.end());
+        auto decrypted = aes.decrypt(ciphertext.begin());
         EXPECT_EQ(bytes_to_hex(decrypted), bytes_to_hex(plaintext));
     }
 }

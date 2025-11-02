@@ -6,13 +6,13 @@
 #include <array>
 #include <concepts>
 #include <cstdint>
-#include <functional>
-#include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace focalors
 {
+// Cipher
 template <typename T>
 concept Cipher = requires(T c, std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last)
 {
@@ -25,13 +25,18 @@ concept Cipher = requires(T c, std::vector<uint8_t>::const_iterator first, std::
 };
 // Block cipher
 template <typename T>
-concept BlockCipher = requires(T c)
+concept BlockCipher = requires(T c, std::vector<uint8_t>::const_iterator first)
 {
     {
         c.block_size()
         } -> std::convertible_to<size_t>;
-}
-&&Cipher<T>;
+    {
+        c.encrypt(first)
+        } -> std::same_as<std::vector<uint8_t>>;
+    {
+        c.decrypt(first)
+        } -> std::same_as<std::vector<uint8_t>>;
+};
 
 // DES
 class DES
@@ -55,19 +60,15 @@ class DES
     /*
      * @brief DES加密。
      * @param first 输入数据的起始迭代器。
-     * @param last 输入数据的结束迭代器。
      * @return 加密后的数据。
      */
-    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
-    inline auto encrypt(InputIt first, Sentinel last) const noexcept;
+    template <std::input_iterator InputIt> auto encrypt(InputIt first) const;
     /*
      * @brief DES解密。
      * @param first 输入数据的起始迭代器。
-     * @param last 输入数据的结束迭代器。
      * @return 解密后的数据。
      */
-    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
-    inline auto decrypt(InputIt first, Sentinel last) const noexcept;
+    template <std::input_iterator InputIt> auto decrypt(InputIt first) const;
 
   private:
     std::array<reverse_bitset<48>, 16> subkeys_;
@@ -176,19 +177,15 @@ class AES
     /*
      * @brief AES加密。
      * @param first 输入数据的起始迭代器。
-     * @param last 输入数据的结束迭代器。
      * @return 加密后的数据。
      */
-    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
-    std::vector<uint8_t> encrypt(InputIt first, Sentinel last) const;
+    template <std::input_iterator InputIt> std::vector<uint8_t> encrypt(InputIt first) const;
     /*
      * @brief AES解密。
      * @param first 输入数据的起始迭代器。
-     * @param last 输入数据的结束迭代器。
      * @return 解密后的数据。
      */
-    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
-    std::vector<uint8_t> decrypt(InputIt first, Sentinel last) const;
+    template <std::input_iterator InputIt> std::vector<uint8_t> decrypt(InputIt first) const;
 
   private:
     std::vector<focalors::word> w_, inv_w_;
@@ -242,13 +239,9 @@ class AES
                                                             0x20000000, 0x40000000, 0x80000000, 0x1b000000, 0x36000000};
 
     // 辅助函数
-    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
-    void check(InputIt first, Sentinel last) const;
-    static focalors::word rotl(focalors::word w) noexcept;
     static constexpr uint8_t sbox(uint8_t b) noexcept;
     static focalors::word sbox(focalors::word w);
     static void sbox(std::vector<focalors::word> &state);
-    static uint8_t gf_mul(uint8_t a, uint8_t b);
     static void add_round_key(std::vector<focalors::word> &state, const std::vector<focalors::word> &w,
                               const int &round) noexcept;
     static void shift_row(std::vector<focalors::word> &state);
@@ -276,53 +269,28 @@ template <BlockCipher Cipher> class ECB
      * @brief ECB模式构造函数。
      * @param cipher 块密码。
      */
-    ECB(Cipher cipher) : cipher(std::move(cipher))
-    {
-    }
+    ECB(Cipher cipher);
     /*
      * @brief ECB模式加密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const
-    {
-        return ecb(first, last, cipher.block_size(),
-                   [this](auto first, auto last) { return cipher.encrypt(first, last); });
-    }
+                                 std::vector<uint8_t>::const_iterator last) const;
     /*
      * @brief ECB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const
-    {
-        return ecb(first, last, cipher.block_size(),
-                   [this](auto first, auto last) { return cipher.decrypt(first, last); });
-    }
+                                 std::vector<uint8_t>::const_iterator last) const;
 
   private:
     const Cipher cipher;
 
     template <typename Func>
     std::vector<uint8_t> ecb(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                             const size_t block_size, Func cipher_func) const
-    {
-        using std::vector;
-        if (std::distance(first, last) % block_size != 0)
-        {
-            throw std::invalid_argument("Input size must be a multiple of block size");
-        }
-        auto block_sz = block_size;
-        vector<uint8_t> output(std::distance(first, last));
-        for (auto i = first; i + block_sz <= last; i += block_sz)
-        {
-            auto block = cipher_func(i, i + block_sz);
-            std::move(block.begin(), block.end(), output.begin() + (i - first));
-        }
-        return output;
-    }
+                             const size_t block_size, Func cipher_func) const;
 };
 
 // CBC
@@ -334,13 +302,7 @@ template <BlockCipher Cipher> class CBC
      * @param cipher 块密码。
      * @param z 初始向量。
      */
-    CBC(Cipher cipher, std::vector<uint8_t> iv) : iv(std::move(iv)), cipher(std::move(cipher))
-    {
-        if (this->iv.size() != this->cipher.block_size())
-        {
-            throw std::invalid_argument("IV size must be equal to block size");
-        }
-    };
+    CBC(Cipher cipher, std::vector<uint8_t> iv);
     /*
      * @brief CBC模式加密。
      * @param first 输入数据的起始迭代器。
@@ -348,31 +310,7 @@ template <BlockCipher Cipher> class CBC
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const
-    {
-        using std::vector;
-        auto block_sz = cipher.block_size();
-        if (std::distance(first, last) % block_sz)
-        {
-            throw std::invalid_argument("Input size must be a multiple of block size");
-        }
-        vector<uint8_t> output(std::distance(first, last));
-        for (auto i = first; i + block_sz <= last; i += block_sz)
-        {
-            auto output_it = output.begin() + (i - first);
-            if (i == first)
-            {
-                std::transform(i, i + block_sz, iv.begin(), output_it, std::bit_xor<uint8_t>());
-            }
-            else
-            {
-                std::transform(i, i + block_sz, output_it - block_sz, output_it, std::bit_xor<uint8_t>());
-            }
-            auto block = cipher.encrypt(output_it, output_it + block_sz);
-            std::move(block.begin(), block.end(), output_it);
-        }
-        return output;
-    }
+                                 std::vector<uint8_t>::const_iterator last) const;
     /*
      * @brief CBC模式解密。
      * @param first 输入数据的起始迭代器。
@@ -380,30 +318,7 @@ template <BlockCipher Cipher> class CBC
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const
-    {
-        using std::vector;
-        auto block_sz = cipher.block_size();
-        if (std::distance(first, last) % block_sz)
-        {
-            throw std::invalid_argument("Input size must be a multiple of block size");
-        }
-        vector<uint8_t> output(std::distance(first, last));
-        for (auto i = first; i + block_sz <= last; i += block_sz)
-        {
-            auto block = cipher.decrypt(i, i + block_sz);
-            auto output_it = output.begin() + (i - first);
-            if (i == first)
-            {
-                std::transform(block.begin(), block.end(), iv.begin(), output_it, std::bit_xor<uint8_t>());
-            }
-            else
-            {
-                std::transform(block.begin(), block.end(), i - block_sz, output_it, std::bit_xor<uint8_t>());
-            }
-        }
-        return output;
-    }
+                                 std::vector<uint8_t>::const_iterator last) const;
 
   private:
     const Cipher cipher;
@@ -419,13 +334,7 @@ template <BlockCipher Cipher> class OFB
      * @param cipher 块密码。
      * @param iv 初始向量。
      */
-    OFB(Cipher cipher, std::vector<uint8_t> iv) : cipher(std::move(cipher)), iv(std::move(iv))
-    {
-        if (this->iv.size() != this->cipher.block_size())
-        {
-            throw std::invalid_argument("IV size must be equal to block size.");
-        }
-    }
+    OFB(Cipher cipher, std::vector<uint8_t> iv);
     /*
      * @brief OFB模式加密。
      * @param first 输入数据的起始迭代器。
@@ -433,24 +342,7 @@ template <BlockCipher Cipher> class OFB
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const
-    {
-        const size_t length = std::distance(first, last);
-        std::vector<uint8_t> r(iv.begin(), iv.end());
-        std::vector<uint8_t> result(length);
-        const auto block_sz = cipher.block_size();
-        auto result_it = result.begin();
-        auto remainning = length;
-        for (auto i = first; i < last;)
-        {
-            r = cipher.encrypt(r.begin(), r.end());
-            auto step = std::min(remainning, block_sz);
-            result_it = std::transform(i, std::next(i, step), r.begin(), result_it, std::bit_xor<uint8_t>());
-            std::advance(i, step);
-            remainning -= step;
-        }
-        return result;
-    }
+                                 std::vector<uint8_t>::const_iterator last) const;
     /*
      * @brief OFB模式解密。
      * @param first 输入数据的起始迭代器。
@@ -458,10 +350,7 @@ template <BlockCipher Cipher> class OFB
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const
-    {
-        return encrypt(first, last);
-    }
+                                 std::vector<uint8_t>::const_iterator last) const;
 
   private:
     const Cipher cipher;
@@ -477,13 +366,7 @@ template <BlockCipher Cipher> class CFB
      * @param cipher 块密码。
      * @param iv 初始向量。
      */
-    CFB(Cipher cipher, std::vector<uint8_t> iv) : cipher(std::move(cipher)), iv(std::move(iv))
-    {
-        if (this->iv.size() != this->cipher.block_size())
-        {
-            throw std::invalid_argument("IV size must be equal to block size.");
-        }
-    }
+    CFB(Cipher cipher, std::vector<uint8_t> iv);
     /*
      * @brief CFB模式加密。
      * @param first 输入数据的起始迭代器。
@@ -491,10 +374,7 @@ template <BlockCipher Cipher> class CFB
      * @return 加密后的数据。
      */
     std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const
-    {
-        return process<true>(first, last, iv, cipher);
-    }
+                                 std::vector<uint8_t>::const_iterator last) const;
     /*
      * @brief CFB模式解密。
      * @param first 输入数据的起始迭代器。
@@ -502,10 +382,7 @@ template <BlockCipher Cipher> class CFB
      * @return 解密后的数据。
      */
     std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const
-    {
-        return process<false>(first, last, iv, cipher);
-    }
+                                 std::vector<uint8_t>::const_iterator last) const;
 
   private:
     const Cipher cipher;
@@ -513,41 +390,7 @@ template <BlockCipher Cipher> class CFB
 
     template <bool encrypt>
     std::vector<uint8_t> process(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &iv, const Cipher &cipher) const
-    {
-        const size_t length = std::distance(first, last);
-        std::vector<uint8_t> r(iv.begin(), iv.end());
-        std::vector<uint8_t> result(length);
-        const auto block_sz = cipher.block_size();
-        auto result_it = result.begin();
-        auto remainning = length;
-        for (auto i = first; i < last;)
-        {
-            auto step = std::min(remainning, block_sz);
-            if constexpr (encrypt)
-            {
-                r = cipher.encrypt(r.begin(), r.end());
-                std::transform(i, std::next(i, step), r.begin(), result_it, std::bit_xor<uint8_t>());
-                if (step == block_sz)
-                {
-                    std::copy(result_it, std::next(result_it, block_sz), r.begin());
-                }
-            }
-            else
-            {
-                auto e = cipher.encrypt(r.begin(), r.end());
-                if (step == block_sz)
-                {
-                    std::copy(i, std::next(i, block_sz), r.begin());
-                }
-                std::transform(i, std::next(i, step), e.begin(), result_it, std::bit_xor<uint8_t>());
-            }
-            std::advance(i, step);
-            std::advance(result_it, step);
-            remainning -= step;
-        }
-        return result;
-    }
+                                 const std::vector<uint8_t> &iv, const Cipher &cipher) const;
 };
 
 // ZUC
@@ -567,4 +410,8 @@ void elgamal_decrypt(std::string &m, const std::string &c1, const std::string &c
 } // namespace focalors
 #include "./bc/aes.hpp"
 #include "./bc/des.hpp"
+#include "./bcm/cbc.hpp"
+#include "./bcm/cfb.hpp"
+#include "./bcm/ecb.hpp"
+#include "./bcm/ofb.hpp"
 #endif // FOCALORS_H

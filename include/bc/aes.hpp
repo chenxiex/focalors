@@ -6,6 +6,7 @@
 #include <array>
 #include <concepts>
 #include <cstdint>
+#include <functional>
 #include <unordered_map>
 #include <vector>
 
@@ -24,6 +25,10 @@ AES::AES(const auto &key)
 }
 void AES::set_key(const auto &key)
 {
+    if (key.size() * 8 != 128 && key.size() * 8 != 192 && key.size() * 8 != 256)
+    {
+        throw std::invalid_argument("key size error");
+    }
     nk_ = NK.at(key.size() * 8);
     nr_ = NR[(nk_ - 4) >> 1][(nb_ - 4) >> 1];
     auto cipher_key = focalors::bytes_to_word(key.begin(), key.end());
@@ -31,11 +36,9 @@ void AES::set_key(const auto &key)
     inv_w_ = w_;
     std::for_each(inv_w_.begin() + nb_, inv_w_.end() - nb_, [](focalors::word &i) { AES::inv_mix_column(i); });
 }
-template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
-inline std::vector<uint8_t> AES::encrypt(InputIt first, Sentinel last) const
+template <std::input_iterator InputIt> inline std::vector<uint8_t> AES::encrypt(InputIt first) const
 {
-    check(first, last);
-    auto state = focalors::bytes_to_word(first, last);
+    auto state = focalors::bytes_to_word(first, first + block_size());
     add_round_key(state, w_, 0);
     for (int i = 1; i < nr_; i++)
     {
@@ -44,11 +47,9 @@ inline std::vector<uint8_t> AES::encrypt(InputIt first, Sentinel last) const
     final_round(state, w_, nr_);
     return words_to_bytes(state);
 }
-template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
-inline std::vector<uint8_t> AES::decrypt(InputIt first, Sentinel last) const
+template <std::input_iterator InputIt> inline std::vector<uint8_t> AES::decrypt(InputIt first) const
 {
-    check(first, last);
-    auto state = focalors::bytes_to_word(first, last);
+    auto state = focalors::bytes_to_word(first, first + block_size());
     add_round_key(state, inv_w_, nr_);
     for (int i = nr_ - 1; i >= 1; i--)
     {
@@ -56,16 +57,6 @@ inline std::vector<uint8_t> AES::decrypt(InputIt first, Sentinel last) const
     }
     inv_final_round(state, inv_w_, 0);
     return words_to_bytes(state);
-}
-
-// private
-template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel>
-inline void AES::check(InputIt first, Sentinel last) const
-{
-    if (std::distance(first, last) != block_size())
-    {
-        throw std::invalid_argument("input size error");
-    }
 }
 } // namespace focalors
 #endif // AES_HPP
