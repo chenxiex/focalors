@@ -17,30 +17,27 @@ OFB<Cipher>::OFB(Cipher cipher, std::vector<uint8_t> iv) : cipher(std::move(ciph
     }
 }
 template <BlockCipher Cipher>
-std::vector<uint8_t> OFB<Cipher>::encrypt(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last) const
+template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+auto OFB<Cipher>::encrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
     const size_t length = std::distance(first, last);
     std::vector<uint8_t> r(iv.begin(), iv.end());
-    std::vector<uint8_t> result(length);
     const auto block_sz = cipher.block_size();
-    auto result_it = result.begin();
     auto remainning = length;
     for (auto i = first; i < last;)
     {
-        r = cipher.encrypt(r.begin());
+        cipher.encrypt(r.begin(), r.begin());
         auto step = std::min(remainning, block_sz);
-        result_it = std::transform(i, std::next(i, step), r.begin(), result_it, std::bit_xor<uint8_t>());
+        dest = std::transform(i, std::next(i, step), r.begin(), dest, std::bit_xor<uint8_t>());
         std::advance(i, step);
         remainning -= step;
     }
-    return result;
 }
 template <BlockCipher Cipher>
-std::vector<uint8_t> OFB<Cipher>::decrypt(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last) const
+template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+auto OFB<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
-    return encrypt(first, last);
+    return encrypt(first, last, dest);
 }
 } // namespace focalors
 #endif // OFB_HPP

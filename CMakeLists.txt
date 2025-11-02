@@ -15,7 +15,6 @@ endif()
 include_directories("include" "src/include")
 
 set(LIB_SRCS
-    "src/utils/word.cpp"
     "src/utils/utils.cpp"
     "src/bc/des.cpp"
     "src/bc/aes.cpp"

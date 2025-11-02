@@ -17,56 +17,49 @@ CFB<Cipher>::CFB(Cipher cipher, std::vector<uint8_t> iv) : cipher(std::move(ciph
     }
 }
 template <BlockCipher Cipher>
-std::vector<uint8_t> CFB<Cipher>::encrypt(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last) const
+template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+auto CFB<Cipher>::encrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
-    return process<true>(first, last, iv, cipher);
+    return process<true>(first, last, dest, iv, cipher);
 }
 template <BlockCipher Cipher>
-std::vector<uint8_t> CFB<Cipher>::decrypt(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last) const
+template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+auto CFB<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
-    return process<false>(first, last, iv, cipher);
+    return process<false>(first, last, dest, iv, cipher);
 }
 // private
 template <BlockCipher Cipher>
-template <bool encrypt>
-std::vector<uint8_t> CFB<Cipher>::process(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last, const std::vector<uint8_t> &iv,
-                                          const Cipher &cipher) const
+template <bool encrypt, ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel,
+          std::output_iterator<uint8_t> OutputIt>
+auto CFB<Cipher>::process(InputIt first, Sentinel last, OutputIt dest, const std::vector<uint8_t> &iv,
+                          const Cipher &cipher) const
 {
     const size_t length = std::distance(first, last);
-    std::vector<uint8_t> r(iv.begin(), iv.end());
-    std::vector<uint8_t> result(length);
+    std::vector<uint8_t> r(iv.size());
+    cipher.encrypt(iv.begin(), r.begin());
     const auto block_sz = cipher.block_size();
-    auto result_it = result.begin();
-    auto remainning = length;
-    for (auto i = first; i < last;)
+    for (auto i = 0; i < length; i += block_sz)
     {
-        auto step = std::min(remainning, block_sz);
+        auto step = std::min(length - i, block_sz);
         if constexpr (encrypt)
         {
-            r = cipher.encrypt(r.begin());
-            std::transform(i, std::next(i, step), r.begin(), result_it, std::bit_xor<uint8_t>());
+            std::transform(first + i, first + i + step, r.begin(), dest + i, std::bit_xor<uint8_t>());
             if (step == block_sz)
             {
-                std::copy(result_it, std::next(result_it, block_sz), r.begin());
+                cipher.encrypt(dest + i, r.begin());
             }
         }
         else
         {
-            auto e = cipher.encrypt(r.begin());
+            auto e = r;
             if (step == block_sz)
             {
-                std::copy(i, std::next(i, block_sz), r.begin());
+                cipher.encrypt(first + i, r.begin());
             }
-            std::transform(i, std::next(i, step), e.begin(), result_it, std::bit_xor<uint8_t>());
+            std::transform(first + i, first + i + step, e.begin(), dest + i, std::bit_xor<uint8_t>());
         }
-        std::advance(i, step);
-        std::advance(result_it, step);
-        remainning -= step;
     }
-    return result;
 }
 } // namespace focalors
 #endif

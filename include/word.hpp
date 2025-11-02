@@ -1,6 +1,7 @@
 #pragma once
 #ifndef WORD_HPP
 #define WORD_HPP
+#include "./concepts.hpp"
 #include <bitset>
 #include <cstdint>
 #include <vector>
@@ -23,16 +24,18 @@ class word : public std::bitset<32>
     {
         return static_cast<uint8_t>(((*this) << pos * 8 >> 24).to_ulong());
     }
-    void set_byte(const std::size_t &pos, const uint8_t &value) noexcept;
-};
-template <typename It>
-concept ByteIterable = std::input_iterator<It> && requires(It it)
-{
+    void set_byte(const std::size_t &pos, const uint8_t &value) noexcept
     {
-        *it
-        } -> std::convertible_to<uint8_t>;
+        if (pos >= 4)
+        {
+            return;
+        }
+        word mask(0xff << (3 - pos) * 8);
+        mask = ~mask;
+        (*this) = ((*this) & mask) | word(static_cast<uint32_t>(value) << (3 - pos) * 8);
+    }
 };
-template <ByteIterable InputIt, std::sentinel_for<InputIt> Sentinel>
+template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel>
 std::vector<focalors::word> bytes_to_word(InputIt first, Sentinel last)
 {
     std::vector<word> result;
@@ -47,6 +50,16 @@ std::vector<focalors::word> bytes_to_word(InputIt first, Sentinel last)
     }
     return result;
 }
-std::vector<uint8_t> words_to_bytes(const std::vector<focalors::word> &v);
+template <std::output_iterator<uint8_t> OutputIt>
+void words_to_bytes(const std::vector<focalors::word> &v, OutputIt dest)
+{
+    for (auto i : v)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            *dest++ = i.get_byte(j);
+        }
+    }
+}
 } // namespace focalors
 #endif // WORD_H

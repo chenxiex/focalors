@@ -21,11 +21,13 @@ TEST(BlockCipherTest, DES)
         auto &key = i.key;
         auto &ciphertext = i.ciphertext;
         // encrypt
-        auto encrypted = DES(key).encrypt(plaintext.begin());
+        auto encrypted = vector<uint8_t>(plaintext.size());
+        DES(key).encrypt(plaintext.begin(), encrypted.begin());
         EXPECT_STREQ(bytes_to_binary(encrypted).c_str(), bytes_to_binary(ciphertext).c_str());
 
         // decrypt
-        auto decrypted = DES(key).decrypt(ciphertext.begin());
+        auto decrypted = vector<uint8_t>(ciphertext.size());
+        DES(key).decrypt(ciphertext.begin(), decrypted.begin());
         EXPECT_STREQ(bytes_to_binary(decrypted).c_str(), bytes_to_binary(plaintext).c_str());
     }
 }

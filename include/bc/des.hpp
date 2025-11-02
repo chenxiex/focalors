@@ -10,11 +10,11 @@ namespace focalors
 {
 // DES
 // public
-inline DES::DES(const auto &key)
+DES::DES(const auto &key)
 {
     set_key(key);
 }
-inline void DES::set_key(const auto &key)
+void DES::set_key(const auto &key)
 {
     subkeys_ = generate_subkeys(reverse_bitset<64>(key));
 }
@@ -22,17 +22,17 @@ constexpr size_t DES::block_size() const noexcept
 {
     return block_size_;
 }
-template <std::input_iterator InputIt> auto DES::encrypt(InputIt first) const
+template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt> auto DES::encrypt(InputIt first, OutputIt dest) const
 {
     reverse_bitset<64> data(first, first + block_size());
     data = des_encrypt(data, subkeys_);
-    return std::vector<uint8_t>(data);
+    data.to_container<uint8_t>(dest);
 }
-template <std::input_iterator InputIt> auto DES::decrypt(InputIt first) const
+template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt> auto DES::decrypt(InputIt first, OutputIt dest) const
 {
     reverse_bitset<64> data(first, first + block_size());
     data = des_decrypt(data, subkeys_);
-    return std::vector<uint8_t>(data);
+    data.to_container<uint8_t>(dest);
 }
 } // namespace focalors
 #endif // DES_H

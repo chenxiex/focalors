@@ -27,11 +27,13 @@ TEST(BlockCipherModeTest, AESECB)
         auto &ciphertext = i.ciphertext;
         auto ecb = ECB<AES>(key);
         // encrypt
-        auto encrypted = ecb.encrypt(plaintext.begin(), plaintext.end());
+        auto encrypted = vector<uint8_t>(plaintext.size());
+        ecb.encrypt(plaintext.begin(), plaintext.end(), encrypted.begin());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));
 
         // decrypt
-        auto decrypted = ecb.decrypt(ciphertext.begin(), ciphertext.end());
+        auto decrypted = vector<uint8_t>(ciphertext.size());
+        ecb.decrypt(ciphertext.begin(), ciphertext.end(), decrypted.begin());
         EXPECT_EQ(bytes_to_hex(decrypted), bytes_to_hex(plaintext));
     }
 }

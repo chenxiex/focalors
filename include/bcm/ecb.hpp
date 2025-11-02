@@ -10,38 +10,32 @@ template <BlockCipher Cipher> ECB<Cipher>::ECB(Cipher cipher) : cipher(std::move
 {
 }
 template <BlockCipher Cipher>
-std::vector<uint8_t> ECB<Cipher>::encrypt(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last) const
+template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+void ECB<Cipher>::encrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
-    return ecb(first, last, cipher.block_size(), [this](auto first) { return cipher.encrypt(first); });
+    ecb(first, last, dest, cipher.block_size(), [this](auto first, auto dest) { return cipher.encrypt(first, dest); });
 }
 template <BlockCipher Cipher>
-std::vector<uint8_t> ECB<Cipher>::decrypt(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last) const
+template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+void ECB<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
-    return ecb(first, last, cipher.block_size(), [this](auto first) { return cipher.decrypt(first); });
+    ecb(first, last, dest, cipher.block_size(), [this](auto first, auto dest) { return cipher.decrypt(first, dest); });
 }
-
 // private
 template <BlockCipher Cipher>
-template <typename Func>
-std::vector<uint8_t> ECB<Cipher>::ecb(std::vector<uint8_t>::const_iterator first,
-                                      std::vector<uint8_t>::const_iterator last, const size_t block_size,
-                                      Func cipher_func) const
+template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt,
+          typename Func>
+void ECB<Cipher>::ecb(InputIt first, Sentinel last, OutputIt dest, const size_t block_size, Func cipher_func) const
 {
-    using std::vector;
-    if (std::distance(first, last) % block_size != 0)
+    auto length = std::distance(first, last);
+    if (length % block_size != 0)
     {
         throw std::invalid_argument("Input size must be a multiple of block size");
     }
-    auto block_sz = block_size;
-    vector<uint8_t> output(std::distance(first, last));
-    for (auto i = first; i + block_sz <= last; i += block_sz)
+    for (auto i = 0; i + block_size <= length; i += block_size)
     {
-        auto block = cipher_func(i);
-        std::move(block.begin(), block.end(), output.begin() + (i - first));
+        cipher_func(first + i, dest + i);
     }
-    return output;
 }
 } // namespace focalors
 #endif

@@ -36,7 +36,8 @@ void AES::set_key(const auto &key)
     inv_w_ = w_;
     std::for_each(inv_w_.begin() + nb_, inv_w_.end() - nb_, [](focalors::word &i) { AES::inv_mix_column(i); });
 }
-template <std::input_iterator InputIt> inline std::vector<uint8_t> AES::encrypt(InputIt first) const
+template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt>
+auto AES::encrypt(InputIt first, OutputIt dest) const
 {
     auto state = focalors::bytes_to_word(first, first + block_size());
     add_round_key(state, w_, 0);
@@ -45,9 +46,10 @@ template <std::input_iterator InputIt> inline std::vector<uint8_t> AES::encrypt(
         round(state, w_, i);
     }
     final_round(state, w_, nr_);
-    return words_to_bytes(state);
+    words_to_bytes(state, dest);
 }
-template <std::input_iterator InputIt> inline std::vector<uint8_t> AES::decrypt(InputIt first) const
+template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt>
+auto AES::decrypt(InputIt first, OutputIt dest) const
 {
     auto state = focalors::bytes_to_word(first, first + block_size());
     add_round_key(state, inv_w_, nr_);
@@ -56,7 +58,7 @@ template <std::input_iterator InputIt> inline std::vector<uint8_t> AES::decrypt(
         inv_round(state, inv_w_, i);
     }
     inv_final_round(state, inv_w_, 0);
-    return words_to_bytes(state);
+    words_to_bytes(state, dest);
 }
 } // namespace focalors
 #endif // AES_HPP

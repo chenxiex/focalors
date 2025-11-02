@@ -17,57 +17,51 @@ CBC<Cipher>::CBC(Cipher cipher, std::vector<uint8_t> iv) : iv(std::move(iv)), ci
     }
 };
 template <BlockCipher Cipher>
-std::vector<uint8_t> CBC<Cipher>::encrypt(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last) const
+template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+void CBC<Cipher>::encrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
-    using std::vector;
     auto block_sz = cipher.block_size();
-    if (std::distance(first, last) % block_sz)
+    auto length = std::distance(first, last);
+    if (length % block_sz)
     {
         throw std::invalid_argument("Input size must be a multiple of block size");
     }
-    vector<uint8_t> output(std::distance(first, last));
-    for (auto i = first; i + block_sz <= last; i += block_sz)
+    for (auto i = 0; i + block_sz <= length; i += block_sz)
     {
-        auto output_it = output.begin() + (i - first);
-        if (i == first)
+        if (i == 0)
         {
-            std::transform(i, i + block_sz, iv.begin(), output_it, std::bit_xor<uint8_t>());
+            std::transform(first, first + block_sz, iv.begin(), dest, std::bit_xor<uint8_t>());
         }
         else
         {
-            std::transform(i, i + block_sz, output_it - block_sz, output_it, std::bit_xor<uint8_t>());
+            std::transform(first + i, first + i + block_sz, dest + i - block_sz, dest + i, std::bit_xor<uint8_t>());
         }
-        auto block = cipher.encrypt(output_it);
-        std::move(block.begin(), block.end(), output_it);
+        cipher.encrypt(dest + i, dest + i);
     }
-    return output;
 }
 template <BlockCipher Cipher>
-std::vector<uint8_t> CBC<Cipher>::decrypt(std::vector<uint8_t>::const_iterator first,
-                                          std::vector<uint8_t>::const_iterator last) const
+template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+void CBC<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
     using std::vector;
     auto block_sz = cipher.block_size();
-    if (std::distance(first, last) % block_sz)
+    auto length = std::distance(first, last);
+    if (length % block_sz)
     {
         throw std::invalid_argument("Input size must be a multiple of block size");
     }
-    vector<uint8_t> output(std::distance(first, last));
-    for (auto i = first; i + block_sz <= last; i += block_sz)
+    for (auto i = 0; i + block_sz <= length; i += block_sz)
     {
-        auto block = cipher.decrypt(i);
-        auto output_it = output.begin() + (i - first);
-        if (i == first)
+        cipher.decrypt(first + i, dest + i);
+        if (i == 0)
         {
-            std::transform(block.begin(), block.end(), iv.begin(), output_it, std::bit_xor<uint8_t>());
+            std::transform(dest, dest + block_sz, iv.begin(), dest, std::bit_xor<uint8_t>());
         }
         else
         {
-            std::transform(block.begin(), block.end(), i - block_sz, output_it, std::bit_xor<uint8_t>());
+            std::transform(dest + i, dest + i + block_sz, first + i - block_sz, dest + i, std::bit_xor<uint8_t>());
         }
     }
-    return output;
 }
 }; // namespace focalors
 #endif

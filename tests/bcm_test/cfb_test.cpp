@@ -31,11 +31,13 @@ TEST(BlockCipherModeTest, AESCFB)
         auto &iv = i.iv;
         auto cfb = CFB<AES>(key, iv);
         // encrypt
-        auto encrypted = cfb.encrypt(plaintext.begin(), plaintext.end());
+        auto encrypted = vector<uint8_t>(plaintext.size());
+        cfb.encrypt(plaintext.begin(), plaintext.end(), encrypted.begin());
         EXPECT_EQ(bytes_to_hex(encrypted), bytes_to_hex(ciphertext));
 
         // decrypt
-        auto decrypted = cfb.decrypt(ciphertext.begin(), ciphertext.end());
+        auto decrypted = vector<uint8_t>(ciphertext.size());
+        cfb.decrypt(ciphertext.begin(), ciphertext.end(), decrypted.begin());
         EXPECT_EQ(bytes_to_hex(decrypted), bytes_to_hex(plaintext));
     }
 }

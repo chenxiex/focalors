@@ -1,6 +1,7 @@
 #pragma once
 #ifndef FOCALORS_HPP
 #define FOCALORS_HPP
+#include "./concepts.hpp"
 #include "./reverse_bitset.hpp"
 #include "./word.hpp"
 #include <array>
@@ -12,32 +13,6 @@
 
 namespace focalors
 {
-// Cipher
-template <typename T>
-concept Cipher = requires(T c, std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last)
-{
-    {
-        c.encrypt(first, last)
-        } -> std::same_as<std::vector<uint8_t>>;
-    {
-        c.decrypt(first, last)
-        } -> std::same_as<std::vector<uint8_t>>;
-};
-// Block cipher
-template <typename T>
-concept BlockCipher = requires(T c, std::vector<uint8_t>::const_iterator first)
-{
-    {
-        c.block_size()
-        } -> std::convertible_to<size_t>;
-    {
-        c.encrypt(first)
-        } -> std::same_as<std::vector<uint8_t>>;
-    {
-        c.decrypt(first)
-        } -> std::same_as<std::vector<uint8_t>>;
-};
-
 // DES
 class DES
 {
@@ -62,13 +37,15 @@ class DES
      * @param first 输入数据的起始迭代器。
      * @return 加密后的数据。
      */
-    template <std::input_iterator InputIt> auto encrypt(InputIt first) const;
+    template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt>
+    auto encrypt(InputIt first, OutputIt dest) const;
     /*
      * @brief DES解密。
      * @param first 输入数据的起始迭代器。
      * @return 解密后的数据。
      */
-    template <std::input_iterator InputIt> auto decrypt(InputIt first) const;
+    template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt>
+    auto decrypt(InputIt first, OutputIt dest) const;
 
   private:
     std::array<reverse_bitset<48>, 16> subkeys_;
@@ -179,13 +156,15 @@ class AES
      * @param first 输入数据的起始迭代器。
      * @return 加密后的数据。
      */
-    template <std::input_iterator InputIt> std::vector<uint8_t> encrypt(InputIt first) const;
+    template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt>
+    auto encrypt(InputIt first, OutputIt dest) const;
     /*
      * @brief AES解密。
      * @param first 输入数据的起始迭代器。
      * @return 解密后的数据。
      */
-    template <std::input_iterator InputIt> std::vector<uint8_t> decrypt(InputIt first) const;
+    template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt>
+    auto decrypt(InputIt first, OutputIt dest) const;
 
   private:
     std::vector<focalors::word> w_, inv_w_;
@@ -275,22 +254,22 @@ template <BlockCipher Cipher> class ECB
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      */
-    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const;
+    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+    void encrypt(InputIt first, Sentinel last, OutputIt dest) const;
     /*
      * @brief ECB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      */
-    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const;
+    template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+    void decrypt(InputIt first, Sentinel last, OutputIt dest) const;
 
   private:
     const Cipher cipher;
 
-    template <typename Func>
-    std::vector<uint8_t> ecb(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                             const size_t block_size, Func cipher_func) const;
+    template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt,
+              typename Func>
+    void ecb(InputIt first, Sentinel last, OutputIt dest, const size_t block_size, Func cipher_func) const;
 };
 
 // CBC
@@ -309,16 +288,16 @@ template <BlockCipher Cipher> class CBC
      * @param last 输入数据的结束迭代器。
      * @return 加密后的数据。
      */
-    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const;
+    template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+    void encrypt(InputIt first, Sentinel last, OutputIt dest) const;
     /*
      * @brief CBC模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      * @return 解密后的数据。
      */
-    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const;
+    template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+    void decrypt(InputIt first, Sentinel last, OutputIt dest) const;
 
   private:
     const Cipher cipher;
@@ -341,16 +320,16 @@ template <BlockCipher Cipher> class OFB
      * @param last 输入数据的结束迭代器。
      * @return 加密后的数据。
      */
-    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const;
+    template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+    auto encrypt(InputIt first, Sentinel last, OutputIt dest) const;
     /*
      * @brief OFB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      * @return 解密后的数据。
      */
-    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const;
+    template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+    auto decrypt(InputIt first, Sentinel last, OutputIt dest) const;
 
   private:
     const Cipher cipher;
@@ -373,24 +352,25 @@ template <BlockCipher Cipher> class CFB
      * @param last 输入数据的结束迭代器。
      * @return 加密后的数据。
      */
-    std::vector<uint8_t> encrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const;
+    template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+    auto encrypt(InputIt first, Sentinel last, OutputIt dest) const;
     /*
      * @brief CFB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
      * @return 解密后的数据。
      */
-    std::vector<uint8_t> decrypt(std::vector<uint8_t>::const_iterator first,
-                                 std::vector<uint8_t>::const_iterator last) const;
+    template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
+    auto decrypt(InputIt first, Sentinel last, OutputIt dest) const;
 
   private:
     const Cipher cipher;
     const std::vector<uint8_t> iv;
 
-    template <bool encrypt>
-    std::vector<uint8_t> process(std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last,
-                                 const std::vector<uint8_t> &iv, const Cipher &cipher) const;
+    template <bool encrypt, ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel,
+              std::output_iterator<uint8_t> OutputIt>
+    auto process(InputIt first, Sentinel last, OutputIt dest, const std::vector<uint8_t> &iv,
+                 const Cipher &cipher) const;
 };
 
 // ZUC
