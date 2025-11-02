@@ -18,7 +18,7 @@ CBC<Cipher>::CBC(Cipher cipher, std::vector<uint8_t> iv) : iv(std::move(iv)), ci
 };
 template <BlockCipher Cipher>
 template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
-void CBC<Cipher>::encrypt(InputIt first, Sentinel last, OutputIt dest) const
+auto CBC<Cipher>::encrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
     auto block_sz = cipher.block_size();
     auto length = std::distance(first, last);
@@ -41,7 +41,7 @@ void CBC<Cipher>::encrypt(InputIt first, Sentinel last, OutputIt dest) const
 }
 template <BlockCipher Cipher>
 template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
-void CBC<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
+auto CBC<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
     using std::vector;
     auto block_sz = cipher.block_size();

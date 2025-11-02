@@ -11,13 +11,13 @@ template <BlockCipher Cipher> ECB<Cipher>::ECB(Cipher cipher) : cipher(std::move
 }
 template <BlockCipher Cipher>
 template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
-void ECB<Cipher>::encrypt(InputIt first, Sentinel last, OutputIt dest) const
+auto ECB<Cipher>::encrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
     ecb(first, last, dest, cipher.block_size(), [this](auto first, auto dest) { return cipher.encrypt(first, dest); });
 }
 template <BlockCipher Cipher>
 template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
-void ECB<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
+auto ECB<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
     ecb(first, last, dest, cipher.block_size(), [this](auto first, auto dest) { return cipher.decrypt(first, dest); });
 }
@@ -25,7 +25,7 @@ void ECB<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
 template <BlockCipher Cipher>
 template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt,
           typename Func>
-void ECB<Cipher>::ecb(InputIt first, Sentinel last, OutputIt dest, const size_t block_size, Func cipher_func) const
+auto ECB<Cipher>::ecb(InputIt first, Sentinel last, OutputIt dest, const size_t block_size, Func cipher_func) const
 {
     auto length = std::distance(first, last);
     if (length % block_size != 0)

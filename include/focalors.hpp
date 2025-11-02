@@ -13,6 +13,7 @@
 
 namespace focalors
 {
+// Block cipher
 // DES
 class DES
 {
@@ -35,14 +36,14 @@ class DES
     /*
      * @brief DES加密。
      * @param first 输入数据的起始迭代器。
-     * @return 加密后的数据。
+     * @param dest 输出数据的迭代器。
      */
     template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt>
     auto encrypt(InputIt first, OutputIt dest) const;
     /*
      * @brief DES解密。
      * @param first 输入数据的起始迭代器。
-     * @return 解密后的数据。
+     * @param dest 输出数据的迭代器。
      */
     template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt>
     auto decrypt(InputIt first, OutputIt dest) const;
@@ -154,14 +155,14 @@ class AES
     /*
      * @brief AES加密。
      * @param first 输入数据的起始迭代器。
-     * @return 加密后的数据。
+     * @param dest 输出数据的迭代器。
      */
     template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt>
     auto encrypt(InputIt first, OutputIt dest) const;
     /*
      * @brief AES解密。
      * @param first 输入数据的起始迭代器。
-     * @return 解密后的数据。
+     * @param dest 输出数据的迭代器。
      */
     template <std::input_iterator InputIt, std::output_iterator<uint8_t> OutputIt>
     auto decrypt(InputIt first, OutputIt dest) const;
@@ -253,23 +254,25 @@ template <BlockCipher Cipher> class ECB
      * @brief ECB模式加密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
+     * @param dest 输出数据的迭代器。
      */
     template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
-    void encrypt(InputIt first, Sentinel last, OutputIt dest) const;
+    auto encrypt(InputIt first, Sentinel last, OutputIt dest) const;
     /*
      * @brief ECB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
+     * @param dest 输出数据的迭代器。
      */
     template <std::input_iterator InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
-    void decrypt(InputIt first, Sentinel last, OutputIt dest) const;
+    auto decrypt(InputIt first, Sentinel last, OutputIt dest) const;
 
   private:
     const Cipher cipher;
 
     template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt,
               typename Func>
-    void ecb(InputIt first, Sentinel last, OutputIt dest, const size_t block_size, Func cipher_func) const;
+    auto ecb(InputIt first, Sentinel last, OutputIt dest, const size_t block_size, Func cipher_func) const;
 };
 
 // CBC
@@ -286,18 +289,18 @@ template <BlockCipher Cipher> class CBC
      * @brief CBC模式加密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
-     * @return 加密后的数据。
+     * @param dest 输出数据的迭代器。
      */
     template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
-    void encrypt(InputIt first, Sentinel last, OutputIt dest) const;
+    auto encrypt(InputIt first, Sentinel last, OutputIt dest) const;
     /*
      * @brief CBC模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
-     * @return 解密后的数据。
+     * @param dest 输出数据的迭代器。
      */
     template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
-    void decrypt(InputIt first, Sentinel last, OutputIt dest) const;
+    auto decrypt(InputIt first, Sentinel last, OutputIt dest) const;
 
   private:
     const Cipher cipher;
@@ -318,7 +321,7 @@ template <BlockCipher Cipher> class OFB
      * @brief OFB模式加密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
-     * @return 加密后的数据。
+     * @param dest 输出数据的迭代器。
      */
     template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
     auto encrypt(InputIt first, Sentinel last, OutputIt dest) const;
@@ -326,7 +329,7 @@ template <BlockCipher Cipher> class OFB
      * @brief OFB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
-     * @return 解密后的数据。
+     * @param dest 输出数据的迭代器。
      */
     template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
     auto decrypt(InputIt first, Sentinel last, OutputIt dest) const;
@@ -350,7 +353,7 @@ template <BlockCipher Cipher> class CFB
      * @brief CFB模式加密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
-     * @return 加密后的数据。
+     * @param dest 输出数据的迭代器。
      */
     template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
     auto encrypt(InputIt first, Sentinel last, OutputIt dest) const;
@@ -358,7 +361,7 @@ template <BlockCipher Cipher> class CFB
      * @brief CFB模式解密。
      * @param first 输入数据的起始迭代器。
      * @param last 输入数据的结束迭代器。
-     * @return 解密后的数据。
+     * @param dest 输出数据的迭代器。
      */
     template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
     auto decrypt(InputIt first, Sentinel last, OutputIt dest) const;
