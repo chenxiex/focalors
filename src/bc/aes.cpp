@@ -7,9 +7,6 @@
 #include <vector>
 using focalors::word;
 using std::vector;
-
-namespace focalors
-{
 constexpr focalors::word rotl(const focalors::word w, int s) noexcept
 {
     return (w << s) | (w >> (w.size() - s));
@@ -35,6 +32,8 @@ constexpr uint8_t gf_mul(uint8_t a, uint8_t b) noexcept
     }
     return result;
 }
+namespace focalors
+{
 // AES
 // private
 constexpr uint8_t AES::sbox(uint8_t b) noexcept
