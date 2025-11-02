@@ -3,10 +3,6 @@ include(GoogleTest)
 
 include_directories("include")
 
-add_executable("des_test" "bc_test/des_test.cpp")
-target_link_libraries("des_test" GTest::gtest_main "focalors")
-gtest_discover_tests("des_test")
-
 set(TEST_SRCS
     "bc_test/des_test.cpp"
     "bc_test/aes_test.cpp"
@@ -14,6 +10,7 @@ set(TEST_SRCS
     "bcm_test/cbc_test.cpp"
     "bcm_test/ofb_test.cpp"
     "bcm_test/cfb_test.cpp"
+    "sc_test/zuc_test.cpp"
 )
 
 add_executable("test_exec" "${TEST_SRCS}")

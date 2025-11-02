@@ -43,15 +43,16 @@ template <BlockCipher Cipher>
 template <ByteInputIt InputIt, std::sentinel_for<InputIt> Sentinel, std::output_iterator<uint8_t> OutputIt>
 auto CBC<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
 {
-    using std::vector;
     auto block_sz = cipher.block_size();
     auto length = std::distance(first, last);
     if (length % block_sz)
     {
         throw std::invalid_argument("Input size must be a multiple of block size");
     }
+    auto prev_block = std::vector<uint8_t>();
     for (auto i = 0; i + block_sz <= length; i += block_sz)
     {
+        auto cur_block = std::vector<uint8_t>(first + i, first + i + block_sz);
         cipher.decrypt(first + i, dest + i);
         if (i == 0)
         {
@@ -59,8 +60,9 @@ auto CBC<Cipher>::decrypt(InputIt first, Sentinel last, OutputIt dest) const
         }
         else
         {
-            std::transform(dest + i, dest + i + block_sz, first + i - block_sz, dest + i, std::bit_xor<uint8_t>());
+            std::transform(dest + i, dest + i + block_sz, prev_block.begin(), dest + i, std::bit_xor<uint8_t>());
         }
+        prev_block = std::move(cur_block);
     }
 }
 }; // namespace focalors
