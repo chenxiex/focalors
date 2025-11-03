@@ -485,12 +485,12 @@ class ZUC_128_EEA3 : public ZUC
     static std::vector<uint8_t> generate_iv(const uint32_t count, const uint8_t bearer, const bool direction);
 };
 
-// RSA
+// RSA(Todo)
 void rsa_generate_key(std::string &e, std::string &d, std::string &n, const int &base);
 std::string rsa_encrypt(const std::string &m, const std::string &e, const std::string &n, const int &base);
 std::string rsa_decrypt(const std::string &c, const std::string &d, const std::string &n, const int &base);
 
-// ElGamal
+// ElGamal(Todo)
 void elgamal_generate_key(std::string &p, std::string &a, std::string &d, std::string &y, const int &base);
 void elgamal_encrypt(std::string &c1, std::string &c2, const std::string &m, const std::string &p, const std::string &a,
                      const std::string &y, const int &base);
